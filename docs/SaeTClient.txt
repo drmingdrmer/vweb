@@ -1,0 +1,1050 @@
+Class SaeTClient
+
+Description
+Description | Descendents | Methods (details)
+
+新浪微博操作类
+
+使用前需要先手工调用saet.ex.class.php
+Demo程序：http://apidoc.sinaapp.com/demo/saetdemo.zip
+Demo使用说明：
+
+  • 下载,然后解压,修改config.php中的key
+  • 打开index.php,将13行最后一个url改成你网站对应的callback.php的url
+  • 上传到SAE平台即可
+
+  • author: Easy Chen, Elmer Zhang
+  • version: 1.0
+
+Located in /saet.ex.class.php (line 934)
+
+Direct descendents
+Description | Descendents | Methods (details)
+
+   Class                                Description
+SaeTAdvance 新浪微博高级操作类继承于新浪微博操作类，添加一些仅面向合作开发者的
+            接口的封装。使用此类前，请确认您的微博应用为合作开发者应用。
+
+Method Summary
+Description | Descendents | Methods (details)
+void __construct (mixed $akey, mixed $skey, mixed $accecss_token,
+mixed $accecss_token_secret)
+array add_tags (mixed $tags)
+array add_to_blocks ([int64 $user_id = NULL], [string $screen_name = NULL])
+array add_to_favorites (int64 $sid)
+array comments_by_me ([int $page = 1], [int $count = 20], [int64 $since_id =
+NULL], [int64 $max_id = NULL])
+array comments_timeline ([int $page = 1], [int $count = 20], [int64 $since_id =
+NULL], [int64 $max_id = NULL])
+array comments_to_me ([int $page = 1], [int $count = 20], [int64 $since_id =
+NULL], [int64 $max_id = NULL])
+array comment_destroy (int64 $cid)
+array comment_destroy_batch (mixed $cids)
+array daily_trends ([int $base_app = 1])
+array delete (int64 $sid)
+array delete_dm (int64 $did)
+array delete_dms (mixed $dids)
+array delete_tag (int $tag_id)
+array delete_tags (mixed $ids)
+array destroy (int64 $sid)
+array emotions ([string $type = "face"], [string $language = "cnname"])
+array end_session ()
+array follow (mixed $uid_or_name)
+array followers ([int $cursor = NULL], [int $count = NULL], [mixed $uid_or_name
+= NULL])
+array followers_ids ([int $cursor = NULL], [int $count = 500],
+[mixed $uid_or_name = NULL])
+array follow_trends (string $trend_name)
+array friends ([int $cursor = NULL], [int $count = 20], [mixed $uid_or_name =
+NULL])
+array friends_ids ([int $cursor = NULL], [int $count = 500],
+[mixed $uid_or_name = NULL])
+array friends_timeline ([int $page = 1], [int $count = 20], [int64 $since_id =
+NULL], [int64 $max_id = NULL])
+array get_blocks ([int $page = 1], [int $count = 20])
+array get_block_ids ([int $page = 1], [int $count = 20])
+array get_comments_by_sid (mixed $sid, [int $page = 1], [int $count = 20])
+array get_count_info_by_ids (mixed $sids)
+array get_favorites ([int $page = NULL])
+array get_privacy ()
+array get_status_url (int64 $sid, [int64 $uid = NULL])
+array get_suggest_tags ([int $page = 1], [int $count = 10])
+array get_tags ([int64 $user_id = NULL], [int $page = 1], [int $count = 20])
+array get_trends ([int64 $user_id = NULL], [int $page = 1], [int $count = 20])
+array home_timeline ([int $page = 1], [int $count = 20], [int64 $since_id =
+NULL], [int64 $max_id = NULL])
+array hot_users ([string $category = "default"])
+array hourly_trends ([int $base_app = 1])
+void id_format ( &$id)
+array in_blocks ([int64 $user_id = NULL], [string $screen_name = NULL])
+array is_followed (mixed $target, [mixed $source = NULL])
+array list_dm ([int $page = 1], [int $count = 20], [int64 $since_id = NULL],
+[int64 $max_id = NULL])
+array list_dm_sent ([int $page = 1], [int $count = 20], [int64 $since_id =
+NULL], [int64 $max_id = NULL])
+array mentions ([int $page = 1], [int $count = 20], [int64 $since_id = NULL],
+[int64 $max_id = NULL])
+array provinces ()
+array public_timeline ([int $count = 20])
+array rate_limit_status ()
+array remove_from_blocks ([int64 $user_id = NULL], [string $screen_name =
+NULL])
+array remove_from_favorites (int64 $id)
+array remove_from_favorites_batch (mixed $fids)
+array reply (int64 $sid, string $text, int64 $cid)
+array repost (int64 $sid, [string $text = NULL], [int $is_comment = 0])
+array repost_by_me (int64 $uid, [int $page = 1], [int $count = 20],
+[int64 $since_id = NULL], [int64 $max_id = NULL])
+array repost_timeline (int64 $sid, [int $page = 1], [int $count = 20],
+[int64 $since_id = NULL], [int64 $max_id = NULL])
+array reset_count (int $type)
+array send_comment (int64 $sid, string $text, [int64 $cid = NULL])
+array send_dm (mixed $uid_or_name, string $text)
+array show_status (int64 $sid)
+array show_user (mixed $uid_or_name)
+array trends_timeline (string $trend_name)
+array unfollow (mixed $uid_or_name)
+array unfollow_trends (int64 $tid)
+array unread ([int $with_new_status = 0], [int64 $since_id = NULL])
+array update (string $status, [int64 $reply_id = NULL], [float $lat = NULL],
+[float $long = NULL], [mixed $annotations = NULL])
+array update_privacy (array $privacy_settings)
+array update_profile (array $profile)
+array update_profile_image (string $image_path)
+array update_remark (int64 $uid, string $remark)
+array upload (string $status, string $pic_path, [float $lat = NULL],
+[float $long = NULL])
+array user_timeline ([int $page = 1], [int $count = 20], [mixed $uid_or_name =
+NULL], [int64 $since_id = NULL], [int64 $max_id = NULL])
+array verify_credentials ()
+array weekly_trends ([int $base_app = 1])
+Methods
+Description | Descendents | Methods (details)
+Constructor __construct (line 946)
+
+构造函数
+
+  • access: public
+
+void __construct (mixed $akey, mixed $skey, mixed $accecss_token,
+mixed $accecss_token_secret)
+
+  • mixed $akey: 微博开放平台应用APP KEY
+  • mixed $skey: 微博开放平台应用APP SECRET
+  • mixed $accecss_token: OAuth认证返回的token
+  • mixed $accecss_token_secret: OAuth认证返回的token secret
+
+add_tags (line 2110)
+
+添加用户标签
+
+  • access: public
+
+array add_tags (mixed $tags)
+
+  • mixed $tags: 标签。多个标签之间用逗号间隔。或由多个标签构成的数组。如：
+    "abc,drf,efgh,tt"或array("abc","drf","efgh","tt")
+
+add_to_blocks (line 2006)
+
+将用户加入黑名单
+
+  • access: public
+
+array add_to_blocks ([int64 $user_id = NULL], [string $screen_name = NULL])
+
+  • int64 $user_id: 要加入黑名单的用户ID。可选。$user_id和$screen_name至少填一
+    个。
+  • string $screen_name: 要加入黑名单的用户微博昵称，可选。$user_id和
+    $screen_name至少填一个。
+
+add_to_favorites (line 1812)
+
+收藏一条微博信息
+
+  • access: public
+
+array add_to_favorites (int64 $sid)
+
+  • int64 $sid: 收藏的微博id
+
+comments_by_me (line 1720)
+
+获取当前用户发出的评论
+
+  • access: public
+
+array comments_by_me ([int $page = 1], [int $count = 20], [int64 $since_id =
+NULL], [int64 $max_id = NULL])
+
+  • int $page: 页码
+  • int $count: 每次返回的最大记录数，最多返回200条，默认20。
+  • int64 $since_id: 若指定此参数，则只返回ID比since_id大的评论（比since_id发表
+    时间晚）。可选。
+  • int64 $max_id: 若指定此参数，则返回ID小于或等于max_id的评论。可选。
+
+comments_timeline (line 1746)
+
+最新评论(按时间) 返回最新n条发送及收到的评论。
+
+  • access: public
+
+array comments_timeline ([int $page = 1], [int $count = 20], [int64 $since_id =
+NULL], [int64 $max_id = NULL])
+
+  • int $page: 页码
+  • int $count: 每次返回的最大记录数，最多返回200条，默认20。
+  • int64 $since_id: 若指定此参数，则只返回ID比since_id大的评论（比since_id发表
+    时间晚）。可选。
+  • int64 $max_id: 若指定此参数，则返回ID小于或等于max_id的评论。可选。
+
+comments_to_me (line 1694)
+
+获取当前用户收到的评论
+
+  • access: public
+
+array comments_to_me ([int $page = 1], [int $count = 20], [int64 $since_id =
+NULL], [int64 $max_id = NULL])
+
+  • int $page: 页码
+  • int $count: 每次返回的最大记录数，最多返回200条，默认20。
+  • int64 $since_id: 若指定此参数，则只返回ID比since_id大的评论（比since_id发表
+    时间晚）。可选。
+  • int64 $max_id: 若指定此参数，则返回ID小于或等于max_id的评论。可选。
+
+comment_destroy (line 1678)
+
+删除当前用户的微博评论信息。注意：只能删除自己发布的评论，发部微博的用户不可以
+删除其他人的评论。
+
+  • access: public
+
+array comment_destroy (int64 $cid)
+
+  • int64 $cid: 要删除的评论id
+
+comment_destroy_batch (line 1593)
+
+批量删除当前用户的微博评论信息批量删除评论。注意：只能删除登录用户自己发布的评
+论，不可以删除其他人的评论。
+
+  • access: public
+
+array comment_destroy_batch (mixed $cids)
+
+  • mixed $cids: 欲删除的一组评论ID，用半角逗号隔开，或者由一组评论ID组成的数组
+    。最多20个。例如："4976494627,4976262053"或array(4976494627,4976262053);
+
+daily_trends (line 2260)
+
+返回最近一天内的热门话题
+
+  • access: public
+
+array daily_trends ([int $base_app = 1])
+
+  • int $base_app: 是否基于当前应用来获取数据。1表示基于当前应用来获取数据，默
+    认为1。可选。
+
+delete (line 1121)
+
+删除一条微博删除微博。注意：只能删除自己发布的信息。
+
+  • access: public
+
+array delete (int64 $sid)
+
+  • int64 $sid: 要删除的微博ID
+
+delete_dm (line 1450)
+
+删除一条私信按ID删除私信。操作用户必须为私信的接收人。
+
+  • access: public
+
+array delete_dm (int64 $did)
+
+  • int64 $did: 要删除的私信主键ID
+
+delete_dms (line 1464)
+
+批量删除私信批量删除当前登录用户的私信。出现异常时，返回HTTP400错误。
+
+  • access: public
+
+array delete_dms (mixed $dids)
+
+  • mixed $dids: 欲删除的一组私信ID，用半角逗号隔开，或者由一组评论ID组成的数组
+    。最多20个。例如："4976494627,4976262053"或array(4976494627,4976262053);
+
+delete_tag (line 2141)
+
+删除标签
+
+  • access: public
+
+array delete_tag (int $tag_id)
+
+  • int $tag_id: 标签ID，必填参数
+
+delete_tags (line 2155)
+
+批量删除标签
+
+  • access: public
+
+array delete_tags (mixed $ids)
+
+  • mixed $ids: 必选参数，要删除的tag id，多个id用半角逗号分割，最多20个。或由
+    多个tag id构成的数组。如：“553,554,555"或array(553,554,555)
+
+destroy (line 1135)
+
+删除一条微博删除微博。注意：只能删除自己发布的信息。
+
+  • access: public
+
+array destroy (int64 $sid)
+
+  • int64 $sid: 要删除的微博ID
+
+emotions (line 1293)
+
+获取表情列表返回新浪微博官方所有表情、魔法表情的相关信息。包括短语、表情类型、
+表情分类，是否热门等。
+
+  • access: public
+
+array emotions ([string $type = "face"], [string $language = "cnname"])
+
+  • string $type: 表情类别。"face":普通表情，"ani"：魔法表情，"cartoon"：动漫表
+    情。默认为"face"。可选。
+  • string $language: 语言类别，"cnname"简体，"twname"繁体。默认为"cnname"。可
+    选
+
+end_session (line 1888)
+
+当前用户退出登录清除已验证用户的session，退出登录，并将cookie设为NULL。主要用于
+widget等web应用场合。
+
+  • access: public
+
+array end_session ()
+follow (line 1192)
+
+关注一个用户关注一个用户。成功则返回关注人的资料，目前的最多关注2000人，失败则
+返回一条字符串的说明。如果已经关注了此人，则返回http 403的状态。关注不存在的ID
+将返回400。
+
+  • access: public
+
+array follow (mixed $uid_or_name)
+
+  • mixed $uid_or_name: 要关注的用户UID或微博昵称
+
+followers (line 1179)
+
+获取用户粉丝列表及及每个粉丝用户最新一条微博返回用户的粉丝列表，并返回粉丝的最
+新微博。按粉丝的关注时间倒序返回，每次返回100个。注意目前接口最多只返回5000个粉
+丝。
+
+  • access: public
+
+array followers ([int $cursor = NULL], [int $count = NULL], [mixed $uid_or_name
+= NULL])
+
+  • int $cursor: 单页只能包含100个粉丝列表，为了获取更多则cursor默认从-1开始，
+    通过增加或减少cursor来获取更多的，如果没有下一页，则next_cursor返回0。可选
+    。
+  • int $count: 每次返回的最大记录数（即页面大小），不大于200,默认返回20。可选
+    。
+  • mixed $uid_or_name: 要获取粉丝的 UID或微博昵称。不提供时默认返回当前用户的
+    关注列表。可选。
+
+followers_ids (line 1993)
+
+返回用户粉丝uid列表如果没有提供cursor参数，将只返回最前面的5000个粉丝id
+
+  • access: public
+
+array followers_ids ([int $cursor = NULL], [int $count = 500],
+[mixed $uid_or_name = NULL])
+
+  • int $cursor: 单页只能包含5000个id，为了获取更多则cursor默认从-1开始，通过增
+    加或减少cursor来获取更多的粉丝列表
+  • int $count: 每次返回的最大记录数（即页面大小），不大于5000,默认返回500。
+  • mixed $uid_or_name: 要获取的 UID或微博昵称
+
+follow_trends (line 2213)
+
+关注某话题
+
+  • access: public
+
+array follow_trends (string $trend_name)
+
+  • string $trend_name: 要关注的话题关键词。
+
+friends (line 1164)
+
+获取用户关注对象列表及最新一条微博信息获取用户关注列表及每个关注用户最新一条微
+博，返回结果按关注时间倒序排列，最新关注的用户在最前面。
+
+  • access: public
+
+array friends ([int $cursor = NULL], [int $count = 20], [mixed $uid_or_name =
+NULL])
+
+  • int $cursor: 单页只能包含100个关注列表，为了获取更多则cursor默认从-1开始，
+    通过增加或减少cursor来获取更多的关注列表。可选。
+  • int $count: 每次返回的最大记录数（即页面大小），不大于200,默认返回20。可选
+    。
+  • mixed $uid_or_name: 用户UID或微博昵称。不提供时默认返回当前用户的关注列表。
+    可选。
+
+friends_ids (line 1978)
+
+返回用户关注对象uid列表如果没有提供cursor参数，将只返回最前面的5000个关注id
+
+  • access: public
+
+array friends_ids ([int $cursor = NULL], [int $count = 500],
+[mixed $uid_or_name = NULL])
+
+  • int $cursor: 单页只能包含5000个id，为了获取更多则cursor默认从-1开始，通过增
+    加或减少cursor来获取更多的关注列表
+  • int $count: 每次返回的最大记录数（即页面大小），不大于5000,默认返回500。
+  • mixed $uid_or_name: 要获取的 UID或微博昵称
+
+friends_timeline (line 977)
+
+获取当前登录用户及其所关注用户的最新微博消息。获取当前登录用户及其所关注用户的
+最新微博消息。和用户登录 http://t.sina.com.cn 后在“我的首页”中看到的内容相同。
+同home_timeline()
+
+  • access: public
+
+array friends_timeline ([int $page = 1], [int $count = 20], [int64 $since_id =
+NULL], [int64 $max_id = NULL])
+
+  • int $page: 指定返回结果的页码。根据当前登录用户所关注的用户数及这些被关注用
+    户发表的微博数，翻页功能最多能查看的总记录数会有所不同，通常最多能查看1000
+    条左右。默认值1。可选。
+  • int $count: 每次返回的记录数。缺省值20，最大值200。可选。
+  • int64 $since_id: 若指定此参数，则只返回ID比since_id大的微博消息（即比
+    since_id发表时间晚的微博消息）。可选。
+  • int64 $max_id: 若指定此参数，则返回ID小于或等于max_id的微博消息。可选。
+
+get_blocks (line 2063)
+
+列出黑名单用户(输出用户详细信息)。
+
+  • access: public
+
+array get_blocks ([int $page = 1], [int $count = 20])
+
+  • int $page: 指定返回结果的页码。可选。
+  • int $count: 单页大小。缺省值20，最大值200。可选。
+
+get_block_ids (line 2076)
+
+列出黑名单用户(只输出id)。
+
+  • access: public
+
+array get_block_ids ([int $page = 1], [int $count = 20])
+
+  • int $page: 指定返回结果的页码。可选。
+  • int $count: 单页大小。缺省值20，最大值200。可选。
+
+get_comments_by_sid (line 1770)
+
+单条微博的评论列表
+
+  • access: public
+
+array get_comments_by_sid (mixed $sid, [int $page = 1], [int $count = 20])
+
+  • mixed $sid: 指定的微博ID
+  • int $page: 页码
+  • int $count: 每次返回的最大记录数，最多返回200条，默认20。
+
+get_count_info_by_ids (line 1790)
+
+批量获取一组微博的评论数及转发数批量统计微博的评论数，转发数，一次请求最多获取
+100个。
+
+  • access: public
+
+array get_count_info_by_ids (mixed $sids)
+
+  • mixed $sids: 微博ID号列表，用逗号隔开。或使用数据传递一组微博ID。如：
+    "32817222,32817223"或array(32817222, 32817223)
+
+get_favorites (line 1662)
+
+获取当前用户的收藏列表返回用户的发布的最近20条收藏信息，和用户收藏页面返回内容
+是一致的。
+
+  • access: public
+
+array get_favorites ([int $page = NULL])
+
+  • int $page: 返回结果的页序号。可选。
+
+get_privacy (line 1918)
+
+获取隐私信息设置情况
+
+  • access: public
+
+array get_privacy ()
+get_status_url (line 1219)
+
+根据微博ID和用户ID返回到单条微博页面地址返回单条微博的Web地址。可以通过此url跳
+转到微博对应的Web网页。
+
+  • access: public
+
+array get_status_url (int64 $sid, [int64 $uid = NULL])
+
+  • int64 $sid: 微博消息的ID
+  • int64 $uid: 微博消息的发布者ID。可选。
+
+get_suggest_tags (line 2129)
+
+返回用户感兴趣的标签
+
+  • access: public
+
+array get_suggest_tags ([int $page = 1], [int $count = 10])
+
+  • int $page: 指定返回结果的页码。可选。
+  • int $count: 单页大小。缺省值10，最大值200。可选。
+
+get_tags (line 2090)
+
+返回指定用户的标签列表
+
+  • access: public
+
+array get_tags ([int64 $user_id = NULL], [int $page = 1], [int $count = 20])
+
+  • int64 $user_id: 查询用户的ID。默认为当前用户。可选。
+  • int $page: 指定返回结果的页码。可选。
+  • int $count: 单页大小。缺省值20，最大值200。可选。
+
+get_trends (line 2178)
+
+获取某用户的话题
+
+  • access: public
+
+array get_trends ([int64 $user_id = NULL], [int $page = 1], [int $count = 20])
+
+  • int64 $user_id: 查询用户的ID。默认为当前用户。可选。
+  • int $page: 指定返回结果的页码。可选。
+  • int $count: 单页大小。缺省值10。可选。
+
+home_timeline (line 993)
+
+获取当前登录用户及其所关注用户的最新微博消息。获取当前登录用户及其所关注用户的
+最新微博消息。和用户登录 http://t.sina.com.cn 后在“我的首页”中看到的内容相同。
+同friends_timeline()
+
+  • access: public
+
+array home_timeline ([int $page = 1], [int $count = 20], [int64 $since_id =
+NULL], [int64 $max_id = NULL])
+
+  • int $page: 指定返回结果的页码。根据当前登录用户所关注的用户数及这些被关注用
+    户发表的微博数，翻页功能最多能查看的总记录数会有所不同，通常最多能查看1000
+    条左右。默认值1。可选。
+  • int $count: 每次返回的记录数。缺省值20，最大值200。可选。
+  • int64 $since_id: 若指定此参数，则只返回ID比since_id大的微博消息（即比
+    since_id发表时间晚的微博消息）。可选。
+  • int64 $max_id: 若指定此参数，则返回ID小于或等于max_id的微博消息。可选。
+
+hot_users (line 1276)
+
+获取系统推荐用户返回系统推荐的用户列表。
+
+  • access: public
+
+array hot_users ([string $category = "default"])
+
+  • string $category: 分类，可选参数，返回某一类别的推荐用户，默认为 default。
+    如果不在以下分类中，返回空列表：
+      □ default:人气关注
+      □ ent:影视名星
+      □ hk_famous:港台名人
+      □ model:模特
+      □ cooking:美食&健康
+      □ sport:体育名人
+      □ finance:商界名人
+      □ tech:IT互联网
+      □ singer:歌手
+      □ writer：作家
+      □ moderator:主持人
+      □ medium:媒体总编
+      □ stockplayer:炒股高手
+
+hourly_trends (line 2245)
+
+返回最近一小时内的热门话题
+
+  • access: public
+
+array hourly_trends ([int $base_app = 1])
+
+  • int $base_app: 是否基于当前应用来获取数据。1表示基于当前应用来获取数据，默
+    认为1。可选。
+
+id_format (line 2317)
+
+  • access: protected
+
+void id_format ( &$id)
+
+  • &$id
+
+in_blocks (line 2044)
+
+检测是否是黑名单用户
+
+  • access: public
+
+array in_blocks ([int64 $user_id = NULL], [string $screen_name = NULL])
+
+  • int64 $user_id: 要检查的用户ID。可选。$user_id和$screen_name至少填一个。
+  • string $screen_name: 要检查的用户微博昵称，可选。$user_id和$screen_name至少
+    填一个。
+
+is_followed (line 1328)
+
+返回两个用户关系的详细情况如果用户已登录，此接口将自动使用当前用户ID作为
+source_id。但是可强制指定source_id来查询关系如果源用户或目的用户不存在，将返回
+http的400错误
+
+  • access: public
+
+array is_followed (mixed $target, [mixed $source = NULL])
+
+  • mixed $target: 要查询的用户UID或微博昵称
+  • mixed $source: 源用户UID或源微博昵称，可选
+
+list_dm (line 1382)
+
+获取当前用户最新私信列表返回用户的最新n条私信，并包含发送者和接受者的详细资料。
+
+  • access: public
+
+array list_dm ([int $page = 1], [int $count = 20], [int64 $since_id = NULL],
+[int64 $max_id = NULL])
+
+  • int $page: 页码
+  • int $count: 每次返回的最大记录数，最多返回200条，默认20。
+  • int64 $since_id: 返回ID比数值since_id大（比since_id时间晚的）的私信。可选。
+  • int64 $max_id: 返回ID不大于max_id(时间不晚于max_id)的私信。可选。
+
+list_dm_sent (line 1408)
+
+获取当前用户发送的最新私信列表返回登录用户已发送最新20条私信。包括发送者和接受
+者的详细资料。
+
+  • access: public
+
+array list_dm_sent ([int $page = 1], [int $count = 20], [int64 $since_id =
+NULL], [int64 $max_id = NULL])
+
+  • int $page: 页码
+  • int $count: 每次返回的最大记录数，最多返回200条，默认20。
+  • int64 $since_id: 返回ID比数值since_id大（比since_id时间晚的）的私信。可选。
+  • int64 $max_id: 返回ID不大于max_id(时间不晚于max_id)的私信。可选。
+
+mentions (line 1019)
+
+获取@当前用户的微博列表返回最新n条提到登录用户的微博消息（即包含@username的微博
+消息）
+
+  • access: public
+
+array mentions ([int $page = 1], [int $count = 20], [int64 $since_id = NULL],
+[int64 $max_id = NULL])
+
+  • int $page: 返回结果的页序号。
+  • int $count: 每次返回的最大记录数（即页面大小），不大于200，默认为20。
+  • int64 $since_id: 若指定此参数，则只返回ID比since_id大的微博消息（即比
+    since_id发表时间晚的微博消息）。可选。
+  • int64 $max_id: 若指定此参数，则返回ID小于或等于max_id的提到当前登录用户微博
+    消息。可选。
+
+provinces (line 1963)
+
+省份城市编码表获取省份及城市编码ID与文字对应。由于微博接口用户province, city字
+段设置及返回都是ID，API调用方需要显示时转换成对应文字。转换关系如下
+
+  • access: public
+
+array provinces ()
+public_timeline (line 959)
+
+获取最新的公共微博消息返回最新的20条公共微博。返回结果非完全实时，最长会缓存60
+秒
+
+  • access: public
+
+array public_timeline ([int $count = 20])
+
+  • int $count: 每次返回的记录数。缺省值20，最大值200。可选。
+
+rate_limit_status (line 1876)
+
+获取当前用户API访问频率限制关于API的访问频率限制。返回当前小时还能访问的次数。
+频率限制是根据用户请求来做的限制，具体可以参加频率限制说明。
+
+  • access: public
+
+array rate_limit_status ()
+remove_from_blocks (line 2025)
+
+将用户移出黑名单
+
+  • access: public
+
+array remove_from_blocks ([int64 $user_id = NULL], [string $screen_name =
+NULL])
+
+  • int64 $user_id: 要移出黑名单的用户ID。可选。$user_id和$screen_name至少填一
+    个。
+  • string $screen_name: 要移出黑名单的用户微博昵称，可选。$user_id和
+    $screen_name至少填一个。
+
+remove_from_favorites (line 1851)
+
+删除微博收藏。
+
+  • access: public
+
+array remove_from_favorites (int64 $id)
+
+  • int64 $id: 要删除的收藏微博信息ID.
+
+remove_from_favorites_batch (line 1829)
+
+批量删除微博收藏。批量删除当前登录用户的收藏。出现异常时，返回HTTP400错误。
+
+  • access: public
+
+array remove_from_favorites_batch (mixed $fids)
+
+  • mixed $fids: 欲删除的一组私信ID，用半角逗号隔开，或者由一组评论ID组成的数组
+    。最多20个。例如："231101027525486630,201100826122315375"或array
+    (231101027525486630,201100826122315375);
+
+reply (line 1641)
+
+对一条微博评论信息进行回复。为防止重复，发布的信息与最后一条评论/回复信息一样话
+，将会被忽略。
+
+  • access: public
+
+array reply (int64 $sid, string $text, int64 $cid)
+
+  • int64 $sid: 微博id
+  • string $text: 评论内容。
+  • int64 $cid: 评论id
+
+repost (line 1547)
+
+转发一条微博信息。可加评论。为防止重复，发布的信息与最新信息一样话，将会被忽略
+。
+
+  • access: public
+
+array repost (int64 $sid, [string $text = NULL], [int $is_comment = 0])
+
+  • int64 $sid: 转发的微博ID
+  • string $text: 添加的评论信息。可选。
+  • int $is_comment: 是否在转发的同时发表评论。1表示发表评论，0表示不发表。默认
+    为0。可选。
+
+repost_by_me (line 1490)
+
+获取用户最新转发的n条微博消息
+
+  • access: public
+
+array repost_by_me (int64 $uid, [int $page = 1], [int $count = 20],
+[int64 $since_id = NULL], [int64 $max_id = NULL])
+
+  • int64 $uid: 要获取转发微博列表的用户ID。
+  • int $page: 页码。可选。
+  • int $count: 每次返回的最大记录数，最多返回200条，默认20。可选。
+  • int64 $since_id: 若指定此参数，则只返回ID比since_id大的记录（比since_id发表
+    时间晚）。可选。
+  • int64 $max_id: 若指定此参数，则返回ID小于或等于max_id的记录。可选。
+
+repost_timeline (line 1519)
+
+返回一条原创微博的最新n条转发微博信息
+
+  • access: public
+
+array repost_timeline (int64 $sid, [int $page = 1], [int $count = 20],
+[int64 $since_id = NULL], [int64 $max_id = NULL])
+
+  • int64 $sid: 要获取转发微博列表的原创微博ID。
+  • int $page: 页码。可选。
+  • int $count: 每次返回的最大记录数，最多返回200条，默认20。可选。
+  • int64 $since_id: 若指定此参数，则只返回ID比since_id大的记录（比since_id发表
+    时间晚）。可选。
+  • int64 $max_id: 若指定此参数，则返回ID小于或等于max_id的记录。可选。
+
+reset_count (line 1310)
+
+未读消息数清零将当前登录用户的某种新消息的未读数为0。可以清零的计数类别有：1.
+评论数，2. @me数，3. 私信数，4. 关注数
+
+  • access: public
+
+array reset_count (int $type)
+
+  • int $type: 需要清零的计数类别，值为下列四个之一：1. 评论数，2. @me数，3. 私
+    信数，4. 关注数
+
+send_comment (line 1569)
+
+对一条微博信息进行评论为防止重复，发布的信息与最后一条评论信息一样话，将会被忽
+略。
+
+  • access: public
+
+array send_comment (int64 $sid, string $text, [int64 $cid = NULL])
+
+  • int64 $sid: 要评论的微博id
+  • string $text: 评论内容
+  • int64 $cid: 要评论的评论id
+
+send_dm (line 1432)
+
+发送私信发送一条私信。成功将返回完整的发送消息。
+
+  • access: public
+
+array send_dm (mixed $uid_or_name, string $text)
+
+  • mixed $uid_or_name: UID或微博昵称
+  • string $text: 要发生的消息内容，文本大小必须小于300个汉字。
+
+show_status (line 1107)
+
+根据ID获取单条微博信息内容获取单条ID的微博信息，作者信息将同时返回。
+
+  • access: public
+
+array show_status (int64 $sid)
+
+  • int64 $sid: 要获取已发表的微博ID,如ID不存在返回空
+
+show_user (line 1149)
+
+根据用户UID或昵称获取用户资料按用户UID或昵称返回用户资料，同时也将返回用户的最
+新发布的微博。
+
+  • access: public
+
+array show_user (mixed $uid_or_name)
+
+  • mixed $uid_or_name: 用户UID或微博昵称。
+
+trends_timeline (line 2198)
+
+获取某话题下的微博消息
+
+  • access: public
+
+array trends_timeline (string $trend_name)
+
+  • string $trend_name: 话题关键词。
+
+unfollow (line 1205)
+
+取消关注某用户取消关注某用户。成功则返回被取消关注人的资料，失败则返回一条字符
+串的说明。
+
+  • access: public
+
+array unfollow (mixed $uid_or_name)
+
+  • mixed $uid_or_name: 要取消关注的用户UID或微博昵称
+
+unfollow_trends (line 2228)
+
+取消对某话题的关注
+
+  • access: public
+
+array unfollow_trends (int64 $tid)
+
+  • int64 $tid: 要取消关注的话题ID。
+
+unread (line 1617)
+
+获取当前用户未读消息数获取当前用户Web未读消息数，包括@我的, 新评论，新私信，新
+粉丝数。
+
+  • access: public
+
+array unread ([int $with_new_status = 0], [int64 $since_id = NULL])
+
+  • int $with_new_status: 1表示结果中包含new_status字段，0表示结果不包含
+    new_status字段。new_status字段表示是否有新微博消息，1表示有，0表示没有。默
+    认为0，可选。
+  • int64 $since_id: 参数值为微博id。该参数需配合with_new_status参数使用，返回
+    since_id之后，是否有新微博消息产生。可选。
+
+update (line 1047)
+
+发表微博发布一条微博信息。请求必须用POST方式提交。为防止重复，发布的信息与当前
+最新信息一样话，将会被忽略。
+注意：lat和long参数需配合使用，用于标记发表微博消息时所在的地理位置，只有用户设
+置中geo_enabled=true时候地理位置信息才有效。
+
+  • access: public
+
+array update (string $status, [int64 $reply_id = NULL], [float $lat = NULL],
+[float $long = NULL], [mixed $annotations = NULL])
+
+  • string $status: 要更新的微博信息。信息内容不超过140个汉字,为空返回400错误。
+  • int64 $reply_id: @ 需要回复的微博信息ID, 这个参数只有在微博内容以 @username
+    开头才有意义。（即将推出）。可选
+  • float $lat: 纬度，发表当前微博所在的地理位置，有效范围 -90.0到+90.0, +表示
+    北纬。可选。
+  • float $long: 经度。有效范围-180.0到+180.0, +表示东经。可选。
+  • mixed $annotations: 可选参数。元数据，主要是为了方便第三方应用记录一些适合
+    于自己使用的信息。每条微博可以包含一个或者多个元数据。请以json字串的形式提
+    交，字串长度不超过512个字符，或者数组方式，要求json_encode后字串长度不超过
+    512个字符。具体内容可以自定。例如：'[{"type2":123},{"a":"b","c":"d"}]'或
+    array(array("type2"=>123), array("a"=>"b", "c"=>"d"))。
+
+update_privacy (line 1907)
+
+设置隐私信息
+
+  • access: public
+
+array update_privacy (array $privacy_settings)
+
+  • array $privacy_settings: 要修改的隐私设置。格式：array('key1'=>'value1',
+    'key2'=>'value2', .....)。
+    支持设置的项：
+      □ description 一句话介绍. 可选参数. 不超过160个汉字.
+      □ comment: 谁可以评论此账号的微薄。 0：所有人 1：我关注的人默认为0
+      □ message:谁可以给此账号发私信。0：所有人 1：我关注的人默认为1
+      □ realname 是否允许别人通过真实姓名搜索到我。0：允许，1：不允许，默认值1
+      □ geo 发布微博，是否允许微博保存并显示所处的地理位置信息。0：允许，1：不
+        允许，默认值0
+      □ badge 勋章展现状态。0：公开状态，1：私密状态，默认值0
+
+update_profile (line 1951)
+
+更改用户资料
+
+  • access: public
+
+array update_profile (array $profile)
+
+  • array $profile: 要修改的资料。格式：array('key1'=>'value1', 'key2'=>
+    'value2', .....)。
+    支持修改的项：
+      □ name 昵称，可选参数.不超过20个汉字
+      □ gender 性别，可选参数. m,男，f,女。
+      □ province 所在省. 可选参数. 参考省份城市编码表
+      □ city 所在城市. 可选参数. 参考省份城市编码表,1000为不限
+      □ description 一句话介绍. 可选参数. 不超过160个汉字.
+
+update_profile_image (line 1930)
+
+更改头像
+
+  • access: public
+
+array update_profile_image (string $image_path)
+
+  • string $image_path: 要发布的图片路径,支持url。[只支持png/jpg/gif三种格式,增
+    加格式请修改get_image_mime方法]
+
+update_remark (line 1244)
+
+更新当前登录用户所关注的某个好友的备注信息只能修改当前登录用户所关注的用户的备
+注信息。否则将给出400错误。
+
+  • access: public
+
+array update_remark (int64 $uid, string $remark)
+
+  • int64 $uid: 需要修改备注信息的用户ID。
+  • string $remark: 备注信息。
+
+upload (line 1083)
+
+发表图片微博上传图片及发布微博信息。请求必须用POST方式提交。为防止重复，发布的
+信息与当前最新信息一样话，将会被忽略。目前上传图片大小限制为<5M。
+注意：lat和long参数需配合使用，用于标记发表微博消息时所在的地理位置，只有用户设
+置中geo_enabled=true时候地理位置信息才有效。
+
+  • access: public
+
+array upload (string $status, string $pic_path, [float $lat = NULL],
+[float $long = NULL])
+
+  • string $status: 要更新的微博信息。信息内容不超过140个汉字,为空返回400错误。
+  • string $pic_path: 要发布的图片路径,支持url。[只支持png/jpg/gif三种格式,增加
+    格式请修改get_image_mime方法]
+  • float $lat: 纬度，发表当前微博所在的地理位置，有效范围 -90.0到+90.0, +表示
+    北纬。可选。
+  • float $long: 可选参数，经度。有效范围-180.0到+180.0, +表示东经。可选。
+
+user_timeline (line 1356)
+
+获取用户发布的微博信息列表返回用户的发布的最近n条信息，和用户微博页面返回内容是
+一致的。此接口也可以请求其他用户的最新发表微博。
+
+  • access: public
+
+array user_timeline ([int $page = 1], [int $count = 20], [mixed $uid_or_name =
+NULL], [int64 $since_id = NULL], [int64 $max_id = NULL])
+
+  • int $page: 页码
+  • int $count: 每次返回的最大记录数，最多返回200条，默认20。
+  • mixed $uid_or_name: 指定用户UID或微博昵称
+  • int64 $since_id: 若指定此参数，则只返回ID比since_id大的微博消息（即比
+    since_id发表时间晚的微博消息）。可选。
+  • int64 $max_id: 若指定此参数，则返回ID小于或等于max_id的提到当前登录用户微博
+    消息。可选。
+
+verify_credentials (line 1864)
+
+验证当前用户身份是否合法如果用户新浪通行证身份验证成功且用户已经开通微博则返回
+http状态为 200；如果是不则返回401的状态和错误信息。此方法用了判断用户身份是否合
+法且已经开通微博。
+
+  • access: public
+
+array verify_credentials ()
+weekly_trends (line 2275)
+
+返回最近一周内的热门话题
+
+  • access: public
+
+array weekly_trends ([int $base_app = 1])
+
+  • int $base_app: 是否基于当前应用来获取数据。1表示基于当前应用来获取数据，默
+    认为1。可选。
+
+Documentation generated on Wed, 19 Jan 2011 15:42:28 +0800 by phpDocumentor
+1.4.3
+

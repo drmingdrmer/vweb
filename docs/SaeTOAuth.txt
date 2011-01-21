@@ -1,0 +1,136 @@
+Class SaeTOAuth
+
+Description
+Description | Methods (details)
+
+新浪微博 OAuth 认证类
+
+  • author: Easy Chen
+  • version: 1.0
+
+Located in /saet.ex.class.php (line 2332)
+
+Method Summary
+Description | Methods (details)
+SaeTOAuth __construct ( $consumer_key,  $consumer_secret, [ $oauth_token =
+NULL], [ $oauth_token_secret = NULL])
+mixed delete ( $url, [ $parameters = array()])
+mixed get ( $url, [ $parameters = array()])
+array getAccessToken ([ $oauth_verifier = FALSE], [ $oauth_token = false])
+string getAuthorizeURL ( $token, [ $sign_in_with_Weibo = TRUE],  $url)
+int getHeader ( $ch,  $header)
+array getRequestToken ([ $oauth_callback = NULL])
+string http ( $url,  $method, [ $postfields = NULL], [ $multi = false])
+string oAuthRequest ( $url,  $method,  $parameters, [ $multi = false])
+mixed post ( $url, [ $parameters = array()], [ $multi = false])
+Methods
+Description | Methods (details)
+Constructor __construct (line 2432)
+
+construct WeiboOAuth object
+
+SaeTOAuth __construct ( $consumer_key,  $consumer_secret, [ $oauth_token =
+NULL], [ $oauth_token_secret = NULL])
+
+  • $consumer_key
+  • $consumer_secret
+  • $oauth_token
+  • $oauth_token_secret
+
+delete (line 2527)
+
+DELTE wrapper for oAuthReqeust.
+
+mixed delete ( $url, [ $parameters = array()])
+
+  • $url
+  • $parameters
+
+get (line 2501)
+
+GET wrappwer for oAuthRequest.
+
+mixed get ( $url, [ $parameters = array()])
+
+  • $url
+  • $parameters
+
+getAccessToken (line 2483)
+
+Exchange the request token and secret for an access token and secret, to sign
+API calls.
+
+  • return: array("oauth_token" => the access token, "oauth_token_secret" =>
+    the access secret)
+
+array getAccessToken ([ $oauth_verifier = FALSE], [ $oauth_token = false])
+
+  • $oauth_verifier
+  • $oauth_token
+
+getAuthorizeURL (line 2465)
+
+Get the authorize URL
+
+string getAuthorizeURL ( $token, [ $sign_in_with_Weibo = TRUE],  $url)
+
+  • $token
+  • $sign_in_with_Weibo
+  • $url
+
+getHeader (line 2655)
+
+Get the header info to store.
+
+int getHeader ( $ch,  $header)
+
+  • $ch
+  • $header
+
+getRequestToken (line 2448)
+
+Get a request_token from Weibo
+
+  • return: a key/value array containing oauth_token and oauth_token_secret
+
+array getRequestToken ([ $oauth_callback = NULL])
+
+  • $oauth_callback
+
+http (line 2563)
+
+Make an HTTP request
+
+  • return: API results
+
+string http ( $url,  $method, [ $postfields = NULL], [ $multi = false])
+
+  • $url
+  • $method
+  • $postfields
+  • $multi
+
+oAuthRequest (line 2540)
+
+Format and sign an OAuth / API request
+
+string oAuthRequest ( $url,  $method,  $parameters, [ $multi = false])
+
+  • $url
+  • $method
+  • $parameters
+  • $multi
+
+post (line 2514)
+
+POST wreapper for oAuthRequest.
+
+mixed post ( $url, [ $parameters = array()], [ $multi = false])
+
+  • $url
+  • $parameters
+  • $multi
+
+Documentation generated on Wed, 19 Jan 2011 15:42:29 +0800 by phpDocumentor
+1.4.3
+
