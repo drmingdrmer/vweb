@@ -1,0 +1,76 @@
+<select id="api_method_select">
+    <optgroup label="REST API">
+    </optgroup>
+    <optgroup label="-- 获取下行数据集(timeline)接口">
+        <option value="/statuses/public_timeline.json"> statuses/public_timeline 获取最新更新的公共微博消息 </option>
+        <option value="/statuses/friends_timeline.json"> statuses/friends_timeline 获取当前用户所关注用户的最新微博信息 </option>
+        <option value="/statuses/user_timeline.json"> statuses/user_timeline 获取用户发布的微博信息列表 </option>
+        <option value="/statuses/mentions.json"> statuses/mentions 获取@当前用户的微博列表 </option>
+        <option value="/statuses/comments_timeline.json"> statuses/comments_timeline 获取当前用户发送及收到的评论列表 </option>
+        <option value="/statuses/comments_by_me.json"> statuses/comments_by_me 获取当前用户发出的评论 </option>
+        <option value="/statuses/comments.json"> statuses/comments 获取指定微博的评论列表 </option>
+        <option value="/statuses/counts.json"> statuses/counts 批量获取一组微博的评论数及转发数 </option>
+        <option value="/statuses/unread.json"> statuses/unread 获取当前用户未读消息数 </option>
+    </optgroup>
+    <optgroup label="-- 微博访问接口">
+        <option value="/statuses/show/#{id}.json"> statuses/show 根据ID获取单条微博信息内容 </option>
+        <option value="/#{userid}/statuses/#{id}"> user/statuses/id 根据微博ID和用户ID跳转到单条微博页面(验证不成功) </option>
+        <option value="/statuses/update.json"> statuses/update 发布一条微博信息 </option>
+        <option value="/statuses/upload.json"> statuses/upload 上传图片并发布一条微博信息(验证不成功) </option>
+        <option value="/statuses/destroy/#{uid}.json"> statuses/destroy 删除一条微博信息 </option>
+        <option value="/statuses/retweet/#{id}.json"> statuses/repost 转发一条微博信息（可加评论） </option>
+        <option value="/statuses/comment.json"> statuses/comment 对一条微博信息进行评论 </option>
+        <option value="/statuses/comment_destroy/#{id}.json"> statuses/comment_destroy 删除当前用户的微博评论信息 </option>
+        <option value="/statuses/reply.json"> statuses/reply 回复微博评论信息 </option>
+    </optgroup>
+    <optgroup label="-- 用户接口">
+        <option value="/users/show.json"> users/show 根据用户ID获取用户资料（授权用户） </option>
+        <option value="/statuses/friends.json"> statuses/friends 获取当前用户关注对象列表及最新一条微博信息 </option>
+        <option value="/statuses/followers.json"> statuses/followers 获取当前用户粉丝列表及最新一条微博信息 </option>
+    </optgroup>
+    <optgroup label="-- 私信接口">
+        <option value="/direct_messages.json"> direct_messages 获取当前用户最新私信列表 </option>
+        <option value="/direct_messages/sent.json"> direct_messages/sent 获取当前用户发送的最新私信列表 </option>
+        <option value="/direct_messages/new.json"> direct_messages/new 发送一条私信 </option>
+        <option value="/direct_messages/destroy/#{id}.json"> direct_messages/destroy 删除一条私信 </option>
+    </optgroup>
+    <optgroup label="-- 关注接口">
+        <option value="/friendships/create.json"> friendships/create 关注某用户 </option>
+        <option value="/friendships/destroy.json"> friendships/destroy 取消关注 </option>
+        <option value="/friendships/exists.json"> friendships/exists 是否关注某用户(推荐使用friendships/show) </option>
+        <option value="/friendships/show.json"> friendships/show 获取两个用户关系的详细情况 </option>
+    </optgroup>
+    <optgroup label="-- Social Graph接口">
+        <option value="/friends/ids.json"> friends/ids 获取用户关注对象uid列表 </option>
+        <option value="/followers/ids.json"> followers/ids 获取用户粉丝对象uid列表 </option>
+    </optgroup>
+    <optgroup label="-- 账号接口">
+        <option value="/account/verify_credentials.json"> account/verify_credentials 验证当前用户身份是否合法 </option>
+        <option value="/account/rate_limit_status.json"> account/rate_limit_status 获取当前用户API访问频率限制 </option>
+        <option value="/account/end_session.json"> account/end_session 当前用户退出登录 </option>
+        <option value="/account/update_profile_image.json"> account/update_profile_image 更改头像 </option>
+        <option value="/account/update_profile.json"> account/update_profile 更改资料 </option>
+        <option value="/account/register.json"> account/register 注册新浪微博帐号 </option>
+        <option value="/Account/activate.json"> Account/activate 二次注册微博的接口 </option>
+    </optgroup>
+    <optgroup>
+        <option value="/emotions.json"> emotions 表情接口，获取表情列表 </option>
+    </optgroup>
+    <optgroup label="-- 收藏接口">
+        <option value="/favorites.json"> favorites 获取当前用户的收藏列表 </option>
+        <option value="/favorites/create.json"> favorites/create 添加收藏 </option>
+        <option value="/favorites/destroy.json"> favorites/destroy 删除当前用户收藏的微博信息 </option>
+    </optgroup>
+    <optgroup label="Search API">
+    </optgroup>
+    <optgroup label="-- 用户搜索">
+        <option value="/users/search.json"> users/search 搜索微博用户 (仅对新浪合作开发者开放) </option>
+    </optgroup>
+    <optgroup label="-- 微博搜索">
+        <option value="/search.json"> search  搜索微博文章 (仅对新浪合作开发者开放) </option>
+        <option value="/statuses/search.json"> statuses/search 搜索微博(多条件组合) (仅对合作开发者开放) </option>
+    </optgroup>
+    <optgroup label="内部接口(未公开)">
+    </optgroup>
+    <option value="/statuses/magic_followers.json"> statuses/magic_followers 获取用户优质粉丝列表 </option>
+</select>

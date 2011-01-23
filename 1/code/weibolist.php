@@ -19,11 +19,10 @@ $ms  = $c->home_timeline(); // done
 
 if( isset($_REQUEST['text']) )
 {
-$c->update( $_REQUEST['text'] );
-// 发送微博
-	//$o->post( "http://api.t.sina.com.cn/statuses/update.json" , array( 'status' => $_REQUEST['text'] ) );
-	echo "<p>发送完成</p>";
-
+    $c->update( $_REQUEST['text'] );
+    // 发送微博
+    //$o->post( "http://api.t.sina.com.cn/statuses/update.json" , array( 'status' => $_REQUEST['text'] ) );
+    echo "<p>发送完成</p>";
 }
 
 ?>
@@ -35,6 +34,3 @@ $c->update( $_REQUEST['text'] );
 </div>
 <?php endforeach; ?>
 <?php endif; ?>
-
-
-
