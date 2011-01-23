@@ -6,65 +6,96 @@
 
         <!--
            - <script type="text/javascript" src="http://js.wcdn.cn/t3/platform/js/api/wb.js" charset="utf-8" ></script>
-           - <script language="javascript" type="text/javascript" src="js/wbweb.js"></script>
            -->
 
         <link rel="stylesheet" type="text/css" href="css/global.css" />
-        <link rel="stylesheet" type="text/css" href="theme/smoothness/jquery-ui-1.8.9.custom.css" />
+        <!-- <link rel="stylesheet" type="text/css" href="theme/smoothness/jquery-ui-1.8.9.custom.css" /> -->
+        <link rel="stylesheet" type="text/css" href="theme/trontastic/jquery-ui-1.8.9.custom.css" />
         <!-- <link rel="stylesheet" type="text/css" href="css/vweb.css" /> -->
 
+        <script language="javascript" type="text/javascript" src="js/jquery-1.4.4.min.js"></script>
+        <script language="javascript" type="text/javascript" src="js/jquery-ui-1.8.9.custom.min.js"></script>
+
+        <script language="javascript" type="text/javascript" src="js/wb.js"></script>
+        <script language="javascript" type="text/javascript" src="js/vweb.js"></script>
+
+        <script language="javascript" type="text/javascript">
+            $( function() {
+                $( ".t-dialog" ).addClass( "ui-dialog ui-widget ui-widget-content ui-corner-all" );
+                
+                $( ".t-panel" ).addClass( "ui-widget ui-widget-content ui-corner-all" );
+                $( ".t-btn" ).addClass( "ui-button ui-widget ui-state-default ui-corner-all ui-button-text-only" );
+
+                $( window ).resize( ui.relayout );
+                ui.relayout();
+
+            } );
+        </script>
+
+        <!-- div { border: 1px solid #777; padding: 1px; } -->
         <style type="text/css" media="screen">
 
 
-            div {
-                border: 1px solid #777;
-                padding: 1px;
-            }
 
+            html,  body { 
+                position: relative;
+                display: block;
+                height: 100%;
+            }
+            body {
+                background: black;
+            }
             #app {
+                position: relative;
                 width: 980px;
+                height: 100%;
+                padding: 5px;
+                margin: auto;
+                background-color: #000;
             }
 
-            #hd { height: 50px; overflow: hidden; zoom: 1; }
-            #hd #lg { width: 40px; height: 40px; float: left; }
+            #hd { height: 40px; margin: 0 0 2px 0;
+                padding: 10px;
+                overflow: hidden; zoom: 1; }
+            #hd #lg { float: left; }
+            #hd #lg img{ height: 40px; }
             #hd #acc { float: right; }
 
             #bd { overflow: hidden; zoom: 1; }
-            #bd #page { width: 600px; float: left; }
+            #bd #edit { width: 600px; float: left; }
             #bd #tool { width: 360px; float: right; overflow: hidden; zoom: 1; }
 
-            #bd #tool #my.t-btn { width: 60px; height: 20px; float: left;
-                background: #fdd; }
-            #bd #tool #search { width: 80px; height: 20px; float: left;
-                background: #dfd; }
+            #bd #tool #my.t-btn { width: 60px; height: 20px; float: left; }
+            #bd #tool #search { width: 80px; height: 20px; float: left; }
             #bd #tool #search #keyword{ border: 0; width: 80px; height: 20px; }
-            #bd #tool #fold { width: 20px; height: 20px; float: left;
-                background: #ddf; }
+            #bd #tool #fold { float: right; }
 
         </style>
+        <!-- #bd #tool #fold { width: 20px; height: 20px; float: right; } -->
     </head>
     <body>
 
 
         <div id="app">
 
-            <div id="hd">
-                <div id="lg"><img src="where" alt="logo"/></div>
+            <div id="hd" class="t-panel">
+                <div id="lg"><img src="img/logo.jpg" alt="vweb"/></div>
                 <div id="acc">
-                    <a href="#">用微博帐号登录</a>
+                    <a id="login" href="javascript:login();">用微博帐号登录</a>
+                    <a id="logout" class="hidden" href="javascript:logout();">退出登录</a>
                 </div>
             </div>
 
             <div id="bd">
-                <div id="page">page</div>
-                <div id="tool">
+                <div id="edit" class="ui-widget ui-widget-content">edit</div>
+                <div id="tool" class="t-panel invisible">
                     <div id="my" class="t-btn">
-                        <a href="#">My</a>
+                        <a href="javascript:my.switch(true);">My</a>
                     </div>
-                    <div id="my" class="t-panel">
+                    <div id="my" class="t-dialog hidden">
                         <div id="byme">
                             <a href="#">我的</a>
-                            
+
                         </div>
                         <div id="at">
                             <a href="href">At我的</a>
@@ -74,13 +105,15 @@
                         </div>
                     </div>
 
-                        
 
 
-                    <div id="search">
+
+                    <div id="search" class="t-panel">
                         <input id="keyword" type="text" name="keyword" value="search"/>
                     </div>
-                    <div id="fold"> >> </div>
+                    <div id="fold" class="t-btn">
+                        <span class="ui-icon ui-icon-triangle-1-e"></span>
+                    </div>
                 </div>
             </div>
 
