@@ -10,3 +10,4 @@ a:visited{color:#800080;}
 a:hover,a:active,a:focus{color:#c00;}
 
 .clearit{clear:both;}
+.hidden{ display: none; }
