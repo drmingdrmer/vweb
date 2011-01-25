@@ -1,0 +1,22 @@
+
+#bd #tool #list {  }
+
+.t-list {
+    color: black;
+    background-color: white;
+    overflow: auto;
+}
+
+
+.t-msg { margin: 2px 0; padding: 6px;
+    background-color: #ddd;
+    overflow: hidden; zoom: 1;
+}
+
+.t-msg:nth-child(2n) {
+    background-color: #bbb;
+}
+
+.t-msg>img {
+    float: right;
+}

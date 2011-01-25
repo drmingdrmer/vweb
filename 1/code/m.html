@@ -11,7 +11,9 @@
         <link rel="stylesheet" type="text/css" href="css/global.css" />
         <!-- <link rel="stylesheet" type="text/css" href="theme/smoothness/jquery-ui-1.8.9.custom.css" /> -->
         <link rel="stylesheet" type="text/css" href="theme/trontastic/jquery-ui-1.8.9.custom.css" />
-        <!-- <link rel="stylesheet" type="text/css" href="css/vweb.css" /> -->
+        <link rel="stylesheet" type="text/css" href="css/vweb.css" />
+        <link rel="stylesheet" type="text/css" href="css/last.css" />
+
 
         <script language="javascript" type="text/javascript" src="js/jquery-1.4.4.min.js"></script>
         <script language="javascript" type="text/javascript" src="js/jquery-ui-1.8.9.custom.min.js"></script>
@@ -19,59 +21,9 @@
         <script language="javascript" type="text/javascript" src="js/wb.js"></script>
         <script language="javascript" type="text/javascript" src="js/vweb.js"></script>
 
-        <script language="javascript" type="text/javascript">
-            $( function() {
-                $( ".t-dialog" ).addClass( "ui-dialog ui-widget ui-widget-content ui-corner-all" );
-                
-                $( ".t-panel" ).addClass( "ui-widget ui-widget-content ui-corner-all" );
-                $( ".t-btn" ).addClass( "ui-button ui-widget ui-state-default ui-corner-all ui-button-text-only" );
 
-                $( window ).resize( ui.relayout );
-                ui.relayout();
-
-            } );
-        </script>
-
-        <!-- div { border: 1px solid #777; padding: 1px; } -->
         <style type="text/css" media="screen">
-
-
-
-            html,  body { 
-                position: relative;
-                display: block;
-                height: 100%;
-            }
-            body {
-                background: black;
-            }
-            #app {
-                position: relative;
-                width: 980px;
-                height: 100%;
-                padding: 5px;
-                margin: auto;
-                background-color: #000;
-            }
-
-            #hd { height: 40px; margin: 0 0 2px 0;
-                padding: 10px;
-                overflow: hidden; zoom: 1; }
-            #hd #lg { float: left; }
-            #hd #lg img{ height: 40px; }
-            #hd #acc { float: right; }
-
-            #bd { overflow: hidden; zoom: 1; }
-            #bd #edit { width: 600px; float: left; }
-            #bd #tool { width: 360px; float: right; overflow: hidden; zoom: 1; }
-
-            #bd #tool #my.t-btn { width: 60px; height: 20px; float: left; }
-            #bd #tool #search { width: 80px; height: 20px; float: left; }
-            #bd #tool #search #keyword{ border: 0; width: 80px; height: 20px; }
-            #bd #tool #fold { float: right; }
-
         </style>
-        <!-- #bd #tool #fold { width: 20px; height: 20px; float: right; } -->
     </head>
     <body>
 
@@ -79,45 +31,134 @@
         <div id="app">
 
             <div id="hd" class="t-panel">
-                <div id="lg"><img src="img/logo.jpg" alt="vweb"/></div>
+                <div id="lg"><img src="img/x.png" alt="vweb"/></div>
                 <div id="acc">
-                    <a id="login" href="javascript:login();">用微博帐号登录</a>
-                    <a id="logout" class="hidden" href="javascript:logout();">退出登录</a>
+                    <!--
+                       - <button id="login" onclick="wb.login()">用微博帐号登录</button>
+                       - <button id="logout" onclick="wb.logout()">退出登录</button>
+                       -->
+
+                    <a id="login" href="javascript:wb.login();">用微博帐号登录</a>
+                    <a id="logout" class="hidden" href="javascript:wb.logout();">退出登录</a>
                 </div>
             </div>
 
             <div id="bd">
-                <div id="edit" class="ui-widget ui-widget-content">edit</div>
-                <div id="tool" class="t-panel invisible">
-                    <div id="my" class="t-btn">
-                        <a href="javascript:my.switch(true);">My</a>
-                    </div>
-                    <div id="my" class="t-dialog hidden">
-                        <div id="byme">
-                            <a href="#">我的</a>
+                <div id="edit" class="ui-widget ui-widget-content">
 
-                        </div>
-                        <div id="at">
-                            <a href="href">At我的</a>
-                        </div>
-                        <div id="re">
-                            <a href="href">我的评论</a>
-                        </div>
-                    </div>
-
-
-
-
-                    <div id="search" class="t-panel">
-                        <input id="keyword" type="text" name="keyword" value="search"/>
-                    </div>
-                    <div id="fold" class="t-btn">
-                        <span class="ui-icon ui-icon-triangle-1-e"></span>
+                    <div id="cont">
+                        
                     </div>
                 </div>
-            </div>
 
-        </div>
+                <div id="tool" class="t-panel invisible">
 
-    </body>
+                    <div id="func">
+
+                       <button id="my" class="t-btn" _icon2="triangle-1-s">我的</button>
+
+
+                       <div id="my" class="t-dialog hidden">
+                           <div id="friends" class="t-ctrl">
+
+                               <span class="t-opt">
+                                   <input type="radio" id="fo_all" name="type" value="img"/><label for="fo_all">全部</label>
+                                   <input type="radio" id="fo_ori" name="type" value="img"/><label for="fo_ori">原</label>
+                                   <input type="radio" id="fo_img" name="type" value="img"/><label for="fo_img">图</label>
+                                   <input type="radio" id="fo_vid" name="type" value="img"/><label for="fo_vid">视</label>
+                                   <input type="radio" id="fo_mus" name="type" value="img"/><label for="fo_mus">音</label>
+                               </span>
+                               <a href="javascript:my.mine();">关注</a>
+
+                           </div>
+                           <div id="mine" class="t-ctrl">
+
+                               <span class="t-opt">
+                                   <input type="radio" id="my_all" name="type" value="img"/><label for="my_all">全部</label>
+                                   <input type="radio" id="my_ori" name="type" value="img"/><label for="my_ori">原</label>
+                                   <input type="radio" id="my_img" name="type" value="img"/><label for="my_img">图</label>
+                                   <input type="radio" id="my_vid" name="type" value="img"/><label for="my_vid">视</label>
+                                   <input type="radio" id="my_mus" name="type" value="img"/><label for="my_mus">音</label>
+                               </span>
+                               <a href="javascript:my.mine();">我的</a>
+
+                           </div>
+                           <div id="at" class="t-ctrl">
+                               <span class="t-opt">
+                                   <input type="radio" id="at_all_p" name="at_range" value="img"/><label for="at_all_p">所有人</label>
+                                   <input type="radio" id="at_fo"  name="at_range" value="img"/><label for="at_fo">关注的人</label>
+
+                               </span>
+                               <!-- <br /> -->
+                               <span class="t-opt">
+                                   <input type="radio" id="at_all_msg" name="at_type" value="img"/><label for="at_all_msg">全部微博</label>
+                                   <input type="radio" id="at_ori" name="at_type" value="img"/><label for="at_ori">原创</label>
+                               </span>
+                               <a href="href">@</a>
+                           </div>
+
+                           <div id="re" class="t-ctrl">
+                               <span class="t-opt">
+                                   <input type="radio" id="re_all_p" name="re_range" value="img"/><label for="re_all_p">全部</label>
+                                   <input type="radio" id="re_fo"  name="re_range" value="img"/><label for="re_fo">关注的人</label>
+                                   <input type="radio" id="re_unk"  name="re_range" value="img"/><label for="re_unk">陌生人</label>
+
+                               </span>
+                               <input type="text" name="search" value="search"/>
+                               <a href="href">评论</a>
+                           </div>
+
+                           <div id="fav" class="t-ctrl">
+                               <a href="href">收藏</a>
+                           </div>
+                       </div>
+
+
+                       <span id="search" class="t-panel">
+                           <input id="keyword" type="text" name="keyword" value="search"/>
+                       </span>
+
+                       <input type="checkbox" id="fold" _icon="triangle-1-e" _text="no" class="t-btn" name="what" value="foo" />
+                       <label id="fold" for="fold">关闭</label>
+
+                   </div>
+                   <div id="list" class="t-list">
+
+                   </div>
+
+               </div>
+           </div>
+
+       </div>
+       <div id="tmpl" class="hidden">
+
+           <div id="msg" class="t-msg ui-widget ui-corner-all">
+               <div class="handle"></div>
+               <div class="cont">
+                   <img class="img hidden" src="" alt=""/>
+                   <p class="msg"></p>
+               </div>
+           </div>
+
+       </div>
+
+   </body>
+
+    <script language="javascript" type="text/javascript">
+        $( function() {
+            $( ".t-dialog" ).addClass( "ui-dialog ui-widget ui-widget-content ui-corner-all" );
+
+            $( ".t-panel" ).addClass( "ui-widget ui-widget-content ui-corner-all" );
+            //$( ".t-ctrl" ).addClass( "ui-widget ui-widget-content ui-corner-all" );
+            $( ".t-ctrl" ).addClass( "ui-widget ui-corner-all" );
+            $( ".t-list" ).addClass( "ui-widget ui-corner-all" );
+            //$( ".t-btn" ).addClass( "ui-button ui-widget ui-state-default ui-corner-all ui-button-text-only" );
+
+            ui.init();
+
+            wb.init();
+
+
+        } );
+    </script>
 </html>

@@ -1,12 +1,8 @@
+// Works with jquery-1.4.4, jquery-ui-1.8.9
 
-WB.core.load(['connect', 'client'], function() {
-    var cfg = {
-        key: '2060512444',
-        xdpath: 'http://vweb.sinaapp.com/xd.html'
-    };
-    WB.connect.init(cfg);
-    WB.client.init(cfg);
-});
+function log (mes) {
+    console.log( mes );
+}
 
 var cmds = {
     "sts.public_timeline"      : "/statuses/public_timeline.json"       , // 获取最新更新的公共微博消息
@@ -56,37 +52,95 @@ var cmds = {
     "sts.search"               : "/statuses/search.json"                , // 搜索微博(多条件组合)(仅对合作开发者开放)
     "sts.magic_followers"      : "/statuses/magic_followers.json"       , // 获取用户优质粉丝列表
     NULL : undefined
-}
+};
 
 var wb = {
+    init : function () {
+        var _this = this;
+        WB.core.load(['connect', 'client'], function() {
+
+            var cfg = {
+                key: '2060512444',
+                xdpath: 'http://vweb.sinaapp.com/xd.html'
+            };
+
+            WB.connect.init(cfg);
+            WB.client.init(cfg);
+
+            _this.login();
+        });
+    },
+
     login : function () {
         WB.connect.login(function() {
+            log( 'login ok' );
             $( "#tool" ).removeClass( "invisible" );
         });
     },
+
     logout : function () {
         WB.connect.logout(function() {
             $( "#tool" ).removeClass( "invisible" );
         });
     },
-    run_api_cmd : function ( cmd, args ) {
 
-        var type = "GET";
+    cmd : function ( cmd, args, cb ) {
 
-        WB.client.parseCMD(cmd, function(sResult, bStatus) {
-            log((bStatus == true) + '\n' + JSON.stringify(sResult, null, '\t'));
+        var type = "POST";
+        log( cmd, args );
+
+        WB.client.parseCMD(cmd, function( rst, st) {
+            log( "response:" + rst );
+            if ( st ) {
+                cb.ok( rst );
+            }
+            else {
+                cb.error( rst );
+            }
         }, args, {
             'method': type
         });
     }
 };
 
-var ui = {
+var ui = { edit : {}, list : {}, my : {}, acc : {}, tool : {} };
+
+$.extend( ui, {
+    init : function () {
+
+        var self = this;
+
+        self.relayout();
+
+        $( ".t-btn" ).each( function() {
+            $( this ).button( $( this ).btn_opt() );
+        } );
+
+
+        self.edit.init();
+        self.list.init();
+        self.my.init();
+
+
+        $( window ).resize( function() { self.relayout(); } );
+
+        $( "body" ).click( function( ev ) {
+
+            self.close_all();
+        } );
+
+    },
+    close_all : function () {
+        this.my.close_all();
+    },
     relayout : function () {
         var app = $( "#app" );
         var head = $( "#hd" );
         var edit = $( "#edit" );
+        // var cont = $( "#edit>#cont" );
         var tool = $( "#tool" );
+        var func = $( "#tool>#func" );
+        var list = $( "#tool>#list" );
 
 
         var bodyHeight = $( window ).height();
@@ -98,26 +152,232 @@ var ui = {
         var editHeight = appHeight - head.outerHeight( true );
         var editWidth = appWidth - toolWidth - 4;
 
+        var toolHeight = editHeight;
+        var funcHeight = func.outerHeight( true );
+        var listHieght = toolHeight - funcHeight;
+
+        editHeight -= edit.innerHeight() - edit.height();
+        editWidth = editWidth - ( edit.innerWidth() - edit.width() );
 
         app.height( appHeight );
+
         edit.height( editHeight );
         edit.width( editWidth );
-        tool.height( editHeight );
-    }
-}
+        // cont.width( contWidth );
 
-var my = {
-    switch : function ( vis ) {
-        var panel = $( "#my.t-dialog" );
+        tool.height( toolHeight );
+        list.height( listHieght );
+
+    },
+} );
+
+$.extend( ui.edit, {
+    init : function () {
+        this.edit = $( "#edit" );
+        this.cont = this.edit.children( "#cont" );
+        this.cont.empty();
+
+        this.cont.sortable({
+            receive : function ( ev, ui ) {
+                var msg = ui.item;
+                msg.hide();
+                // TODO add to global filter list
+
+                log( "receive" );
+                log( $( ev.target ).parent().attr( 'id' ) );
+                log( ev );
+                log( ui );
+            }
+        });
+
+    },
+    ids : function () {
+        var ids = [];
+        this.cont.find( ".t-msg" ).each( function() {
+            ids.push( $( this ).attr( "id" ) );
+        } );
+        log( "ids=", ids );
+        return ids;
+    }
+} );
+
+$.extend( ui.list, {
+    init : function () {
+        this.eltList = $( "#list" );
+        this.eltList.empty();
+    },
+    msgNode : function ( d ) {
+        var node = $( "#tmpl>#msg" ).clone();
+
+        node
+        .attr( "id", d.id )
+        .find( "p.msg" ).text( d.text );
+
+        if ( d.thumbnail_pic ) { // img must go first
+            node.find( "img.img" ).show().attr( "src", d.thumbnail_pic );
+        }
+
+        // log( node );
+
+        return node;
+
+    },
+    show : function ( data, name ) {
+        var self = this;
+        var ids = ui.edit.ids();
+
+        log( ids );
+
+        if ( ids.length > 0 ) {
+            data = $.grep( data, function( v, i ) {
+                return ids.indexOf( v.id + "" ) < 0;
+            } );
+        }
+
+        log( data );
+
+        this.eltList.empty();
+
+        $.each( data, function( i, v ) {
+            var node = self.msgNode( v );
+            self.eltList.append( node );
+        } );
+
+        this.setup_draggable();
+    },
+    setup_draggable : function () {
+
+        this.list.children().draggable( {
+            connectToSortable: "#edit>#cont",
+            helper : "clone",
+            revert : "invalid",
+            stop : function ( ev, ui ) {
+                // log( "stop" );
+                // log( $( ev.target ).parent().attr( 'id' ) );
+                // log( ui );
+            },
+        } );
+
+    }
+} );
+
+$.extend( ui.my, {
+    init : function () {
+        var self = this;
+        self.myButton = $( "#my.t-btn" );
+        self.myDialog  = $( "#my.t-dialog" );
+
+        self.myDialog.find( ".t-opt" ).buttonset().click( function( ev ){
+            ev.stopPropagation();
+        } );
+
+        self.myButton.click( function (ev){
+            log( 'click' );
+            ev.preventDefault()            /* other event on this DOM */
+            ev.stopPropagation();          /* pop up                  */
+            // ev.stopImmediatePropagation(); [> pop up and other        <]
+            self.switchPanel( true );
+
+        } );
+    },
+    close_all : function() {
+        this.switchPanel( false );
+    },
+    set_dialog_pos : function () {
+        var tool = $( "#tool" );
+        var ppos = tool.offset();
+        log( ppos );
+        this.myDialog.css( ppos );
+
+    }, 
+    switchPanel : function ( vis ) {
+        log( "vis=" );
+        log( ( vis ? "true" : "false" ) );
         if ( vis ) {
-            panel.show();
+            this.myDialog.show();
+            this.set_dialog_pos();
         }
         else {
-            panel.hide();
+            this.myDialog.hide();
         }
     },
+    mine : function (  ) {
+        this.close_all();
 
-    load : function (  ) {
+        wb.cmd( cmds[ "sts.friends_timeline" ], {}, {
 
+            ok : function ( rst ) {
+                log( "ok called:", rst );
+                list.show( rst );
+
+            },
+
+            error : function () {
+
+            }
+        } );
     }
-}
+} );
+
+var filter = {
+
+};
+
+( function( $ ) {
+    $.fn.btn_opt = function (  ) {
+        var e = $( this );
+        var opt = {
+            icons : {},
+            text : e.attr( "_text" ) != "no"
+        };
+
+        e.attr( "_icon" ) && ( opt.icons.primary = "ui-icon-" + e.attr( "_icon" ) );
+        e.attr( "_icon2" ) && ( opt.icons.secondary = "ui-icon-" + e.attr( "_icon2" ) );
+
+        log( opt );
+
+        return opt;
+    }
+} )( jQuery );
+
+/* ( function( $ ){
+ *
+ * $.widget( 'ui.hint', {
+ *
+ *         title : '',
+ *         iconName : 'info',
+ *         baseClass : 'ui-state-highlight',
+ *
+ *         _create : function() {
+ *
+ *             this.element
+ *                     .addClass( this.baseClass + ' ui-corner-all' );
+ *
+ *             var text = this.element.text();
+ *
+ *             var p = $( '<p></p>' )
+ *                     .css( { 'padding' : '5px' } )
+ *                     .appendTo( this.element.empty() );
+ *
+ *             var hintIcon = $( '<span></span>' )
+ *                     .addClass( 'ui-icon ui-icon-' + this.iconName )
+ *                     .css( { 'float' : 'left',
+ *                             'margin' : '4px' } )
+ *                     .appendTo( p );
+ *
+ *             var title = $( '<strong></strong>' )
+ *                     .text( this.title )
+ *                     .appendTo( p );
+ *
+ *             p.append( text );
+ *
+ *         }
+ * } );
+ *
+ * // $.widget( 'ui.error', $.ui.hint, {
+ * //         iconName : 'alert',
+ * //         baseClass : 'ui-state-error'
+ * // } );
+ *
+ * } )( jQuery );
+ */

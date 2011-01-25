@@ -1,6 +1,51 @@
 
-p {
-    margin: 0;
-    padding: 0;
-    width: auto;
+p { margin: 0; padding: 0; width: auto; }
+
+html,  body {
+    position: relative;
+    display: block;
+    height: 100%;
 }
+body {
+    background: black;
+}
+
+#app {
+    position: relative;
+    width: 980px;
+    height: 100%;
+    padding: 5px;
+    /* margin: auto; */
+    background-color: black;
+}
+
+#hd { height: 40px; margin: 0 0 2px 0;
+    padding: 10px;
+    overflow: hidden; zoom: 1; }
+#hd #lg { float: left; }
+#hd #lg img{ height: 40px; }
+#hd #acc { float: right; }
+
+#bd { overflow: hidden; zoom: 1; }
+#bd #edit { width: 600px; float: left;
+    padding: 20px; }
+#bd #edit #cont { width: 100%; height: 100%;
+    overflow: auto;
+    color: #000; background: #fff; }
+#bd #tool { width: 360px; float: right; overflow: visible; zoom: 1; }
+
+
+
+#bd #tool #func { overflow: hidden; zoom: 1; margin: 0 0 2px 0; padding: 4px; }
+
+#bd #tool #func>.t-panel,
+#bd #tool #func>.t-btn { margin: 0 6px 0 0; }
+
+#bd #tool #func #my.t-btn { float: left; }
+#bd #tool #func #my.t-dialog { width: 356px; overflow: visible; zoom: 1; }
+/* #bd #tool #func #search { width: 80px; height: 20px; float: left; } */
+#bd #tool #func #search #keyword{ border: 0; width: 80px; height: 20px; }
+#bd #tool #func #foldwrap { float: right; }
+#bd #tool #func #fold { float: right; }
+
+.t-ctrl { padding: 0px; margin-bottom: 20px; }
