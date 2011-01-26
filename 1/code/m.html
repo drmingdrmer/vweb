@@ -19,10 +19,15 @@
         <script language="javascript" type="text/javascript" src="js/jquery-ui-1.8.9.custom.min.js"></script>
 
         <script language="javascript" type="text/javascript" src="js/wb.js"></script>
+
+        <script language="javascript" type="text/javascript" src="js/wb_connect.js"></script>
+        <script language="javascript" type="text/javascript" src="js/wb_client.js"></script>
+
+        <script language="javascript" type="text/javascript" src="js/cmds.js"></script>
         <script language="javascript" type="text/javascript" src="js/vweb.js"></script>
 
-
         <style type="text/css" media="screen">
+
         </style>
     </head>
     <body>
@@ -31,31 +36,66 @@
         <div id="app">
 
             <div id="hd" class="t-panel">
-                <div id="lg"><img src="img/x.png" alt="vweb"/></div>
-                <div id="acc">
-                    <!--
-                       - <button id="login" onclick="wb.login()">用微博帐号登录</button>
-                       - <button id="logout" onclick="wb.logout()">退出登录</button>
-                       -->
 
-                    <a id="login" href="javascript:wb.login();">用微博帐号登录</a>
-                    <a id="logout" class="hidden" href="javascript:wb.logout();">退出登录</a>
+                <div id="lg"><img src="img/x.png" alt="vweb"/></div>
+
+
+                <div id="menu">
+                    <span>/vweb/</span><input id="path" type="text" name="path" value="Untitled.html"/>
+                    <a href="javascript:ui.vdacc.save();">save</a>
                 </div>
+
+
+                <span id="vdacc" style="display:block; padding-right: 40px;">
+
+                    <a id="login" href="javascript:ui.vdacc.show_form();">登录微盘</a>
+                    <a id="logout" href="javascript:ui.vdacc.logout();" style="display:none;">退出微盘</a>
+
+                    <span class="ui-icon ui-button-icon-primary " style="background: url(img/light-red-16.png);"></span>
+
+                    <form id="vdlogin" class="ui-dialog"
+                        action="/vd.php" method="POST" accept-charset="utf-8"
+                        enctype="application/x-www-form-urlencoded">
+
+                        <label for="vdisk_username">用户名</label>
+                        <input id="vdisk_username" type="text" name="username" value=""/>
+
+                        <label for="vdisk_password">密码</label>
+                        <input id="vdisk_password" type="password" name="password" value=""/>
+
+                        <input type="submit" name="submit" value="登录微盘"/>
+
+                    </form>
+
+                    <!-- <span class="ui-state-error-text"><span class="ui-icon ui-icon-notice "></span></span> -->
+                </span>
+
+                <span id="acc">
+
+                    <a id="login" href="javascript:ui.acc.login();">登录微博</a>
+                    <a id="logout" href="javascript:ui.acc.logout();" style="display:none;">退出微博</a>
+
+                    <span class="ui-icon " style="background: url(img/light-red-16.png);"></span>
+
+                    <!-- <span class="ui-state-error-text"><span class="ui-icon ui-icon-notice "></span></span> -->
+                </span>
+            </div>
+            <div id="appmsg">
+                
             </div>
 
             <div id="bd">
-                <div id="edit" class="ui-widget ui-widget-content">
 
-                    <div id="cont">
-                        
-                    </div>
+                <div id="edit" class="ui-widget ui-widget-content">
+                    <div id="cont"></div>
                 </div>
 
                 <div id="tool" class="t-panel invisible">
 
                     <div id="func">
 
-                       <button id="my" class="t-btn" _icon2="triangle-1-s">我的</button>
+                       <!-- <button id="my" class="t-btn" _icon2="triangle-1-s">我的</button> -->
+                       <button id="my" class="t-btn" _icon2="arrow-4-diag">我的</button>
 
 
                        <div id="my" class="t-dialog hidden">
@@ -68,7 +108,7 @@
                                    <input type="radio" id="fo_vid" name="type" value="img"/><label for="fo_vid">视</label>
                                    <input type="radio" id="fo_mus" name="type" value="img"/><label for="fo_mus">音</label>
                                </span>
-                               <a href="javascript:my.mine();">关注</a>
+                               <a href="javascript:ui.my.mine();">关注</a>
 
                            </div>
                            <div id="mine" class="t-ctrl">
@@ -80,7 +120,7 @@
                                    <input type="radio" id="my_vid" name="type" value="img"/><label for="my_vid">视</label>
                                    <input type="radio" id="my_mus" name="type" value="img"/><label for="my_mus">音</label>
                                </span>
-                               <a href="javascript:my.mine();">我的</a>
+                               <a href="javascript:ui.my.mine();">我的</a>
 
                            </div>
                            <div id="at" class="t-ctrl">
@@ -130,12 +170,16 @@
            </div>
 
        </div>
+
+       <div id="forms">
+       </div>
+
        <div id="tmpl" class="hidden">
 
            <div id="msg" class="t-msg ui-widget ui-corner-all">
-               <div class="handle"></div>
+               <div class="handle ui-corner-all"></div>
                <div class="cont">
-                   <img class="img hidden" src="" alt=""/>
+                   <img class="thumb" src="" alt=""/>
                    <p class="msg"></p>
                </div>
            </div>
@@ -154,10 +198,13 @@
             $( ".t-list" ).addClass( "ui-widget ui-corner-all" );
             //$( ".t-btn" ).addClass( "ui-button ui-widget ui-state-default ui-corner-all ui-button-text-only" );
 
+            WB.connect.init(cfg);
+            WB.client.init(cfg);
+            log( "wb init ok" );
+
             ui.init();
 
-            wb.init();
-
+            //ui.acc.login();
 
         } );
     </script>

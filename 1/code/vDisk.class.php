@@ -205,7 +205,7 @@ class vDisk
 	 * @author Bruce Chen
 	 *
  	*/
-	public function upload_file($file_path, $dir_id, $cover='yes')
+	public function upload_file($file_path, $dir, $cover='yes')
 	{
 		
 		if($this->token)
@@ -214,7 +214,7 @@ class vDisk
 			
 				'file' => '@'.$file_path,
 				'token' => $this->token,
-				'dir_id' => $dir_id,
+				'dir'    => $dir, 
 				'cover' => $cover
 			);
 			

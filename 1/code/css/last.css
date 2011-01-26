@@ -13,10 +13,34 @@
     overflow: hidden; zoom: 1;
 }
 
+.t-msg .handle {
+    width: 30px;
+    height: 30px;
+    background-color: #777;
+    float: left;
+}
+
 .t-msg:nth-child(2n) {
     background-color: #bbb;
 }
 
-.t-msg>img {
+.t-msg img.thumb {
     float: right;
+}
+#menu {
+    float: left;
+}
+#menu #path {
+    width: 400px;
+}
+
+#appmsg {
+    width: 100%;
+    position: absolute;
+    left: 0;
+    top: 0;
+    text-align: center;
+}
+#appmsg .msg {
+    margin: auto;
 }

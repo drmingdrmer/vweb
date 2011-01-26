@@ -29,6 +29,39 @@ function keeptoken( &$vdisk ) {
 
 }
 
+function get_fid( &$vdisk, $path ) {
+    $elts = explode( "/", $path );
+    $fn = array_pop( $elts );
+    $dir = implode( "/", $elts );
+
+
+    $r = $vdisk->get_dirid_with_path( $dir );
+
+    if ( $r && $r[ 'err_code' ] == 0 ) {
+
+        $dirid = $r[ 'data' ][ 'id' ];
+
+        // TODO page size and page number is not supported by vdisk sdk
+        $r = $vdisk->get_list( $dirid );
+        if ( $r && $r[ 'err_code' ] == 0 ) {
+            $lst = $r[ 'data' ];
+            for ( $i = 0; $i < count( $lst ); $i++ ) {
+                if ( $lst[ $i ][ 'name' ] == $fn ) {
+                    return $lst[ $i ][ 'id' ];
+                }
+            }
+        }
+        else {
+            return false;
+        }
+    }
+    else {
+        return false;
+    }
+
+    return false;
+}
+
 $verb = $_SERVER[ 'REQUEST_METHOD' ];
 
 if ( $verb == "POST" ) {
@@ -83,7 +116,7 @@ else if ( $verb == "PUT" ) {
     $path = $_REQUEST[ 'path' ];
 
     if ( !$path ) {
-        echo "{\"rst\" : \"fail\", \"msg\" : \"no path specified\"}";
+        echo "{\"rst\" : \"invalid_path\", \"msg\" : \"不合法路径:'$path'\"}";
         exit();
     }
 
@@ -103,11 +136,15 @@ else if ( $verb == "PUT" ) {
      */
     $localfn = SAE_TMP_PATH . $localTail;
     $fdata = file_get_contents("php://input");
+    if ( !$fdata ) {
+        echo "{\"rst\" : \"empty_body\", \"msg\" : \"不能保存空文件\"}";
+        exit();
+    }
 
 
     $r = file_put_contents( $localfn, $fdata );
     if ( !$r ) {
-        echo "{\"rst\" : \"fail\", \"msg\" : \"save $localfn locally\"}";
+        echo "{\"rst\" : \"fail\", \"msg\" : \"不能保存本地临时文件:'$localfn'\"}";
         exit();
     }
 
@@ -115,9 +152,9 @@ else if ( $verb == "PUT" ) {
 
     $vdisk = new vDisk(VWEB_VD_KEY, VWEB_VD_SEC);
 
-    $r = $vdisk->get_token( "drdr.xp@gmail.com", "123qwe" );
+    // $r = $vdisk->get_token( "drdr.xp@gmail.com", "123qwe" );
     // TODO 
-    // $r = $vdisk->keep_token( $_SESSION[ 'token' ] );
+    $r = $vdisk->keep_token( $_SESSION[ 'token' ] );
 
     $r = $vdisk->upload_file( $localfn, $parent, 'yes' );
     if ( $r && $r[ 'err_code' ] == 0 ) {
@@ -128,19 +165,39 @@ else if ( $verb == "PUT" ) {
         $r = $vdisk->move_file( $fid, $dirid, $fn );
 
         if ( $r && $r[ 'err_code' ] == 0 ) {
-            echo "{\"rst\" : \"ok\"}";
+            echo "{\"rst\" : \"ok\", \"path\" : \"$path\", \"fid\" : \"{$r['data']['fid']}\"}";
         }
         else {
-            echo "{\"rst\" : \"fail\", \"msg\" : \"move fid:$fid to $fn\"}";
+            // existed. delete it first
+            $oldfid = get_fid( $vdisk, $path );
+            if ( $oldfid ) {
+                $r = $vdisk->delete_file( $oldfid );
+                if ( $r && $r[ 'err_code' ] == 0 ) {
+                }
+            }
+
+
+            $r = $vdisk->move_file( $fid, $dirid, $fn );
+
+            if ( $r && $r[ 'err_code' ] == 0 ) {
+                echo "{\"rst\" : \"ok\", \"path\" : \"$path\", \"fid\" : \"{$r['data']['fid']}\"}";
+            }
+            else {
+                echo "{\"rst\" : \"fail\", \"msg\" : \"{$r['err_msg']} 动作:重命名fid:'$fid'到'$fn'\"}";
+            }
+
         }
     }
     else {
-        echo "{\"rst\" : \"fail\", \"msg\" : \"" . $r[ 'err_msg' ] . "\"}";
+        echo "{\"rst\" : \"fail\", \"msg\" : \"{$r['err_msg']} 动作:上传'$localfn'到'$parent'\"}";
     }
 
     $r = unlink( $localfn );
 }
 
+function move_file( &$vdisk, $fid, $desc ) {
+    
+}
 
 
 
