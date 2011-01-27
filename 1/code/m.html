@@ -95,6 +95,9 @@
 
                     <div id="func">
 
+                       <input type="checkbox" id="fold" _icon="triangle-1-e" _text="no" class="t-btn" name="what" value="foo" />
+                       <label id="fold" for="fold">关闭</label>
+
                        <!-- <button id="my" class="t-btn" _icon2="triangle-1-s">我的</button> -->
                        <button id="my" class="t-btn" _icon2="arrow-4-diag">我的</button>
 
@@ -102,9 +105,10 @@
                        <div id="my" class="t-dialog hidden" style="background:url(img/t101.png);">
                            <div id="friends" class="t-ctrl">
 
+                               <span>我的首页</span>
 
                                <span class="t-opt">
-                                   <input type="radio" id="fo_all" checked name="fo_type" value="img"/><label for="fo_all">我的首页:</label>
+                                   <!-- <input type="radio" id="fo_all" checked name="fo_type" value="img"/><label for="fo_all">我的首页:</label> -->
                                    <input type="radio" id="fo_ori" name="fo_type" value="img"/><label for="fo_ori">原</label>
                                    <input type="radio" id="fo_img" name="fo_type" value="img"/><label for="fo_img">图</label>
                                    <input type="radio" id="fo_vid" name="fo_type" value="img"/><label for="fo_vid">视</label>
@@ -117,10 +121,10 @@
                            <!-- <div id="mine" class="t-ctrl ui-widget ui-widget-content ui-corner-all-6"> -->
                            <div id="mine" class="t-ctrl highlight">
 
-
+                               <span>我的微博:</span>
 
                                <span class="t-opt">
-                                   <input type="radio" id="my_all" checked name="my_type" value="img"/><label for="my_all">我的微博:</label>
+                                   <!-- <input type="radio" id="my_all" checked name="my_type" value="img"/><label for="my_all">我的微博:</label> -->
                                    <input type="radio" id="my_ori" name="my_type" value="img"/><label for="my_ori">原</label>
                                    <input type="radio" id="my_img" name="my_type" value="img"/><label for="my_img">图</label>
                                    <input type="radio" id="my_vid" name="my_type" value="img"/><label for="my_vid">视</label>
@@ -130,15 +134,17 @@
 
                            </div>
                            <div id="at" class="t-ctrl">
-                               <span class="t-opt">
-                                   <input type="radio" id="at_all_p" checked name="at_range" value="img"/><label for="at_all_p">提到我的:</label>
-                                   <input type="radio" id="at_fo"  name="at_range" value="img"/><label for="at_fo">关注的人</label>
-
-                               </span>
+                               提到我的:
+                               <!--
+                                  - <span class="t-opt">
+                                  -     <input type="radio" id="at_all_p" checked name="at_range" value="img"/><label for="at_all_p">提到我的:</label>
+                                  - </span>
+                                  -->
                                <!-- <br /> -->
                                <span class="t-opt">
-                                   <input type="radio" id="at_all_msg" name="at_type" value="img"/><label for="at_all_msg">全部微博</label>
-                                   <input type="radio" id="at_ori" name="at_type" value="img"/><label for="at_ori">原创</label>
+                                   <!-- <input type="radio" id="at_all_msg" name="at_type" value="img"/><label for="at_all_msg">全部微博</label> -->
+                                   <input type="checkbox" id="at_fo"  name="at_range" value="img"/><label for="at_fo">关注的人</label>
+                                   <input type="checkbox" id="at_ori" name="at_type" value="img"/><label for="at_ori">原创</label>
                                </span>
                                <div class="current"></div>
                            </div>
@@ -165,8 +171,6 @@
                            <input id="keyword" type="text" name="keyword" value="search"/>
                        </span>
 
-                       <input type="checkbox" id="fold" _icon="triangle-1-e" _text="no" class="t-btn" name="what" value="foo" />
-                       <label id="fold" for="fold">关闭</label>
 
                    </div>
                    <div id="list" class="t-list">
