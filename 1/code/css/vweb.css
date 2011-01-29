@@ -6,9 +6,7 @@ html,  body {
     display: block;
     height: 100%;
 }
-body {
-    background: #000;
-}
+body { background: #ddd; }
 
 #app {
     position: relative;
@@ -16,11 +14,12 @@ body {
     height: 100%;
     padding: 5px;
     /* margin: auto; */
-    background-color: #000;
+    background-color: #ddd;
 }
 
 #hd { height: 40px; margin: 0 0 2px 0;
     padding: 10px;
+    background: #aaa;
     overflow: hidden; zoom: 1; }
 #hd #lg { float: left; }
 #hd #lg img{ height: 40px; }
@@ -33,7 +32,9 @@ body {
 #bd #edit #cont { width: 100%; height: 100%;
     overflow: auto;
     color: #000; background: #fff; }
-#bd #tool { width: 360px; float: right; overflow: visible; zoom: 1; }
+#bd #tool { width: 360px; float: right;
+    background: #aaa;
+    overflow: visible; zoom: 1; }
 
 
 
@@ -49,4 +50,14 @@ body {
 #bd #tool #func #foldwrap { float: right; }
 #bd #tool #func #fold { float: right; }
 
-.t-ctrl { padding: 14px 0 14px 14px; margin-bottom: 4px; }
+.t-ctrl { padding: 14px 14px 14px 14px; margin-bottom: 4px; }
+.t-group {
+    padding: 10px 10px 0 10px;
+    border: 1px solid #444;
+}
+.t-group .t-title {
+    margin: 0 0 6px 0;
+}
+.t-line {
+    margin: 0 0 10px 0;
+}

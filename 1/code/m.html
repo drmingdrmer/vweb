@@ -93,6 +93,7 @@
 
                 <div id="tool" class="t-panel -invisible">
 
+                    <!-- -------------------------------- function here -------------------------------- -->
                     <div id="func">
 
                        <input type="checkbox" id="fold" _icon="triangle-1-e" _text="no" class="t-btn" name="what" value="foo" />
@@ -105,15 +106,102 @@
                        <div id="my" class="t-dialog hidden" style="background:url(img/t101.png);">
                            <div id="friends" class="t-ctrl">
 
-                               <span>我的首页</span>
+                               <div class="t-group">
 
-                               <span class="t-opt">
-                                   <!-- <input type="radio" id="fo_all" checked name="fo_type" value="img"/><label for="fo_all">我的首页:</label> -->
-                                   <input type="radio" id="fo_ori" name="fo_type" value="img"/><label for="fo_ori">原</label>
-                                   <input type="radio" id="fo_img" name="fo_type" value="img"/><label for="fo_img">图</label>
-                                   <input type="radio" id="fo_vid" name="fo_type" value="img"/><label for="fo_vid">视</label>
-                                   <input type="radio" id="fo_mus" name="fo_type" value="img"/><label for="fo_mus">音</label>
-                               </span>
+<!--
+   -                                    <div class="t-tabs">
+   - 
+   -                                        <ul>
+   -                                            <li><a href="#tab-friends-short">我的首页</a></li>
+   -                                            <li><a href="#tab-friends-search"><input class="search-keyword" type="text" name="search" value="search"></a></li>
+   -                                        </ul>
+   - 
+   -                                        <div id="tab-friends-short">
+   -                                            <div class="t-line">
+   -                                                <span class="t-opt">
+   -                                                    <input type="radio" id="fo_ori" name="fo_type" value="img"/><label for="fo_ori">原</label>
+   -                                                    <input type="radio" id="fo_img" name="fo_type" value="img"/><label for="fo_img">图</label>
+   -                                                    <input type="radio" id="fo_vid" name="fo_type" value="img"/><label for="fo_vid">视</label>
+   -                                                    <input type="radio" id="fo_mus" name="fo_type" value="img"/><label for="fo_mus">音</label>
+   -                                                </span>
+   -                                             </div>
+   -                                        </div>
+   -                                        <div id="tab-friends-search">
+   -                                            <div class="t-line">
+   -                                                <span class="t-opt">
+   -                                                    <input type="checkbox" id="search_ori" name="search_type" value="img"/><label for="search_ori">原</label>
+   -                                                    <input type="checkbox" id="search_ret" name="search_type" value="img"/><label for="search_ret">转</label>
+   -                                                </span>
+   - 
+   -                                                <span class="t-opt">
+   -                                                    <input type="checkbox" id="search_txt" name="search_type" value="img"/><label for="search_txt">字</label>
+   -                                                    <input type="checkbox" id="search_img" name="search_type" value="img"/><label for="search_img">图</label>
+   -                                                    <input type="checkbox" id="search_vid" name="search_type" value="img"/><label for="search_vid">视</label>
+   -                                                    <input type="checkbox" id="search_mus" name="search_type" value="img"/><label for="search_mus">音</label>
+   -                                                </span>
+   - 
+   -                                            </div>
+   - 
+   -                                            <div class="t-line">
+   -                                                <input class="search-time" type="text" name="search_tstart" value="00-00-00"/> - 
+   -                                                <input class="search-time" type="text" name="search_tend" value="00-00-00"/>
+   -                                            </div>
+   - 
+   -                                        </div>
+   -                                    </div>
+   -->
+
+                                   <div class="t-line">
+                                       <div class="t-title">我的首页</div>
+                                       <!-- <span>我的首页</span> -->
+
+                                       <span class="t-opt">
+                                           <input type="radio" id="fo_ori" name="fo_type" value="img"/><label for="fo_ori">原</label>
+                                           <input type="radio" id="fo_img" name="fo_type" value="img"/><label for="fo_img">图</label>
+                                           <input type="radio" id="fo_vid" name="fo_type" value="img"/><label for="fo_vid">视</label>
+                                           <input type="radio" id="fo_mus" name="fo_type" value="img"/><label for="fo_mus">音</label>
+                                       </span>
+                                   </div>
+
+                                   <div class="t-line">
+                                       <input class="search-keyword" type="text" name="search" value="search">
+                                   </div>
+
+                                   <div class="t-line">
+                                       <span class="t-opt">
+                                           <input type="checkbox" id="search_ori" name="search_type" value="img"/><label for="search_ori">原</label>
+                                           <input type="checkbox" id="search_ret" name="search_type" value="img"/><label for="search_ret">转</label>
+                                       </span>
+
+                                       <span class="t-opt">
+                                           <input type="checkbox" id="search_txt" name="search_type" value="img"/><label for="search_txt">字</label>
+                                           <input type="checkbox" id="search_img" name="search_type" value="img"/><label for="search_img">图</label>
+                                           <input type="checkbox" id="search_vid" name="search_type" value="img"/><label for="search_vid">视</label>
+                                           <input type="checkbox" id="search_mus" name="search_type" value="img"/><label for="search_mus">音</label>
+                                       </span>
+
+                                   </div>
+
+                                   <div class="t-line">
+                                       <input class="search-time" type="text" name="search_tstart" value="00-00-00"/> - 
+                                       <input class="search-time" type="text" name="search_tend" value="00-00-00"/>
+                                   </div>
+
+                                   <hr />
+
+                                   <div class="t-line">
+                                       <span class="t-opt">
+                                           <input type="radio" id="grp_0" name="grp_type" value="img"/><label for="grp_0">News</label>
+                                           <input type="radio" id="grp_1" name="grp_type" value="img"/><label for="grp_1">Office</label>
+                                           <input type="radio" id="grp_2" name="grp_type" value="img"/><label for="grp_2">熟人</label>
+                                        </span>
+                                        <button id="more-group" class="t-btn" _icon2="arrow-1-s">更多</button>
+                                   </div>
+
+                               </div>
+
+
+
                                <!-- <a href="javascript:ui.my.mine();">关注</a> -->
                                <div class="current"></div>
 
@@ -130,6 +218,9 @@
                                    <input type="radio" id="my_vid" name="my_type" value="img"/><label for="my_vid">视</label>
                                    <input type="radio" id="my_mus" name="my_type" value="img"/><label for="my_mus">音</label>
                                </span>
+
+                               <input type="text" name="search" value="search"/>
+
                                <div class="current"></div>
 
                            </div>
@@ -203,12 +294,17 @@
         $( function() {
             $( ".t-dialog" ).addClass( "ui-dialog ui-widget ui-widget-content ui-corner-all" );
 
-            $( ".t-panel" ).addClass( "ui-widget ui-widget-content ui-corner-all" );
+            //$( ".t-panel" ).addClass( "ui-widget ui-widget-content ui-corner-all" );
+            $( ".t-panel" ).addClass( "ui-widget ui-corner-all" );
             //$( ".t-ctrl" ).addClass( "ui-widget ui-widget-content ui-corner-all" );
             $( ".t-ctrl" ).addClass( "ui-widget ui-corner-all" );
+
+            $( ".t-group" ).addClass( "ui-widget ui-corner-all" );
+
             $( ".t-list" ).addClass( "ui-widget ui-corner-all" );
             //$( ".t-btn" ).addClass( "ui-button ui-widget ui-state-default ui-corner-all ui-button-text-only" );
 
+            $( ".t-tabs" ).tabs();
             WB.connect.init(cfg);
             WB.client.init(cfg);
             log( "wb init ok" );

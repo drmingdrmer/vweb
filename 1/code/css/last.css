@@ -73,7 +73,24 @@
     color:#fff;
     background: #444;
 
+}
 
+.t-ctrl input.search-keyword {
+
+    width: 120px;
+
+    -moz-border-radius: 2px;
+    -webkit-border-radius: 2px;
+    border-radius: 2px;
+}
+
+.t-ctrl input.search-time {
+
+    width: 80px;
+
+    -moz-border-radius: 2px;
+    -webkit-border-radius: 2px;
+    border-radius: 2px;
 }
 
 .t-opt {
@@ -139,5 +156,5 @@
 }
 
 .t-opt .ui-button-text {
-    padding: 4px 12px;
+    padding: 2px 6px;
 }
