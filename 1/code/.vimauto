@@ -1,0 +1,8 @@
+augroup VWEB
+    au!
+    au BufWritePost * silent! exe "!{ cd ../../../../; php am.php upload -f0 -v1 -n vweb >/dev/null 2>&1 ; } & "
+augroup END
+
+
+
+" vim:ft=vim

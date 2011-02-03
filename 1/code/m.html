@@ -3,226 +3,155 @@
     <head>
         <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
         <title>m</title>
-
         <!--
            - <script type="text/javascript" src="http://js.wcdn.cn/t3/platform/js/api/wb.js" charset="utf-8" ></script>
            -->
-
         <link rel="stylesheet" type="text/css" href="css/global.css" />
         <!-- <link rel="stylesheet" type="text/css" href="theme/smoothness/jquery-ui-1.8.9.custom.css" /> -->
         <link rel="stylesheet" type="text/css" href="theme/trontastic/jquery-ui-1.8.9.custom.css" />
         <!-- <link rel="stylesheet" type="text/css" href="theme/Aristo/jquery-ui-1.8.7.custom.css" /> -->
         <link rel="stylesheet" type="text/css" href="css/vweb.css" />
         <link rel="stylesheet" type="text/css" href="css/last.css" />
-
-
         <script language="javascript" type="text/javascript" src="js/jquery-1.4.4.min.js"></script>
         <script language="javascript" type="text/javascript" src="js/jquery-ui-1.8.9.custom.min.js"></script>
-
         <script language="javascript" type="text/javascript" src="js/wb.js"></script>
-
         <script language="javascript" type="text/javascript" src="js/wb_connect.js"></script>
         <script language="javascript" type="text/javascript" src="js/wb_client.js"></script>
-
         <script language="javascript" type="text/javascript" src="js/cmds.js"></script>
         <script language="javascript" type="text/javascript" src="js/vweb.js"></script>
-
         <style type="text/css" media="screen">
-
         </style>
     </head>
     <body>
-
-
         <div id="app">
-
             <div id="hd" class="t-panel">
-
                 <div id="lg"><img src="img/x.png" alt="vweb"/></div>
-
-
                 <div id="menu">
                     <span>/vweb/</span><input id="path" type="text" name="path" value="Untitled.html"/>
                     <a href="javascript:ui.vdacc.save();">save</a>
                 </div>
-
-
                 <span id="vdacc" style="display:block; padding-right: 40px;">
-
                     <a id="login" href="javascript:ui.vdacc.show_form();">登录微盘</a>
                     <a id="logout" href="javascript:ui.vdacc.logout();" style="display:none;">退出微盘</a>
-
                     <span class="ui-icon ui-button-icon-primary " style="background: url(img/light-red-16.png);"></span>
-
                     <form id="vdlogin" class="ui-dialog"
                         action="/vd.php" method="POST" accept-charset="utf-8"
                         enctype="application/x-www-form-urlencoded">
-
                         <label for="vdisk_username">用户名</label>
                         <input id="vdisk_username" type="text" name="username" value=""/>
-
                         <label for="vdisk_password">密码</label>
                         <input id="vdisk_password" type="password" name="password" value=""/>
-
                         <input type="submit" name="submit" value="登录微盘"/>
-
                     </form>
-
                     <!-- <span class="ui-state-error-text"><span class="ui-icon ui-icon-notice "></span></span> -->
                 </span>
-
                 <span id="acc">
-
                     <a id="login" href="javascript:ui.acc.login();">登录微博</a>
                     <a id="logout" href="javascript:ui.acc.logout();" style="display:none;">退出微博</a>
-
                     <span class="ui-icon " style="background: url(img/light-red-16.png);"></span>
-
                     <!-- <span class="ui-state-error-text"><span class="ui-icon ui-icon-notice "></span></span> -->
                 </span>
             </div>
             <div id="appmsg">
-                
             </div>
-
             <div id="bd">
-
                 <div id="edit" class="ui-widget ui-widget-content">
                     <div id="cont"></div>
                 </div>
-
                 <div id="tool" class="t-panel -invisible">
-
                     <!-- -------------------------------- function here -------------------------------- -->
                     <div id="func">
-
+                        <div id="group_sample" class="hidden">
+                            <span id="sampleid" class="t-opt" _type="radio">
+                                <a href="gid">News</a>
+                                <a href="gid">Office</a>
+                                <a href="gid">熟人</a>
+                            </span>
+                            <button id="more-group" class="t-btn" _icon2="arrow-1-s">更多</button>
+                        </div>
                        <input type="checkbox" id="fold" _icon="triangle-1-e" _text="no" class="t-btn" name="what" value="foo" />
                        <label id="fold" for="fold">关闭</label>
-
                        <!-- <button id="my" class="t-btn" _icon2="triangle-1-s">我的</button> -->
                        <button id="my" class="t-btn" _icon2="arrow-4-diag">我的</button>
-
-
-                       <div id="my" class="t-dialog hidden" style="background:url(img/t101.png);">
+                       <!-- <div id="my" class="t-dialog hidden" style="background:url(img/t101.png);"> -->
+                       <div id="my" class="t-dialog " style="background:url(img/t101.png);">
                            <div id="friends" class="t-ctrl">
 
-                               <div class="t-group">
-
-<!--
-   -                                    <div class="t-tabs">
-   - 
-   -                                        <ul>
-   -                                            <li><a href="#tab-friends-short">我的首页</a></li>
-   -                                            <li><a href="#tab-friends-search"><input class="search-keyword" type="text" name="search" value="search"></a></li>
-   -                                        </ul>
-   - 
-   -                                        <div id="tab-friends-short">
-   -                                            <div class="t-line">
-   -                                                <span class="t-opt">
-   -                                                    <input type="radio" id="fo_ori" name="fo_type" value="img"/><label for="fo_ori">原</label>
-   -                                                    <input type="radio" id="fo_img" name="fo_type" value="img"/><label for="fo_img">图</label>
-   -                                                    <input type="radio" id="fo_vid" name="fo_type" value="img"/><label for="fo_vid">视</label>
-   -                                                    <input type="radio" id="fo_mus" name="fo_type" value="img"/><label for="fo_mus">音</label>
-   -                                                </span>
-   -                                             </div>
-   -                                        </div>
-   -                                        <div id="tab-friends-search">
-   -                                            <div class="t-line">
-   -                                                <span class="t-opt">
-   -                                                    <input type="checkbox" id="search_ori" name="search_type" value="img"/><label for="search_ori">原</label>
-   -                                                    <input type="checkbox" id="search_ret" name="search_type" value="img"/><label for="search_ret">转</label>
-   -                                                </span>
-   - 
-   -                                                <span class="t-opt">
-   -                                                    <input type="checkbox" id="search_txt" name="search_type" value="img"/><label for="search_txt">字</label>
-   -                                                    <input type="checkbox" id="search_img" name="search_type" value="img"/><label for="search_img">图</label>
-   -                                                    <input type="checkbox" id="search_vid" name="search_type" value="img"/><label for="search_vid">视</label>
-   -                                                    <input type="checkbox" id="search_mus" name="search_type" value="img"/><label for="search_mus">音</label>
-   -                                                </span>
-   - 
-   -                                            </div>
-   - 
-   -                                            <div class="t-line">
-   -                                                <input class="search-time" type="text" name="search_tstart" value="00-00-00"/> - 
-   -                                                <input class="search-time" type="text" name="search_tend" value="00-00-00"/>
-   -                                            </div>
-   - 
-   -                                        </div>
-   -                                    </div>
-   -->
-
+                               <div class="t_ctrl_title">
+                                   <button id="my_group" class="t-btn" _icon2="arrow-1-s">我的首页:Group</button>
+                               </div>
+                               <div id="fr_simple" class="t_group left" >
                                    <div class="t-line">
-                                       <div class="t-title">我的首页</div>
-                                       <!-- <span>我的首页</span> -->
-
-                                       <span class="t-opt">
-                                           <input type="radio" id="fo_ori" name="fo_type" value="img"/><label for="fo_ori">原</label>
-                                           <input type="radio" id="fo_img" name="fo_type" value="img"/><label for="fo_img">图</label>
-                                           <input type="radio" id="fo_vid" name="fo_type" value="img"/><label for="fo_vid">视</label>
-                                           <input type="radio" id="fo_mus" name="fo_type" value="img"/><label for="fo_mus">音</label>
+                                       <span id="my_fo_type" class="t-opt" _type="radio">
+                                           <a href="#">原</a>
+                                           <a href="#">图</a>
+                                           <a href="#">视</a>
+                                           <a href="#">音</a>
                                        </span>
                                    </div>
-
+                               </div>
+                               <div id="fr_search" class="t_group left">
                                    <div class="t-line">
                                        <input class="search-keyword" type="text" name="search" value="search">
                                    </div>
-
                                    <div class="t-line">
-                                       <span class="t-opt">
-                                           <input type="checkbox" id="search_ori" name="search_type" value="img"/><label for="search_ori">原</label>
-                                           <input type="checkbox" id="search_ret" name="search_type" value="img"/><label for="search_ret">转</label>
-                                       </span>
-
-                                       <span class="t-opt">
-                                           <input type="checkbox" id="search_txt" name="search_type" value="img"/><label for="search_txt">字</label>
-                                           <input type="checkbox" id="search_img" name="search_type" value="img"/><label for="search_img">图</label>
-                                           <input type="checkbox" id="search_vid" name="search_type" value="img"/><label for="search_vid">视</label>
-                                           <input type="checkbox" id="search_mus" name="search_type" value="img"/><label for="search_mus">音</label>
-                                       </span>
-
-                                   </div>
-
-                                   <div class="t-line">
-                                       <input class="search-time" type="text" name="search_tstart" value="00-00-00"/> - 
+                                       <input class="search-time" type="text" name="search_tstart" value="00-00-00"/> -
                                        <input class="search-time" type="text" name="search_tend" value="00-00-00"/>
                                    </div>
-
-                                   <hr />
-
                                    <div class="t-line">
-                                       <span class="t-opt">
-                                           <input type="radio" id="grp_0" name="grp_type" value="img"/><label for="grp_0">News</label>
-                                           <input type="radio" id="grp_1" name="grp_type" value="img"/><label for="grp_1">Office</label>
-                                           <input type="radio" id="grp_2" name="grp_type" value="img"/><label for="grp_2">熟人</label>
-                                        </span>
-                                        <button id="more-group" class="t-btn" _icon2="arrow-1-s">更多</button>
+                                       <span id="my_fo_search_range" class="t-opt" _type="checkbox">
+                                           <a href="gid">原</a>
+                                           <a href="gid">转</a>
+                                       </span>
+                                       <span id="my_fo_search_type" class="t-opt" _type="checkbox">
+                                           <a href="gid">字</a>
+                                           <a href="gid">图</a>
+                                           <a href="gid">视</a>
+                                           <a href="gid">音</a>
+                                       </span>
                                    </div>
-
                                </div>
-
-
-
-                               <!-- <a href="javascript:ui.my.mine();">关注</a> -->
-                               <div class="current"></div>
-
                            </div>
-                           <!-- <div id="mine" class="t-ctrl ui-widget ui-widget-content ui-corner-all-6"> -->
                            <div id="mine" class="t-ctrl highlight">
-
-                               <span>我的微博:</span>
-
-                               <span class="t-opt">
-                                   <!-- <input type="radio" id="my_all" checked name="my_type" value="img"/><label for="my_all">我的微博:</label> -->
-                                   <input type="radio" id="my_ori" name="my_type" value="img"/><label for="my_ori">原</label>
-                                   <input type="radio" id="my_img" name="my_type" value="img"/><label for="my_img">图</label>
-                                   <input type="radio" id="my_vid" name="my_type" value="img"/><label for="my_vid">视</label>
-                                   <input type="radio" id="my_mus" name="my_type" value="img"/><label for="my_mus">音</label>
-                               </span>
-
-                               <input type="text" name="search" value="search"/>
-
-                               <div class="current"></div>
-
+                               <div class="t-tabs t-filter-tabs">
+                                   <ul>
+                                       <li><a href="#tab-mine-short">我的微博</a></li>
+                                       <li><a href="#tab-mine-search">
+                                           <input class="search-keyword" type="text" name="search" value="search">
+                                       </a></li>
+                                   </ul>
+                                   <div id="tab-mine-short">
+                                       <div class="t-line">
+                                           <span id="mine_type" class="t-opt" _type="radio">
+                                               <a href="#">原</a>
+                                               <a href="#">图</a>
+                                               <a href="#">视</a>
+                                               <a href="#">音</a>
+                                           </span>
+                                       </div>
+                                   </div>
+                                   <div id="tab-mine-search">
+                                       <div class="t-line">
+                                           <span id="mine_search_range" class="t-opt" _type="checkbox">
+                                               <a href="gid">原</a>
+                                               <a href="gid">转</a>
+                                           </span>
+                                           <span id="mine_search_type" class="t-opt" _type="checkbox">
+                                               <a href="gid">字</a>
+                                               <a href="gid">图</a>
+                                               <a href="gid">视</a>
+                                               <a href="gid">音</a>
+                                           </span>
+                                       </div>
+                                       <div class="t-line">
+                                           <input class="search-time" type="text" name="search_tstart" value="00-00-00"/> -
+                                           <input class="search-time" type="text" name="search_tend" value="00-00-00"/>
+                                       </div>
+                                   </div>
+                               </div>
+                           </div>
+                           <div id="fav" class="t-ctrl">
+                               <a href="href">收藏</a>
                            </div>
                            <div id="at" class="t-ctrl">
                                提到我的:
@@ -237,47 +166,58 @@
                                    <input type="checkbox" id="at_fo"  name="at_range" value="img"/><label for="at_fo">关注的人</label>
                                    <input type="checkbox" id="at_ori" name="at_type" value="img"/><label for="at_ori">原创</label>
                                </span>
-                               <div class="current"></div>
                            </div>
-
                            <div id="re" class="t-ctrl">
                                <span class="t-opt">
                                    <input type="radio" id="re_all_p" checked name="re_range" value="img"/><label for="re_all_p">我的评论:</label>
                                    <input type="radio" id="re_fo"  name="re_range" value="img"/><label for="re_fo">关注的人</label>
                                    <input type="radio" id="re_unk"  name="re_range" value="img"/><label for="re_unk">陌生人</label>
-
                                </span>
                                <input type="text" name="search" value="search"/>
-                               <div class="current"></div>
                            </div>
-
-                           <div id="fav" class="t-ctrl">
-                               <a href="href">收藏</a>
-                               <div class="current"></div>
+                           <div id="global" class="t-ctrl">
+                               <div class="t-tabs t-filter-tabs">
+                                   <ul>
+                                       <!-- <li><a href="#tab-global-short">name</a></li> -->
+                                       <li><a href="#tab-glboal-search">
+                                           <input class="search-keyword" type="text" name="search" value="search">
+                                       </a></li>
+                                   </ul>
+                                   <div id="tab-glboal-search">
+                                       <div class="t-line">
+                                           <span id="global_search_range" class="t-opt" _type="checkbox">
+                                               <a href="gid">all</a>
+                                               <a href="gid">原</a>
+                                               <a href="gid">热</a>
+                                           </span>
+                                           <span id="global_search_type" class="t-opt" _type="checkbox">
+                                               <a href="gid">all</a>
+                                               <a href="gid">图</a>
+                                               <a href="gid">视</a>
+                                               <a href="gid">音</a>
+                                               <a href="gid">链</a>
+                                           </span>
+                                       </div>
+                                       <div class="t-line">
+                                           <input class="search-time" type="text" name="search_tstart" value="00-00-00"/> -
+                                           <input class="search-time" type="text" name="search_tend" value="00-00-00"/>
+                                       </div>
+                                   </div>
+                               </div>
                            </div>
                        </div>
-
-
                        <span id="search" class="t-panel">
                            <input id="keyword" type="text" name="keyword" value="search"/>
                        </span>
-
-
                    </div>
                    <div id="list" class="t-list">
-
                    </div>
-
                </div>
            </div>
-
        </div>
-
        <div id="forms">
        </div>
-
        <div id="tmpl" class="hidden">
-
            <div id="msg" class="t-msg ui-widget ui-corner-all">
                <div class="handle ui-corner-all"></div>
                <div class="cont">
@@ -285,34 +225,24 @@
                    <p class="msg"></p>
                </div>
            </div>
-
        </div>
-
    </body>
-
     <script language="javascript" type="text/javascript">
         $( function() {
             $( ".t-dialog" ).addClass( "ui-dialog ui-widget ui-widget-content ui-corner-all" );
-
             //$( ".t-panel" ).addClass( "ui-widget ui-widget-content ui-corner-all" );
             $( ".t-panel" ).addClass( "ui-widget ui-corner-all" );
             //$( ".t-ctrl" ).addClass( "ui-widget ui-widget-content ui-corner-all" );
             $( ".t-ctrl" ).addClass( "ui-widget ui-corner-all" );
-
             $( ".t-group" ).addClass( "ui-widget ui-corner-all" );
-
             $( ".t-list" ).addClass( "ui-widget ui-corner-all" );
             //$( ".t-btn" ).addClass( "ui-button ui-widget ui-state-default ui-corner-all ui-button-text-only" );
-
             $( ".t-tabs" ).tabs();
             WB.connect.init(cfg);
             WB.client.init(cfg);
             log( "wb init ok" );
-
             ui.init();
-
             //ui.acc.login();
-
         } );
     </script>
 </html>

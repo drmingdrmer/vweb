@@ -53,9 +53,38 @@ $.extend( ui, {
 
         self.relayout();
 
+
         $( ".t-btn" ).each( function() {
             $( this ).button( $( this ).btn_opt() );
         } );
+
+
+        $( ".t-opt" ).each( function() {
+            var container = $( this );
+            var tp = container.attr( "_type" );
+            var cid = container.attr( "id" );
+
+            container.children( "a" ).each( function( i, e ){
+                e = $( e );
+                container.append(
+                    $( "<input/>" )
+                    .attr( {
+                        type : tp,
+                        id : cid + i,
+                        name : cid,
+                        value : e.attr( "href" )
+                    } ) )
+                .append(
+                    $( "<label></label>" )
+                    .text( e.text() )
+                    .attr( "for", cid + i )
+                );
+                e.remove();
+            } );
+
+        } );
+
+
 
 
         self.msg.init();
