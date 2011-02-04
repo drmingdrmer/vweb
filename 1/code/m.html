@@ -71,45 +71,42 @@
                             </span>
                             <button id="more-group" class="t-btn" _icon2="arrow-1-s">更多</button>
                         </div>
-                       <input type="checkbox" id="fold" _icon="triangle-1-e" _text="no" class="t-btn" name="what" value="foo" />
-                       <label id="fold" for="fold">关闭</label>
-                       <!-- <button id="my" class="t-btn" _icon2="triangle-1-s">我的</button> -->
-                       <button id="my" class="t-btn" _icon2="arrow-4-diag">我的</button>
-                       <!-- <div id="my" class="t-dialog t-autoclose hidden" style="background:url(img/t101.png);"> -->
-                       <div id="my" class="t-dialog t-autoclose" style="background:url(img/t101.png);">
+                       <button id="expand" class="t-btn" _text="no" _icon2="arrow-4-diag">X</button>
+                       <div id="my" class="t-dialog t-autoclose _hidden" style="background:url(img/t101.png);">
                            <fieldset id="friend">
                                <legend class="t_btn_set">
                                    <button class="f_idx t-btn">我的首页</button>
                                    <button class="f_grp t-btn" _icon2="triangle-1-s">Group</button>
                                </legend>
-                               <div class="t_group g_simp left" >
-                                   <p>
-                                       <span id="my_fo_type" class="t_opt" _type="radio">
-                                           <a href="#">原</a>
-                                           <a href="#">图</a>
-                                           <a href="#">视</a>
-                                           <a href="#">音</a>
-                                       </span>
-                                   </p>
-                               </div>
-                               <div class="t_group g_s left">
-                                   <p> <input class="search-keyword" type="text" name="s" value="search"> </p>
-                                   <p>
-                                       <input class="search-time" type="text" name="s_0" value="00-00-00"/> -
-                                       <input class="search-time" type="text" name="s_1" value="00-00-00"/>
-                                   </p>
-                                   <p>
-                                       <span id="my_fo_search_range" class="t_opt" _type="checkbox">
-                                           <a href="gid">原</a>
-                                           <a href="gid">转</a>
-                                       </span>
-                                       <span id="my_fo_search_type" class="t_opt" _type="checkbox">
-                                           <a href="gid">字</a>
-                                           <a href="gid">图</a>
-                                           <a href="gid">视</a>
-                                           <a href="gid">音</a>
-                                       </span>
-                                   </p>
+                               <form class="f_args t_group g_simp left" >
+                                   <span id="fr_feature" class="t_opt" name="feature" _type="radio">
+                                       <a href="0">全</a>
+                                       <a href="1">原</a>
+                                       <a href="2">图</a>
+                                       <a href="3">视</a>
+                                       <a href="4">音</a>
+                                   </span>
+                               </form>
+                               <div class="t_group g_search left hidden">
+                                   <form class="f_args">
+                                       <p> <input class="search-keyword" type="text" name="s" value="search"> </p>
+                                       <p>
+                                           <input class="search-time" type="text" name="s_0" value="00-00-00"/> -
+                                           <input class="search-time" type="text" name="s_1" value="00-00-00"/>
+                                       </p>
+                                       <p>
+                                           <span id="my_fo_search_range" class="t_opt" _type="checkbox">
+                                               <a href="gid">原</a>
+                                               <a href="gid">转</a>
+                                           </span>
+                                           <span id="my_fo_search_type" class="t_opt" _type="checkbox">
+                                               <a href="gid">字</a>
+                                               <a href="gid">图</a>
+                                               <a href="gid">视</a>
+                                               <a href="gid">音</a>
+                                           </span>
+                                       </p>
+                                   </form>
                                </div>
                            </fieldset>
                            <div id="friends" class="t-ctrl">
@@ -209,9 +206,6 @@
                                </div>
                            </div>
                        </div>
-                       <span id="search" class="t-panel">
-                           <input id="keyword" type="text" name="keyword" value="search"/>
-                       </span>
                    </div>
                    <div id="list" class="t-list">
                    </div>
@@ -221,7 +215,7 @@
        <div id="forms">
        </div>
        <script id="tmpl_msg" type="text/x-jquery-tmpl">
-           <div id="${id}" class="t-msg ui-widget ui-corner-all">
+           <div id="${id}" class="t-msg ui-widget ui-corner-all ${retweet}">
                <div class="handle ui-corner-all"></div>
                <div class="cont">
                    {{if thumbnail_pic}}
@@ -230,6 +224,10 @@
                    <p class="msg">${text}</p>
                </div>
            </div>
+       </script>
+       <script id="tmpl_opts" type="text/x-jquery-tmpl">
+           <input type="${type}" id="${id}" name="${name}" value="${value}" />
+           <label for="${id}">${label}</label>
        </script>
    </body>
 

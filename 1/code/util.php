@@ -12,4 +12,9 @@ function resjson( $v ) {
 function resmsg( $rst, $msg ) {
     resjson( array( "rst" => $rst, "msg" => $msg ) );
 }
+function def( &$arr, $key, $val ) {
+    if ( !isset( $arr[ $key ] ) ) {
+        $arr[ $key ] = $val;
+    }
+}
 ?>

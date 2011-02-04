@@ -14,11 +14,16 @@ var ui = { msg : {}, menu : {}, edit : {}, list : {}, my : {}, acc : {}, vdacc :
 var wb = {
     cmd : function ( cmd, args, cb ) {
 
+        if ( $.isPlainObject( args ) ) {
+            args = $.param( args );
+        }
+
         log( cmd, args );
+
 
         $.ajax( {
             type : "GET",
-            url : "t.php?act=" + cmd + "&" + $.param( args ),
+            url : "t.php?act=" + cmd + "&" + args,
             dataType : "json",
             success : function( rst, st, xhr ) {
                 log( "cmd ok:"  );
@@ -56,25 +61,23 @@ $.extend( ui, {
         $( ".t_opt" ).each( function() {
             var container = $( this );
             var tp = container.attr( "_type" );
-            var cid = container.attr( "id" );
+            var id = container.attr( "id" );
+            var name = container.attr( "name" );
 
+            var data = [];
             container.children( "a" ).each( function( i, e ){
                 e = $( e );
-                container.append(
-                    $( "<input/>" )
-                    .attr( {
-                        type : tp,
-                        id : cid + i,
-                        name : cid,
-                        value : e.attr( "href" )
-                    } ) )
-                .append(
-                    $( "<label></label>" )
-                    .text( e.text() )
-                    .attr( "for", cid + i )
-                );
+
+                data.push( {
+                    type : tp,
+                    id : id + i,
+                    name : name,
+                    value : e.attr( "href" ),
+                    label : e.text() } );
+
                 e.remove();
             } );
+            $( "#tmpl_opts" ).tmpl( data ).appendTo( container );
 
         } );
 
@@ -142,11 +145,13 @@ $.extend( ui.msg, {
     show : function ( text ) {
         var self = this;
 
+        self.container.empty();
+
         var node = $( "<span></span>" );
 
         node
         .text( text )
-        .addClass( "ui-state-highlight ui-corner-all" )
+        .addClass( "msg ui-state-highlight ui-corner-all" )
         .prependTo( self.container );
 
         window.setTimeout( function(){
@@ -202,10 +207,13 @@ $.extend( ui.acc, {
     },
     pub : function () {
         var data = ui.edit.layoutdata();
+
+        // TODO specific title
         var msg = ( new Date() );
         if ( data.d.length > 0 ) {
             msg += data.d[ 0 ].text;
         }
+
         log( "layout data:" );
         log( data );
         $.ajax( {
@@ -336,7 +344,6 @@ $.extend( ui.edit, {
                 log( ui );
             }
         });
-
     },
     ids : function () {
         var ids = [];
@@ -350,29 +357,50 @@ $.extend( ui.edit, {
         var rst = [];
         log( this.cont );
         var root = this.cont.offset();
-        var rootw = this.cont.innerWidth();
-        var rooth = this.cont.innerHeight();
+
+        // var rootw = this.cont.innerWidth();
+        // var rooth = this.cont.innerHeight();
+
+        var rootw = this.cont[ 0 ].scrollWidth;
+        var rooth = this.cont[ 0 ].scrollHeight;
 
         this.cont.find( ".t-msg" ).each( function() {
             var e = $( this );
+            var thumb = e.find( "img.thumb" );
+
             var p = e.offset();
-            var w = e.outerWidth();
-            var h = e.outerHeight();
-            rst.push( {
+
+            var d = {
                 t : p.top - root.top,
                 l : p.left - root.left,
-                w : w,
-                h : h,
+                w : e.outerWidth(),
+                h : e.outerHeight(),
                 color : "#000",
                 text : $.trim( e.text() )
-            } );
+            };
+
+            log( "thumb is" );
+            log( thumb );
+
+            if ( thumb.length > 0 ) {
+                var tp = thumb.offset();
+                d.thumb = {
+                    t : tp.top - root.top,
+                    l : tp.left - root.left,
+                    w : thumb.outerWidth(),
+                    h : thumb.outerHeight(),
+                    src : thumb.attr( "src" )
+                };
+            }
+
+            rst.push( d );
         } );
 
         return {
             w : rootw,
-              h : rooth,
-              bgcolor : "#fff",
-              d : rst
+            h : rooth,
+            bgcolor : "#fff",
+            d : rst
 
         };
     },
@@ -393,12 +421,7 @@ $.extend( ui.list, {
         this.eltList = $( "#list" );
         this.eltList.empty();
     },
-    msgNode : function ( d ) {
-        var node = $( "#tmpl_msg" ).tmpl( d );
-        return node;
-    },
-    show : function ( data, name ) {
-        var self = this;
+    filter_existed : function ( data ) {
         var ids = ui.edit.ids();
 
         log( ids );
@@ -409,14 +432,27 @@ $.extend( ui.list, {
             } );
         }
 
+        return data
+    },
+    show : function ( data, name ) {
+        var self = this;
+
+        var d = []
+        $.each( data, function( i, v ) {
+            d.push( v );
+            if ( v.retweeted_status ) {
+                v.retweeted_status.retweet = "retweet";
+                d.push( v.retweeted_status );
+            }
+        } );
+
+
+        data = this.filter_existed( d );
+
         log( data );
 
         this.eltList.empty();
-
-        $.each( data, function( i, v ) {
-            var node = self.msgNode( v );
-            self.eltList.append( node );
-        } );
+        $( "#tmpl_msg" ).tmpl( data ).appendTo( this.eltList );
 
         this.setup_draggable();
     },
@@ -440,20 +476,16 @@ $.extend( ui.list, {
 $.extend( ui.my, {
     init : function () {
         var self = this;
-        self.myButton = $( "#my.t-btn" );
+        self.myButton = $( "#expand.t-btn" );
         self.myDialog  = $( "#my.t-dialog" );
-        self.friend = self.myDialog.find( "#friend" );
-        log( self.friend );
 
-        self.friend.find( ".f_idx" ).click( function(){
-            wb.cmd( 'friends_timeline', {}, function( rst ) {
-                ui.list.show( rst );
-            } );
-        } );
+        self.friend.init( self.myDialog );
 
-        self.myDialog.find( ".t_opt" ).buttonset().click( function( ev ){
-            ev.stopPropagation();
-        } );
+
+
+        // self.myDialog.find( ".t_opt" ).buttonset().click( function( ev ){
+        //     ev.stopPropagation();
+        // } );
 
         self.myButton.click( function (ev){
             log( 'click' );
@@ -465,9 +497,6 @@ $.extend( ui.my, {
         } );
 
 
-    },
-    close_all : function() {
-        this.switchPanel( false );
     },
     set_dialog_pos : function () {
         var tool = $( "#tool" );
@@ -485,23 +514,54 @@ $.extend( ui.my, {
             this.myDialog.hide();
         }
     },
-    mine : function (  ) {
-        this.close_all();
+} );
 
-        wb.cmd( cmds[ "sts.friends_timeline" ], {}, {
+$.extend( ui.my, {
+    friend : {}
+} );
 
-            ok : function ( rst ) {
-                log( "ok called:", rst );
+$.extend( ui.my.friend, {
+    init : function( dialog ){
+        var self = this;
+        self.dialog = dialog;
+        self.elt = self.dialog.find( "#friend" );
+        self.formSimp = self.elt.find( "form.g_simp" );
+        self.formSearch = self.elt.find( "form.g_search" );
+
+        log( self.elt );
+
+        function friend_simp_load( ev ) {
+
+            ev.stopPropagation();
+
+            var args = self.formSimp.serialize();
+            log( "args:" );
+            log( args );
+
+
+            ui.msg.show( "loadding..." );
+
+            wb.cmd( 'friends_timeline', args, function( rst ) {
+                ui.msg.show( "updated" );
                 ui.list.show( rst );
+                ui.close_all();
+            } );
+        }
 
-            },
 
-            error : function () {
+        // TODO realod search if group "search" is active
+        self.elt.find( ".f_idx" ).click( friend_simp_load );
 
-            }
-        } );
+        self.formSimp.find( "input" ).button()
+            .click( friend_simp_load );
+
+        self.formSimp.find( "#fr_feature" ).buttonset();
+
     }
 } );
+
+
+
 
 var filter = {
 

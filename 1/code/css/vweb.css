@@ -43,12 +43,10 @@ body { background: #ddd; }
 #bd #tool #func>.t-panel,
 #bd #tool #func>.t-btn { margin: 0 6px 0 0; }
 
-#bd #tool #func #my.t-btn { float: left; }
+#bd #tool #func #expand.t-btn { float: left; }
 #bd #tool #func #my.t-dialog { width: 356px; overflow: visible; zoom: 1; }
 /* #bd #tool #func #search { width: 80px; height: 20px; float: left; } */
 #bd #tool #func #search #keyword{ border: 0; width: 80px; height: 20px; }
-#bd #tool #func #foldwrap { float: right; }
-#bd #tool #func #fold { float: right; }
 
 .t-ctrl { padding: 2px; margin-bottom: 4px; position: relative; overflow: hidden; zoom:1; }
 .t_ctrl_title { border: 0px solid #444; margin: 0 0 5px 0;  }
@@ -60,7 +58,9 @@ body { background: #ddd; }
     border-left: 1px solid #444;
 }
 
-.t_group>p {
+.t_group>p, 
+.t_group>form>p, 
+.t_group>form {
     margin: 0 0 10px 0;
 }
 .t_line {
@@ -115,6 +115,9 @@ body { background: #ddd; }
     background-color: #ddd;
     overflow: hidden; zoom: 1;
 }
+.t-msg.retweet {
+    padding-left:20px;
+}
 
 .t-msg .handle {
     width: 30px;
@@ -146,6 +149,9 @@ body { background: #ddd; }
 }
 #appmsg .msg {
     margin: auto;
+    padding: 4px;
+    line-height: 30px;
+    font-size: 14px;
 }
 
 .t-ctrl .current {
