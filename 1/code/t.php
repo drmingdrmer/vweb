@@ -29,8 +29,14 @@ if ( $verb == "GET" ) {
     switch ( $act ) {
         case "friends_timeline" :
             $rst = $c->friends_timeline(  );
-            $rst && resjson( array( "rst" => "ok", "data" => $rst) ) 
-                || resmsg( "load", "unknown" );
+            if ( $rst ) {
+                !$rst[ 'error_code' ]
+                    && resjson( array( "rst" => "ok", "data" => $rst) ) 
+                    || resmsg( "load", $rst[ 'error' ] );
+            }
+            else {
+                resmsg( "load", "unknown" );
+            }
             break;
 
         default:
@@ -41,14 +47,27 @@ else if ( $verb == "POST" ) {
     switch ( $act ) {
         case "pub" :
             $msg = $_GET[ 'msg' ];
+            // $msg = trim( $msg );
+
             $data = file_get_contents("php://input");
             !$data && resmsg( "nodata", "nodata" );
 
             $data = unjson( $data );
             !$data && resmsg( "invalid", "invalid" );
 
+            // var_dump( $data );
             $fn = mkimg_local( $data, 'jpg' );
             !$fn && resmsg( 'mkimg', 'mkimg' );
+
+            $s = new SaeStorage();
+            $url = $s->write( 'pub' , "tmp.jpg" , file_get_contents( $fn ) );
+
+            resmsg( "ok", "no pub" );
+
+            /*
+             * $url && resjson( array( "rst" => "ok", "url" => $url ) )
+             *     || resmsg( 'save', $s->errmsg() );
+             */
 
             $r = $c->upload( $msg, $fn );
             $r && resmsg( "ok", "published" ) 

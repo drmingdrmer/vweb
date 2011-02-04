@@ -13,7 +13,7 @@ function wrap( $s, $nchar ) {
     $rst = "";
     while ( true ) {
         $c = mb_substr( $s, $i, 1 );
-        if ( !$c ) {
+        if ( $c === "" ) {
             break;
         }
 
@@ -35,6 +35,7 @@ function wrap( $s, $nchar ) {
 function textgif( $s, $w, $h, $font ) {
 
     $s = wrap( $s, $w / $font[ "size" ] * 2 );
+    var_dump( $s, $w, $h );
 
     $img = new SaeImage();
     $img->setData( TransGif );

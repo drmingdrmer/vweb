@@ -202,11 +202,15 @@ $.extend( ui.acc, {
     },
     pub : function () {
         var data = ui.edit.layoutdata();
+        var msg = ( new Date() );
+        if ( data.d.length > 0 ) {
+            msg += data.d[ 0 ].text;
+        }
         log( "layout data:" );
         log( data );
         $.ajax( {
-            type : "POST", url : "t.php?act=pub&msg=test", 
-            data : JSON.stringify( data ), 
+            type : "POST", url : "t.php?act=pub&msg=" + msg,
+            data : JSON.stringify( data ),
             dataType : "json",
             success : function( rst, st, xhr ) {
                 log( "pub rst=" );
@@ -350,23 +354,24 @@ $.extend( ui.edit, {
         var rooth = this.cont.innerHeight();
 
         this.cont.find( ".t-msg" ).each( function() {
-            var p = $( this ).offset();
-            var w = $( this ).outerWidth();
-            var h = $( this ).outerHeight();
+            var e = $( this );
+            var p = e.offset();
+            var w = e.outerWidth();
+            var h = e.outerHeight();
             rst.push( {
                 t : p.top - root.top,
                 l : p.left - root.left,
                 w : w,
                 h : h,
                 color : "#000",
-                text : $( this ).text()
+                text : $.trim( e.text() )
             } );
         } );
 
         return {
             w : rootw,
               h : rooth,
-              bgcolor : "#fff", 
+              bgcolor : "#fff",
               d : rst
 
         };
