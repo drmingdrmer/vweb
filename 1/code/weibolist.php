@@ -5,7 +5,10 @@ include_once( 'config.php' );
 include_once( 'saet.ex.class.php' );
 header('Content-Type:text/html; charset=utf-8');
 
-$c = new SaeTClient( WB_AKEY , WB_SKEY , $_SESSION['last_key']['oauth_token'] , $_SESSION['last_key']['oauth_token_secret']  );
+$c = new SaeTClient( WB_AKEY , WB_SKEY ,
+    $_SESSION['last_key']['oauth_token'] ,
+    $_SESSION['last_key']['oauth_token_secret']  );
+// var_dump( $_SESSION[ 'last_key' ] );
 $ms  = $c->home_timeline(); // done
 
 
