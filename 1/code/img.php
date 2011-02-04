@@ -1,14 +1,11 @@
 <?
 
 mb_internal_encoding( 'utf-8' );
+
 include_once( "util.php" );
 
 define( "TransGif", "\x47\x49\x46\x38\x39\x61\x01\x00\x01\x00\x80\xff\x00\xc0\xc0\xc0\x00\x00\x00\x21\xf9\x04\x01\x00\x00\x00\x00\x2c\x00\x00\x00\x00\x01\x00\x01\x00\x00\x01\x01\x32\x00\x3b" );
 
-
-$FONT = array(
-    "size" => 14,
-    "color" => "black" );
 
 function wrap( $s, $nchar ) {
     $i = 0;
@@ -47,7 +44,9 @@ function textgif( $s, $w, $h, $font ) {
     return $img->exec( 'png' );
 }
 function mkimg( $data, $tp, $isout ) {
-    global $FONT;
+    $FONT = array(
+        "size" => 14,
+        "color" => "black" );
 
     $d = $data[ 'd' ];
     $w = $data[ 'w' ];
@@ -75,43 +74,60 @@ function mkimg( $data, $tp, $isout ) {
 
     return $img->exec( $tp, $isout );
 }
+function mkimg_local( $data, $tp ) {
+    $imgdata = mkimg( $data, $tp, false );
 
+    $localTail = rand() . "__tmp__";
+    $localfn = SAE_TMP_PATH . $localTail;
 
-// var_dump($img->errno(), $img->errmsg());
-
-session_start();
-
-
-$verb = $_SERVER[ 'REQUEST_METHOD' ];
-
-if ( $verb == "POST" ) {
-
-    $act = $_GET[ 'act' ];
-
-    if ( $act == "mkimg" ) {
-
-        $fnTail = $_GET[ 'path' ];
-        !$fnTail && resmsg( "nopath", "nopath" );
-
-        $data = file_get_contents("php://input");
-        !$data && resmsg( "nodata", "nodata" );
-
-        $data = unjson( $data );
-        !$data && resmsg( "invalid", "invalid" );
-
-
-        $tp = 'jpg';
-        $imgdata = mkimg( $data, $tp, false );
-
-        $fn = "$uid/$fnTail";
-
-        $fn = "abc";
-
-        $s = new SaeStorage();
-        $url = $s->write( 'pub' , "$fn.$tp" , $imgdata );
-        $url && resjson( array( "rst" => "ok", "url" => $url ) )
-            || resmsg( 'save', $s->errmsg() );
+    $r = file_put_contents( $localfn, $imgdata );
+    if ( $r ) {
+        return $localfn;
+    }
+    else {
+        return false;
     }
 }
+
+
+/*
+ * // var_dump($img->errno(), $img->errmsg());
+ * 
+ * session_start();
+ * 
+ * 
+ * $verb = $_SERVER[ 'REQUEST_METHOD' ];
+ * 
+ * if ( $verb == "POST" ) {
+ * 
+ *     $act = $_GET[ 'act' ];
+ * 
+ *     if ( $act == "mkimg" ) {
+ * 
+ *         $fnTail = $_GET[ 'path' ];
+ *         !$fnTail && resmsg( "nopath", "nopath" );
+ * 
+ *         $data = file_get_contents("php://input");
+ *         !$data && resmsg( "nodata", "nodata" );
+ * 
+ *         $data = unjson( $data );
+ *         !$data && resmsg( "invalid", "invalid" );
+ * 
+ * 
+ *         $tp = 'jpg';
+ *         $imgdata = mkimg( $data, $tp, false );
+ * 
+ *         $uid = $_SESSION[ "last_key" ][ 'user_id' ];
+ *         $fn = "$uid/$fnTail";
+ * 
+ *         $fn = "abc";
+ * 
+ *         $s = new SaeStorage();
+ *         $url = $s->write( 'pub' , "$fn.$tp" , $imgdata );
+ *         $url && resjson( array( "rst" => "ok", "url" => $url ) )
+ *             || resmsg( 'save', $s->errmsg() );
+ *     }
+ * }
+ */
 
 ?>

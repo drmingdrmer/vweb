@@ -200,6 +200,24 @@ $.extend( ui.acc, {
             self.tool.addClass( "invisible" );
         });
     },
+    pub : function () {
+        var data = ui.edit.layoutdata();
+        log( "layout data:" );
+        log( data );
+        $.ajax( {
+            type : "POST", url : "t.php?act=pub&msg=test", 
+            data : JSON.stringify( data ), 
+            dataType : "json",
+            success : function( rst, st, xhr ) {
+                log( "pub rst=" );
+                log( rst );
+                if ( rst.rst == "ok" ) {
+                    // TODO message
+                }
+            }
+
+        } );
+    }
 } );
 
 $.extend( ui.vdacc, {
@@ -324,9 +342,35 @@ $.extend( ui.edit, {
         log( "ids=", ids );
         return ids;
     },
-    pagedata : function () {
+    layoutdata : function () {
+        var rst = [];
+        log( this.cont );
+        var root = this.cont.offset();
+        var rootw = this.cont.innerWidth();
+        var rooth = this.cont.innerHeight();
 
-    }, 
+        this.cont.find( ".t-msg" ).each( function() {
+            var p = $( this ).offset();
+            var w = $( this ).outerWidth();
+            var h = $( this ).outerHeight();
+            rst.push( {
+                t : p.top - root.top,
+                l : p.left - root.left,
+                w : w,
+                h : h,
+                color : "#000",
+                text : $( this ).text()
+            } );
+        } );
+
+        return {
+            w : rootw,
+              h : rooth,
+              bgcolor : "#fff", 
+              d : rst
+
+        };
+    },
     html : function( h ) {
         if ( h ) {
             this.cont.html( h );
