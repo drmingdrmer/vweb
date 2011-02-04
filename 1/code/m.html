@@ -14,9 +14,10 @@
         <link rel="stylesheet" type="text/css" href="css/last.css" />
         <script language="javascript" type="text/javascript" src="js/jquery-1.4.4.min.js"></script>
         <script language="javascript" type="text/javascript" src="js/jquery-ui-1.8.9.custom.min.js"></script>
-        <script language="javascript" type="text/javascript" src="js/wb.js"></script>
-        <script language="javascript" type="text/javascript" src="js/wb_connect.js"></script>
-        <script language="javascript" type="text/javascript" src="js/wb_client.js"></script>
+        <script language="javascript" type="text/javascript" src="plugin/tmpl/jquery.tmpl.js"></script>
+        <!-- <script language="javascript" type="text/javascript" src="js/wb.js"></script> -->
+        <!-- <script language="javascript" type="text/javascript" src="js/wb_connect.js"></script> -->
+        <!-- <script language="javascript" type="text/javascript" src="js/wb_client.js"></script> -->
         <script language="javascript" type="text/javascript" src="js/cmds.js"></script>
         <script language="javascript" type="text/javascript" src="js/vweb.js"></script>
         <style type="text/css" media="screen">
@@ -62,7 +63,7 @@
                     <!-- -------------------------------- function here -------------------------------- -->
                     <div id="func">
                         <div id="group_sample" class="hidden">
-                            <span id="sampleid" class="t-opt" _type="radio">
+                            <span id="sampleid" class="t_opt" _type="radio">
                                 <a href="gid">News</a>
                                 <a href="gid">Office</a>
                                 <a href="gid">熟人</a>
@@ -73,44 +74,45 @@
                        <label id="fold" for="fold">关闭</label>
                        <!-- <button id="my" class="t-btn" _icon2="triangle-1-s">我的</button> -->
                        <button id="my" class="t-btn" _icon2="arrow-4-diag">我的</button>
-                       <!-- <div id="my" class="t-dialog hidden" style="background:url(img/t101.png);"> -->
-                       <div id="my" class="t-dialog " style="background:url(img/t101.png);">
-                           <div id="friends" class="t-ctrl">
-
-                               <div class="t_ctrl_title">
-                                   <button id="my_group" class="t-btn" _icon2="arrow-1-s">我的首页:Group</button>
-                               </div>
-                               <div id="fr_simple" class="t_group left" >
-                                   <div class="t-line">
-                                       <span id="my_fo_type" class="t-opt" _type="radio">
+                       <!-- <div id="my" class="t-dialog t-autoclose hidden" style="background:url(img/t101.png);"> -->
+                       <div id="my" class="t-dialog t-autoclose" style="background:url(img/t101.png);">
+                           <fieldset id="friend">
+                               <legend class="t_btn_set">
+                                   <button class="f_idx t-btn">我的首页</button>
+                                   <button class="f_grp t-btn" _icon2="triangle-1-s">Group</button>
+                               </legend>
+                               <div class="t_group g_simp left" >
+                                   <p>
+                                       <span id="my_fo_type" class="t_opt" _type="radio">
                                            <a href="#">原</a>
                                            <a href="#">图</a>
                                            <a href="#">视</a>
                                            <a href="#">音</a>
                                        </span>
-                                   </div>
+                                   </p>
                                </div>
-                               <div id="fr_search" class="t_group left">
-                                   <div class="t-line">
-                                       <input class="search-keyword" type="text" name="search" value="search">
-                                   </div>
-                                   <div class="t-line">
-                                       <input class="search-time" type="text" name="search_tstart" value="00-00-00"/> -
-                                       <input class="search-time" type="text" name="search_tend" value="00-00-00"/>
-                                   </div>
-                                   <div class="t-line">
-                                       <span id="my_fo_search_range" class="t-opt" _type="checkbox">
+                               <div class="t_group g_s left">
+                                   <p> <input class="search-keyword" type="text" name="s" value="search"> </p>
+                                   <p>
+                                       <input class="search-time" type="text" name="s_0" value="00-00-00"/> -
+                                       <input class="search-time" type="text" name="s_1" value="00-00-00"/>
+                                   </p>
+                                   <p>
+                                       <span id="my_fo_search_range" class="t_opt" _type="checkbox">
                                            <a href="gid">原</a>
                                            <a href="gid">转</a>
                                        </span>
-                                       <span id="my_fo_search_type" class="t-opt" _type="checkbox">
+                                       <span id="my_fo_search_type" class="t_opt" _type="checkbox">
                                            <a href="gid">字</a>
                                            <a href="gid">图</a>
                                            <a href="gid">视</a>
                                            <a href="gid">音</a>
                                        </span>
-                                   </div>
+                                   </p>
                                </div>
+                           </fieldset>
+                           <div id="friends" class="t-ctrl">
+                               <div class="t_ctrl_title"></div>
                            </div>
                            <div id="mine" class="t-ctrl highlight">
                                <div class="t-tabs t-filter-tabs">
@@ -121,8 +123,8 @@
                                        </a></li>
                                    </ul>
                                    <div id="tab-mine-short">
-                                       <div class="t-line">
-                                           <span id="mine_type" class="t-opt" _type="radio">
+                                       <div class="t_line">
+                                           <span id="mine_type" class="t_opt" _type="radio">
                                                <a href="#">原</a>
                                                <a href="#">图</a>
                                                <a href="#">视</a>
@@ -131,19 +133,19 @@
                                        </div>
                                    </div>
                                    <div id="tab-mine-search">
-                                       <div class="t-line">
-                                           <span id="mine_search_range" class="t-opt" _type="checkbox">
+                                       <div class="t_line">
+                                           <span id="mine_search_range" class="t_opt" _type="checkbox">
                                                <a href="gid">原</a>
                                                <a href="gid">转</a>
                                            </span>
-                                           <span id="mine_search_type" class="t-opt" _type="checkbox">
+                                           <span id="mine_search_type" class="t_opt" _type="checkbox">
                                                <a href="gid">字</a>
                                                <a href="gid">图</a>
                                                <a href="gid">视</a>
                                                <a href="gid">音</a>
                                            </span>
                                        </div>
-                                       <div class="t-line">
+                                       <div class="t_line">
                                            <input class="search-time" type="text" name="search_tstart" value="00-00-00"/> -
                                            <input class="search-time" type="text" name="search_tend" value="00-00-00"/>
                                        </div>
@@ -156,19 +158,19 @@
                            <div id="at" class="t-ctrl">
                                提到我的:
                                <!--
-                                  - <span class="t-opt">
+                                  - <span class="t_opt">
                                   -     <input type="radio" id="at_all_p" checked name="at_range" value="img"/><label for="at_all_p">提到我的:</label>
                                   - </span>
                                   -->
                                <!-- <br /> -->
-                               <span class="t-opt">
+                               <span class="t_opt">
                                    <!-- <input type="radio" id="at_all_msg" name="at_type" value="img"/><label for="at_all_msg">全部微博</label> -->
                                    <input type="checkbox" id="at_fo"  name="at_range" value="img"/><label for="at_fo">关注的人</label>
                                    <input type="checkbox" id="at_ori" name="at_type" value="img"/><label for="at_ori">原创</label>
                                </span>
                            </div>
                            <div id="re" class="t-ctrl">
-                               <span class="t-opt">
+                               <span class="t_opt">
                                    <input type="radio" id="re_all_p" checked name="re_range" value="img"/><label for="re_all_p">我的评论:</label>
                                    <input type="radio" id="re_fo"  name="re_range" value="img"/><label for="re_fo">关注的人</label>
                                    <input type="radio" id="re_unk"  name="re_range" value="img"/><label for="re_unk">陌生人</label>
@@ -184,13 +186,13 @@
                                        </a></li>
                                    </ul>
                                    <div id="tab-glboal-search">
-                                       <div class="t-line">
-                                           <span id="global_search_range" class="t-opt" _type="checkbox">
+                                       <div class="t_line">
+                                           <span id="global_search_range" class="t_opt" _type="checkbox">
                                                <a href="gid">all</a>
                                                <a href="gid">原</a>
                                                <a href="gid">热</a>
                                            </span>
-                                           <span id="global_search_type" class="t-opt" _type="checkbox">
+                                           <span id="global_search_type" class="t_opt" _type="checkbox">
                                                <a href="gid">all</a>
                                                <a href="gid">图</a>
                                                <a href="gid">视</a>
@@ -198,7 +200,7 @@
                                                <a href="gid">链</a>
                                            </span>
                                        </div>
-                                       <div class="t-line">
+                                       <div class="t_line">
                                            <input class="search-time" type="text" name="search_tstart" value="00-00-00"/> -
                                            <input class="search-time" type="text" name="search_tend" value="00-00-00"/>
                                        </div>
@@ -217,16 +219,20 @@
        </div>
        <div id="forms">
        </div>
-       <div id="tmpl" class="hidden">
-           <div id="msg" class="t-msg ui-widget ui-corner-all">
+       <script id="tmpl_msg" type="text/x-jquery-tmpl">
+           <div id="${id}" class="t-msg ui-widget ui-corner-all">
                <div class="handle ui-corner-all"></div>
                <div class="cont">
-                   <img class="thumb" src="" alt=""/>
-                   <p class="msg"></p>
+                   {{if thumbnail_pic}}
+                   <img class="thumb" src="${thumbnail_pic}" alt=""/>
+                   {{/if}}
+                   <p class="msg">${text}</p>
                </div>
            </div>
-       </div>
+       </script>
    </body>
+
+
     <script language="javascript" type="text/javascript">
         $( function() {
             $( ".t-dialog" ).addClass( "ui-dialog ui-widget ui-widget-content ui-corner-all" );
@@ -238,9 +244,9 @@
             $( ".t-list" ).addClass( "ui-widget ui-corner-all" );
             //$( ".t-btn" ).addClass( "ui-button ui-widget ui-state-default ui-corner-all ui-button-text-only" );
             $( ".t-tabs" ).tabs();
-            WB.connect.init(cfg);
-            WB.client.init(cfg);
-            log( "wb init ok" );
+            //WB.connect.init(cfg);
+            //WB.client.init(cfg);
+            //log( "wb init ok" );
             ui.init();
             //ui.acc.login();
         } );

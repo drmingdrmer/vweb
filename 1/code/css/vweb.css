@@ -60,7 +60,10 @@ body { background: #ddd; }
     border-left: 1px solid #444;
 }
 
-.t-line {
+.t_group>p {
+    margin: 0 0 10px 0;
+}
+.t_line {
     margin: 0 0 10px 0;
 }
 
@@ -193,7 +196,7 @@ body { background: #ddd; }
     border-radius: 2px;
 }
 
-.t-opt {
+.t_opt {
     display: inline-block;
 
     border: 1px solid #666;
@@ -214,7 +217,7 @@ body { background: #ddd; }
     padding: 0 4px;
 }
 
-.t-opt .ui-button {
+.t_opt .ui-button {
     /* background: #000; */
     background: none;
     /* background: #0a0a0a url(../theme/trontastic/images/ui-bg_glass_40_0a0a0a_1x400.png) 50% 50% repeat-x; */
@@ -227,10 +230,10 @@ body { background: #ddd; }
     font-weight: normal;
 }
 
-.t-opt .ui-button.ui-state-default {
+.t_opt .ui-button.ui-state-default {
     color: #bbb;
 }
-.t-opt .ui-button.ui-state-active {
+.t_opt .ui-button.ui-state-active {
     /* background: #0a0a0a url(../theme/trontastic/images/ui-bg_glass_40_0a0a0a_1x400.png) 50% 50% repeat-x; */
     /* background: #0a0a0a url(../theme/trontastic/images/ui-bg_glass_60_000000_1x400.png) 50% 50% repeat-x; */
     /* background: #235; */
@@ -255,6 +258,6 @@ body { background: #ddd; }
     /* border-bottom: 1px solid #adf; */
 }
 
-.t-opt .ui-button-text {
+.t_opt .ui-button-text {
     padding: 2px 6px;
 }

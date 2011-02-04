@@ -11,38 +11,32 @@ function log (mes) {
 
 var ui = { msg : {}, menu : {}, edit : {}, list : {}, my : {}, acc : {}, vdacc : {}, tool : {} };
 
-
-
-// WB.core.load(['connect', 'client'], function() {
-
-//     var cfg = {
-//         key: '2060512444',
-//         xdpath: 'http://vweb.sinaapp.com/xd.html'
-//     };
-
-//     WB.connect.init(cfg);
-//     WB.client.init(cfg);
-//     log( "wb init ok" );
-
-// });
-
 var wb = {
     cmd : function ( cmd, args, cb ) {
 
-        var type = "POST";
         log( cmd, args );
 
-        WB.client.parseCMD(cmd, function( rst, st) {
-            log( "response:" + rst );
-            if ( st ) {
-                cb.ok( rst );
+        $.ajax( {
+            type : "GET",
+            url : "t.php?act=" + cmd + "&" + $.param( args ),
+            dataType : "json",
+            success : function( rst, st, xhr ) {
+                log( "cmd ok:"  );
+                log( rst );
+                if ( rst.rst == "ok" ) {
+                    cb && cb( rst.data );
+                }
+                else {
+                    ui.msg.show( rst.rst + " " + rst.msg );
+                }
+            },
+            error : function( xhr, st, err ) {
+                log( "cmd error" );
+                ui.msg.show( st );
+                // ui.msg.show( err );
             }
-            else {
-                cb.error( rst );
-            }
-        }, args, {
-            'method': type
-        });
+        } );
+
     }
 };
 
@@ -59,7 +53,7 @@ $.extend( ui, {
         } );
 
 
-        $( ".t-opt" ).each( function() {
+        $( ".t_opt" ).each( function() {
             var container = $( this );
             var tp = container.attr( "_type" );
             var cid = container.attr( "id" );
@@ -84,9 +78,6 @@ $.extend( ui, {
 
         } );
 
-
-
-
         self.msg.init();
         self.menu.init();
         self.acc.init();
@@ -95,18 +86,14 @@ $.extend( ui, {
         self.list.init();
         self.my.init();
 
-
         $( window ).resize( function() { self.relayout(); } );
 
-        $( "body" ).click( function( ev ) {
-
-            self.close_all();
-        } );
+        $( "body" ).click( function( ev ) { self.close_all(); } );
 
 
     },
     close_all : function () {
-        this.my.close_all();
+        $( ".t-autoclose" ).hide();
     },
     relayout : function () {
         var app = $( "#app" );
@@ -337,10 +324,12 @@ $.extend( ui.edit, {
         log( "ids=", ids );
         return ids;
     },
+    pagedata : function () {
+
+    }, 
     html : function( h ) {
         if ( h ) {
             this.cont.html( h );
-            // set
         }
         else {
             // get
@@ -356,23 +345,8 @@ $.extend( ui.list, {
         this.eltList.empty();
     },
     msgNode : function ( d ) {
-        var node = $( "#tmpl>#msg" ).clone();
-
-        node
-        .attr( "id", d.id )
-        .find( "p.msg" ).text( d.text );
-
-        if ( d.thumbnail_pic ) { // img must go first
-            node.find( "img.thumb" ).attr( "src", d.thumbnail_pic );
-        }
-        else {
-            node.find( "img.thumb" ).remove();
-        }
-
-        // log( node );
-
+        var node = $( "#tmpl_msg" ).tmpl( d );
         return node;
-
     },
     show : function ( data, name ) {
         var self = this;
@@ -419,8 +393,16 @@ $.extend( ui.my, {
         var self = this;
         self.myButton = $( "#my.t-btn" );
         self.myDialog  = $( "#my.t-dialog" );
+        self.friend = self.myDialog.find( "#friend" );
+        log( self.friend );
 
-        self.myDialog.find( ".t-opt" ).buttonset().click( function( ev ){
+        self.friend.find( ".f_idx" ).click( function(){
+            wb.cmd( 'friends_timeline', {}, function( rst ) {
+                ui.list.show( rst );
+            } );
+        } );
+
+        self.myDialog.find( ".t_opt" ).buttonset().click( function( ev ){
             ev.stopPropagation();
         } );
 
@@ -432,6 +414,8 @@ $.extend( ui.my, {
             self.switchPanel( true );
 
         } );
+
+
     },
     close_all : function() {
         this.switchPanel( false );
