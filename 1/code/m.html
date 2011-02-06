@@ -9,6 +9,7 @@
         <link rel="stylesheet" type="text/css" href="css/global.css" />
         <!-- <link rel="stylesheet" type="text/css" href="theme/smoothness/jquery-ui-1.8.9.custom.css" /> -->
         <link rel="stylesheet" type="text/css" href="theme/trontastic/jquery-ui-1.8.9.custom.css" />
+        <link rel="stylesheet" type="text/css" href="theme/trontastic/ext.css" />
         <!-- <link rel="stylesheet" type="text/css" href="theme/Aristo/jquery-ui-1.8.7.custom.css" /> -->
         <link rel="stylesheet" type="text/css" href="css/vweb.css" />
         <link rel="stylesheet" type="text/css" href="css/last.css" />
@@ -63,20 +64,13 @@
                 <div id="tool" class="t-panel -invisible">
                     <!-- -------------------------------- function here -------------------------------- -->
                     <div id="func">
-                        <div id="group_sample" class="hidden">
-                            <span id="sampleid" class="t_opt" _type="radio">
-                                <a href="gid">News</a>
-                                <a href="gid">Office</a>
-                                <a href="gid">熟人</a>
-                            </span>
-                            <button id="more-group" class="t-btn" _icon2="arrow-1-s">更多</button>
-                        </div>
-                       <button id="expand" class="t-btn" _text="no" _icon2="arrow-4-diag">X</button>
-                       <div id="my" class="t-dialog t-autoclose _hidden" style="background:url(img/t101.png);">
+                       <button id="expand" class="t-btn" _text="no" _icon="arrow-4-diag">Expand</button>
+                       <!-- <div id="my" class="t-dialog t-autoclose _hidden" style="background:url(img/t101.png);"> -->
+                       <div id="my" class="t-dialog hideall but-friend" style="background:url(img/t101.png);">
                            <fieldset id="friend">
                                <legend class="t_btn_set">
-                                   <button class="f_idx t-btn">我的首页</button>
-                                   <button class="f_grp t-btn" _icon2="triangle-1-s">Group</button>
+                                   <button class="f_idx t-btn" _icon="idx">我的首页</button>
+                                   <!-- <button class="f_grp t-btn" _icon2="triangle-1-s">Group</button> -->
                                </legend>
                                <form class="f_args t_group g_simp left" >
                                    <span id="fr_feature" class="t_opt" name="feature" _type="radio">
@@ -109,9 +103,6 @@
                                    </form>
                                </div>
                            </fieldset>
-                           <div id="friends" class="t-ctrl">
-                               <div class="t_ctrl_title"></div>
-                           </div>
                            <div id="mine" class="t-ctrl highlight">
                                <div class="t-tabs t-filter-tabs">
                                    <ul>
@@ -215,13 +206,21 @@
        <div id="forms">
        </div>
        <script id="tmpl_msg" type="text/x-jquery-tmpl">
-           <div id="${id}" class="t-msg ui-widget ui-corner-all ${retweet}">
-               <div class="handle ui-corner-all"></div>
-               <div class="cont">
-                   {{if thumbnail_pic}}
-                   <img class="thumb" src="${thumbnail_pic}" alt=""/>
-                   {{/if}}
-                   <p class="msg">${text}</p>
+           <div id="${id}" class="t_msg ui-widget ui-corner-all ${retweet}">
+               <!--
+                  - {{if retweet}}
+                  - <span class="retweet_symbol left">
+                  -     [> <span class="ui-icon ui-icon-arrowreturnthick-1-e"></span> <]
+                  - </span>
+                  - {{/if}}
+                  -->
+               <div class="handle ui-corner-all hidden"></div>
+               <div class="avatar ui-corner-all"><img src="${user.avatar_30}" /></div>
+               <div class="cont msg">
+                   {{if thumbnail_pic}} <img class="msgimg thumb" src="${thumbnail_pic}" /> {{/if}}
+                   <span class="user" id="${user.id}">${user.name}:</span>
+                   <span class="msg">${text}</span>
+                   {{if bmiddle_pic}} <img class="msgimg midpic" src="${bmiddle_pic}"/> {{/if}}
                </div>
            </div>
        </script>

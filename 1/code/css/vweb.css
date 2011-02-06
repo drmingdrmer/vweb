@@ -1,4 +1,3 @@
-
 p { margin: 0; padding: 0; width: auto; }
 
 html,  body {
@@ -42,11 +41,38 @@ body { background: #ddd; }
 
 #bd #tool #func>.t-panel,
 #bd #tool #func>.t-btn { margin: 0 6px 0 0; }
+    #expand.t-btn { float: left; }
+    #my.t-dialog { width: 356px; overflow: visible; zoom: 1; }
 
-#bd #tool #func #expand.t-btn { float: left; }
-#bd #tool #func #my.t-dialog { width: 356px; overflow: visible; zoom: 1; }
-/* #bd #tool #func #search { width: 80px; height: 20px; float: left; } */
-#bd #tool #func #search #keyword{ border: 0; width: 80px; height: 20px; }
+    #my.t-dialog legend { display: block; }
+    #my.t-dialog.hideall legend { display: inline; float: left; }
+    #my.t-dialog.hideall form { display: inline; }
+
+
+    #my.t-dialog .f_idx .ui-button-icon-primary.ui-icon-idx {
+        /* .ui-icon-refresh { background-position: -64px -80px; } */
+        background-position: -64px -80px;
+    }
+    #my.t-dialog.hideall .f_idx .ui-button-icon-primary.ui-icon-idx {
+        /* .ui-icon-arrow-4-diag { background-position: -16px -80px; } */
+        background-position: -16px -80px;
+    }
+
+    #my.t-dialog.hideall #friend,
+    #my.t-dialog.hideall #mine,
+    #my.t-dialog.hideall #re,
+    #my.t-dialog.hideall #at,
+    #my.t-dialog.hideall #fav,
+    #my.t-dialog.hideall #global { display: none; }
+
+    #my.t-dialog.hideall.but-friend #friend { display: block; }
+    #my.t-dialog.hideall.but-mine   #mine   { display: block; }
+    #my.t-dialog.hideall.but-re     #re     { display: block; }
+    #my.t-dialog.hideall.but-at     #at     { display: block; }
+    #my.t-dialog.hideall.but-fav    #fav    { display: block; }
+    #my.t-dialog.hideall.but-global #global { display: block; }
+
+    #search #keyword{ border: 0; width: 80px; height: 20px; }
 
 .t-ctrl { padding: 2px; margin-bottom: 4px; position: relative; overflow: hidden; zoom:1; }
 .t_ctrl_title { border: 0px solid #444; margin: 0 0 5px 0;  }
@@ -58,8 +84,8 @@ body { background: #ddd; }
     border-left: 1px solid #444;
 }
 
-.t_group>p, 
-.t_group>form>p, 
+.t_group>p,
+.t_group>form>p,
 .t_group>form {
     margin: 0 0 10px 0;
 }
@@ -111,28 +137,65 @@ body { background: #ddd; }
 }
 
 
-.t-msg { margin: 2px 0; padding: 6px;
-    background-color: #ddd;
-    overflow: hidden; zoom: 1;
+.t_msg {
+    -moz-border-radius: 12px; -webkit-border-radius: 12px; border-radius: 12px;
+    margin: 2px 0 5px 0; padding: 6px;
+    background-color: #eee;
+    position: relative;
+    overflow: hidden;
+    zoom: 1;
+
+    min-height: 30px;
 }
-.t-msg.retweet {
-    padding-left:20px;
+.t_msg .retweet_symbol {
+    position: absolute;
+    top: -10px;
+    border-style: solid;
+    border-width: 10px 0 0 10px;
+    border-color: transparent transparent transparent #ddd;
 }
 
-.t-msg .handle {
-    width: 30px;
-    height: 30px;
+.t_msg .handle {
+    position: absolute;
+
+    width: 30px; height: 30px;
+    /* float: left; */
     background-color: #777;
-    float: left;
 }
+.t_msg .avatar {
+    position: absolute;
 
-.t-msg:nth-child(2n) {
-    background-color: #bbb;
+    width: 30px; height: 30px;
+    /* float: left; */
+    background-color: #777;
+    overflow: hidden;
 }
+.t_msg .cont { margin: 0 0 0 34px; }
 
-.t-msg img.thumb {
+#list .t_msg.retweet {
+    -moz-border-radius: 0 0 0 12px;
+    -webkit-border-radius: 0 0 0 12px;
+    border-radius: 0 0 0 12px;
+    background-color: #ddd;
+    color: #666;
+    margin-left: 34px; }
+/* .t_msg.retweet .handle { left: 20px; } */
+/* .t_msg.retweet .cont { margin: 0 0 0 50px; } */
+#list .t_msg.retweet .avatar { display: none; }
+/* #list .t_msg.retweet .cont { margin: 0 0 0 34px; } */
+#list .t_msg.retweet .cont { margin: 0 0 0 0px; }
+
+/* .t_msg:nth-child(2n) { background-color: #ddd; } */
+
+.t_msg img.thumb {
     float: right;
 }
+
+.t_msg img.midpic {
+    display: none;
+    /* float: right; */
+}
+
 #menu {
     float: left;
 }
@@ -247,7 +310,7 @@ body { background: #ddd; }
 /*
  *     background: -webkit-gradient(linear, left top, left bottom, from(#000), to(#333));
  *     background: -moz-linear-gradient(top, #000, #233);
- * 
+ *
  *     color: #acd;
  */
 

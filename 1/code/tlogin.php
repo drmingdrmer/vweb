@@ -20,8 +20,8 @@ if ( $verifier ) {
 
     $_SESSION['last_key'] = $last_key;
 
-    var_dump( $verifier );
-    var_dump( $_SESSION );
+    // var_dump( $verifier );
+    // var_dump( $_SESSION );
 
     header("Location: m.html");
 }

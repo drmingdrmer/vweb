@@ -51,7 +51,9 @@ if ( $verb == "GET" ) {
 
     switch ( $act ) {
         case "friends_timeline" :
-            $rst = $c->friends_timeline( $p[ 'page' ], $p[ 'count' ], $p[ 'since_id' ], $p[ 'max_id' ], $p[ 'feature' ] );
+            $rst = $c->friends_timeline( $p[ 'page' ], $p[ 'count' ],
+                $p[ 'since_id' ], $p[ 'max_id' ], $p[ 'feature' ] );
+
             if ( $rst ) {
                 !$rst[ 'error_code' ]
                     && resjson( array( "rst" => "ok", "data" => $rst) ) 
@@ -78,7 +80,6 @@ else if ( $verb == "POST" ) {
             $data = unjson( $data );
             !$data && resmsg( "invalid", "invalid" );
 
-            // var_dump( $data );
             $fn = mkimg_local( $data, 'jpg' );
             !$fn && resmsg( 'mkimg', 'mkimg' );
 

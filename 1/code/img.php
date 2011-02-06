@@ -35,7 +35,6 @@ function wrap( $s, $nchar ) {
 function textgif( $s, $w, $h, $font ) {
 
     $s = wrap( $s, $w / $font[ "size" ] * 2 );
-    var_dump( $s, $w, $h );
 
     $img = new SaeImage();
     $img->setData( TransGif );
@@ -56,15 +55,12 @@ function mkimg( $data, $tp, $isout ) {
 
     $comp = array();
     foreach ($d as $e) {
-        $tPad = 0;
-        if ( $e[ 'thumb' ] ) {
-            $th = $e[ 'thumb' ];
-
-            $img = file_get_contents( $th[ 'src' ] );
-            $sub = array( $img, $th[ 'l' ], -$th[ 't' ], 1, SAE_TOP_LEFT );
+        if ( $e[ 'img' ] ) {
+            $img = file_get_contents( $e[ 'img' ] );
+            $sub = array( $img, $e[ 'l' ], -$e[ 't' ], 1, SAE_TOP_LEFT );
             array_push( $comp, $sub );
-            $tPad = -$th[ 'w' ];
         }
+
         if ( $e[ 'text' ] ) {
             $font = $FONT;
 

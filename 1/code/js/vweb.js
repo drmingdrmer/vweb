@@ -9,7 +9,7 @@ function log (mes) {
     console.log( mes );
 }
 
-var ui = { msg : {}, menu : {}, edit : {}, list : {}, my : {}, acc : {}, vdacc : {}, tool : {} };
+var ui = { appmsg : {}, menu : {}, edit : {}, list : {}, my : {}, acc : {}, vdacc : {}, tool : {} };
 
 var wb = {
     cmd : function ( cmd, args, cb ) {
@@ -32,13 +32,13 @@ var wb = {
                     cb && cb( rst.data );
                 }
                 else {
-                    ui.msg.show( rst.rst + " " + rst.msg );
+                    ui.appmsg.show( rst.rst + " " + rst.msg );
                 }
             },
             error : function( xhr, st, err ) {
                 log( "cmd error" );
-                ui.msg.show( st );
-                // ui.msg.show( err );
+                ui.appmsg.show( st );
+                // ui.appmsg.show( err );
             }
         } );
 
@@ -81,7 +81,7 @@ $.extend( ui, {
 
         } );
 
-        self.msg.init();
+        self.appmsg.init();
         self.menu.init();
         self.acc.init();
         self.vdacc.init();
@@ -134,9 +134,16 @@ $.extend( ui, {
         list.height( listHieght );
 
     },
+    setup_img_switch : function ( container ) {
+        $( container ).delegate( ".t_msg img.msgimg", "click", function(){
+            var e = $( this );
+            var toshow = e.hasClass( "thumb" ) ? "midpic" : "thumb";
+            e.hide().siblings( "img." + toshow ).show();
+        } );
+    }
 } );
 
-$.extend( ui.msg, {
+$.extend( ui.appmsg, {
     init : function() {
         var self = this;
         self.container = $( "#appmsg" );
@@ -206,6 +213,7 @@ $.extend( ui.acc, {
         });
     },
     pub : function () {
+
         var data = ui.edit.layoutdata();
 
         // TODO specific title
@@ -216,6 +224,7 @@ $.extend( ui.acc, {
 
         log( "layout data:" );
         log( data );
+
         $.ajax( {
             type : "POST", url : "t.php?act=pub&msg=" + msg,
             data : JSON.stringify( data ),
@@ -224,7 +233,11 @@ $.extend( ui.acc, {
                 log( "pub rst=" );
                 log( rst );
                 if ( rst.rst == "ok" ) {
+                    ui.appmsg.show( "published" );
                     // TODO message
+                }
+                else {
+                    ui.appmsg.show( rst.msg );
                 }
             }
 
@@ -248,11 +261,11 @@ $.extend( ui.vdacc, {
                  log( "vdisk login rst=" );
                  log( json );
                  if ( json.rst == "ok" ) {
-                     ui.msg.show( "OK login" );
+                     ui.appmsg.show( "OK login" );
                      self.st_logged_in();
                  }
                  else {
-                     ui.msg.show( "Failed login:" + json.msg );
+                     ui.appmsg.show( "Failed login:" + json.msg );
                  }
 
             } );
@@ -306,11 +319,11 @@ $.extend( ui.vdacc, {
             dataType : 'json',
             success : function ( json, st, xhr ) {
                 if ( json.rst == "ok" ) {
-                    ui.msg.show( "Saved" );
+                    ui.appmsg.show( "Saved" );
                     cb && cb();
                 }
                 else {
-                    ui.msg.show( "Failed saving: " + json.msg );
+                    ui.appmsg.show( "Failed saving: " + json.msg );
                 }
             }
 
@@ -330,6 +343,7 @@ $.extend( ui.edit, {
         this.setup_func();
     },
     setup_func : function () {
+        ui.setup_img_switch( this.cont );
 
         this.cont.sortable({
             handle : ".handle",
@@ -342,12 +356,14 @@ $.extend( ui.edit, {
                 log( $( ev.target ).parent().attr( 'id' ) );
                 log( ev );
                 log( ui );
+                log( ui.item.parent().attr( "id" ) );
+                log( ui.helper.parent().attr( "id" ) );
             }
         });
     },
     ids : function () {
         var ids = [];
-        this.cont.find( ".t-msg" ).each( function() {
+        this.cont.find( ".t_msg" ).each( function() {
             ids.push( $( this ).attr( "id" ) );
         } );
         log( "ids=", ids );
@@ -364,36 +380,50 @@ $.extend( ui.edit, {
         var rootw = this.cont[ 0 ].scrollWidth;
         var rooth = this.cont[ 0 ].scrollHeight;
 
-        this.cont.find( ".t-msg" ).each( function() {
+        this.cont.find( ".t_msg" ).each( function() {
             var e = $( this );
-            var thumb = e.find( "img.thumb" );
+            var thumb = e.find( "img.thumb:visible" );
+            var thumbData = null;
+
+            if ( thumb.length > 0 ) {
+                var tp = thumb.offset();
+                thumbData = {
+                    t : tp.top - root.top,
+                    l : tp.left - root.left,
+                    w : thumb.outerWidth(),
+                    h : thumb.outerHeight(),
+                    img : thumb.attr( "src" )
+                };
+                rst.push( thumbData );
+            }
 
             var p = e.offset();
 
             var d = {
                 t : p.top - root.top,
                 l : p.left - root.left,
-                w : e.outerWidth(),
+                w : e.outerWidth() - ( thumbData ? thumbData.w + 4 : 0 ),
                 h : e.outerHeight(),
                 color : "#000",
-                text : $.trim( e.text() )
+                text : $.trim( e.text() ).replace( / +/g, ' ' )
             };
 
-            log( "thumb is" );
-            log( thumb );
+            rst.push( d );
 
-            if ( thumb.length > 0 ) {
-                var tp = thumb.offset();
-                d.thumb = {
+            var midpic = e.find( "img.midpic:visible" );
+
+            if ( midpic.length > 0 ) {
+                var tp = midpic.offset();
+                midpicData = {
                     t : tp.top - root.top,
                     l : tp.left - root.left,
-                    w : thumb.outerWidth(),
-                    h : thumb.outerHeight(),
-                    src : thumb.attr( "src" )
+                    w : midpic.outerWidth(),
+                    h : midpic.outerHeight(),
+                    img : midpic.attr( "src" )
                 };
+                rst.push( midpicData );
             }
 
-            rst.push( d );
         } );
 
         return {
@@ -420,6 +450,7 @@ $.extend( ui.list, {
     init : function () {
         this.eltList = $( "#list" );
         this.eltList.empty();
+        ui.setup_img_switch( this.eltList );
     },
     filter_existed : function ( data ) {
         var ids = ui.edit.ids();
@@ -449,10 +480,18 @@ $.extend( ui.list, {
 
         data = this.filter_existed( d );
 
+        $.each( data, function( i, v ) {
+            if ( v.user.profile_image_url ) {
+                v.user.avatar_50 = v.user.profile_image_url;
+                v.user.avatar_30 = v.user.profile_image_url.replace( /\/50\//, '/30/' );
+            }
+        } );
+
         log( data );
 
         this.eltList.empty();
         $( "#tmpl_msg" ).tmpl( data ).appendTo( this.eltList );
+
 
         this.setup_draggable();
     },
@@ -480,6 +519,8 @@ $.extend( ui.my, {
         self.myDialog  = $( "#my.t-dialog" );
 
         self.friend.init( self.myDialog );
+
+        self.set_dialog_pos();
 
 
 
@@ -539,10 +580,10 @@ $.extend( ui.my.friend, {
             log( args );
 
 
-            ui.msg.show( "loadding..." );
+            ui.appmsg.show( "loadding..." );
 
             wb.cmd( 'friends_timeline', args, function( rst ) {
-                ui.msg.show( "updated" );
+                ui.appmsg.show( "updated" );
                 ui.list.show( rst );
                 ui.close_all();
             } );
