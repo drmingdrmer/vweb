@@ -14,7 +14,10 @@ function json_succ( handlers ) {
     function hdlr ( json, st, xhr ) {
         ui.appmsg.show( json.msg );
         if ( handlers[ json.rst ] ) {
-            handlers[ json.rst ]( json, st, xhr );
+            return handlers[ json.rst ]( json, st, xhr );
+        }
+        else if ( json.rst != "ok" && handlers[ "any" ] ) {
+            return handlers.any( json, st, xhr );
         }
     }
 
@@ -185,7 +188,6 @@ $.extend( ui.menu, {
         this.eltMenu = $( "#menu" );
         this.eltPath = this.eltMenu.find( "#path" );
     },
-
     path : function ( p ) {
         if ( p ) {
             this.eltPath.val( p );
@@ -262,39 +264,35 @@ $.extend( ui.vdacc, {
     init : function() {
         var self = this;
         self.vdform = $( "form#vdform" );
-        // self.loginbtn = $( "#vdacc #login" );
-        // self.logoutbtn = $( "#vdacc #logout" );
-
-        self.vdform.hide();
+        self.vddialog = self.vdform.dialog({ autoOpen: false });
 
 
         self.vdform.find( "input[name=submit]" ).click( function( ev ) {
-
-             self.vdform.jsonRequest( function( json ) {
-                 log( "vdisk login rst=" );
-                 log( json );
-                 ui.appmsg.show( json.rst );
-                 if ( json.rst == "ok" ) {
-                     self.st_logged_in();
-                     $.each( self.afterLogin, function( i, v ){
-                         v();
-                     } );
-
-                 }
-                 else {
-                     ui.appmsg.show( "Failed login:" + json.msg );
-                 }
-
-            } );
-
-            ev.preventDefault();
-            ev.stopPropagation();
+            self.do_login();
         } );
 
     },
-    st_logged_in : function(){
+    do_login : function() {
         var self = this;
-        self.vdform.hide();
+
+        self.vdform.jsonRequest( json_succ( {
+            "ok" : function () {
+                log( "vdisk login rst=" );
+                log( json );
+
+                self.vddialog.dialog( "close" );
+
+                var jobs = self.afterLogin;
+                self.afterLogin = [];
+                $.each( jobs, function( i, v ){
+                    v();
+                } );
+            }
+
+        } ) );
+
+        ev.preventDefault();
+        ev.stopPropagation();
     },
     keeptoken : function( cb ) {
         var self = this;
@@ -312,7 +310,7 @@ $.extend( ui.vdacc, {
         } );
     },
     show_form : function() {
-        this.vdform.show();
+        this.vddialog.dialog( "open" );
     },
     save : function( cb ) {
 
