@@ -96,22 +96,13 @@ $.extend( ui, {
 
         } );
 
-        self.appmsg.init();
-        self.menu.init();
-        self.acc.init();
-        self.vdacc.init();
-        self.edit.init();
-        self.list.init();
-        self.my.init();
+        $.each( [ "appmsg", "menu", "acc", "vdacc", "edit", "list", "my" ],
+            function( i, v ){ v.init && v.init(); } );
 
         $( window ).resize( function() { self.relayout(); } );
+        $( "body" ).click( function( ev ) { $( ".t-autoclose" ).hide(); } );
 
-        $( "body" ).click( function( ev ) { self.close_all(); } );
 
-
-    },
-    close_all : function () {
-        $( ".t-autoclose" ).hide();
     },
     relayout : function () {
         var app = $( "#app" );
@@ -193,7 +184,7 @@ $.extend( ui.menu, {
             this.eltPath.val( p );
         }
         else {
-            return "/vweb/" + this.eltPath.val();
+            return "/vweb/" + this.eltPath.val() + ".html";
         }
     }
 
@@ -309,9 +300,6 @@ $.extend( ui.vdacc, {
             }
         } );
     },
-    show_form : function() {
-        this.vddialog.dialog( "open" );
-    },
     save : function( cb ) {
 
         var self = this;
@@ -335,7 +323,7 @@ $.extend( ui.vdacc, {
                     self.afterLogin.push( function(){
                         self.save( cb );
                     } );
-                    self.show_form();
+                    self.vddialog.dialog( "open" );
                 }
             } )
         } );
