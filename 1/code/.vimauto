@@ -1,8 +1,19 @@
-augroup VWEB
-    au!
-    au BufWritePost * silent! exe "!{ cd ../../../../; php am.php upload -f0 -v1 -n vweb >/dev/null 2>&1 ; } & "
-augroup END
+" augroup VWEB
+"     au!
+"     au BufWritePost * silent! exe "!{ cd ../../../../; php am.php upload -f0 -v1 -n vweb >/dev/null 2>&1 ; } & "
+" augroup END
 
+fun! SHOW_MB() "{{{
+    if &buftype == ""
+        WinRem
+        MiniBufExplorer
+        WinBack
+    endif
+endfunction "}}}
+augroup MINIB
+    au!
+    au BufNew * call SHOW_MB()
+augroup END
 
 
 " vim:ft=vim

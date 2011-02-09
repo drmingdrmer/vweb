@@ -9,6 +9,18 @@ function log (mes) {
     console.log( mes );
 }
 
+function json_succ( handlers ) {
+
+    function hdlr ( json, st, xhr ) {
+        ui.appmsg.show( json.msg );
+        if ( handlers[ json.rst ] ) {
+            handlers[ json.rst ]( json, st, xhr );
+        }
+    }
+
+    return hdlr;
+}
+
 var ui = { appmsg : {}, menu : {}, edit : {}, list : {}, my : {}, acc : {}, vdacc : {}, tool : {} };
 
 var wb = {
@@ -188,8 +200,8 @@ $.extend( ui.menu, {
 $.extend( ui.acc, {
     init : function() {
         this.tool = $( "#tool" );
-        this.alogin = $( "#acc #login" );
-        this.alogout = $( "#acc #logout" );
+        // this.alogin = $( "#acc #login" );
+        // this.alogout = $( "#acc #logout" );
     },
     login : function () {
         log( "login called" );
@@ -197,8 +209,8 @@ $.extend( ui.acc, {
         WB.connect.login(function() {
             log( 'login ok' );
             self.tool.removeClass( "invisible" );
-            self.alogin.hide();
-            self.alogout.show();
+            // self.alogin.hide();
+            // self.alogout.show();
         });
     },
     logout : function () {
@@ -206,8 +218,8 @@ $.extend( ui.acc, {
         WB.connect.logout(function() {
             log( 'logout ok' );
 
-            self.alogin.show();
-            self.alogout.hide();
+            // self.alogin.show();
+            // self.alogout.hide();
 
             self.tool.addClass( "invisible" );
         });
@@ -246,23 +258,28 @@ $.extend( ui.acc, {
 } );
 
 $.extend( ui.vdacc, {
+    afterLogin : [],
     init : function() {
         var self = this;
-        self.vdlogin = $( "#vdlogin" );
-        self.loginbtn = $( "#vdacc #login" );
-        self.logoutbtn = $( "#vdacc #logout" );
+        self.vdform = $( "form#vdform" );
+        // self.loginbtn = $( "#vdacc #login" );
+        // self.logoutbtn = $( "#vdacc #logout" );
 
-        self.vdlogin.hide();
+        self.vdform.hide();
 
 
-        self.vdlogin.find( "input[name=submit]" ).click( function( ev ) {
+        self.vdform.find( "input[name=submit]" ).click( function( ev ) {
 
-             self.vdlogin.jsonRequest( function( json ) {
+             self.vdform.jsonRequest( function( json ) {
                  log( "vdisk login rst=" );
                  log( json );
+                 ui.appmsg.show( json.rst );
                  if ( json.rst == "ok" ) {
-                     ui.appmsg.show( "OK login" );
                      self.st_logged_in();
+                     $.each( self.afterLogin, function( i, v ){
+                         v();
+                     } );
+
                  }
                  else {
                      ui.appmsg.show( "Failed login:" + json.msg );
@@ -277,11 +294,7 @@ $.extend( ui.vdacc, {
     },
     st_logged_in : function(){
         var self = this;
-        log( "st_logged_in called" );
-        self.vdlogin.hide();
-        self.loginbtn.hide();
-        self.logoutbtn.show();
-        log( "st_logged_in finished" );
+        self.vdform.hide();
     },
     keeptoken : function( cb ) {
         var self = this;
@@ -291,18 +304,19 @@ $.extend( ui.vdacc, {
             url : url,
             dataType : "json",
             success : function( rst, st, xhr ) {
-                log( 'vd keeptoken success' );
+                ui.appmsg.show( rst.msg );
                 if ( rst.rst == "ok" ) {
-                    self.st_logged_in()
-                    cb && cb();
+                    cb && cb( rst, st, xhr );
                 }
             }
         } );
     },
     show_form : function() {
-        this.vdlogin.show();
+        this.vdform.show();
     },
     save : function( cb ) {
+
+        var self = this;
         var html = ui.edit.html();
 
         // TODO unicode, utf-8, url-encoding test
@@ -317,16 +331,15 @@ $.extend( ui.vdacc, {
             type : "PUT", url : url,
             data : html,
             dataType : 'json',
-            success : function ( json, st, xhr ) {
-                if ( json.rst == "ok" ) {
-                    ui.appmsg.show( "Saved" );
-                    cb && cb();
+            success : json_succ( {
+                "ok" : cb,
+                "invalid_token" : function () {
+                    self.afterLogin.push( function(){
+                        self.save( cb );
+                    } );
+                    self.show_form();
                 }
-                else {
-                    ui.appmsg.show( "Failed saving: " + json.msg );
-                }
-            }
-
+            } )
         } );
     },
     logout : function() {
@@ -374,7 +387,7 @@ $.extend( ui.edit, {
                 log( ui );
                 log( ui.item.parent().attr( "id" ) );
                 log( ui.helper.parent().attr( "id" ) );
-            }, 
+            },
             // NOTE: helper setting to "clone" prevents click event to trigger
             helper : "clone"
         });

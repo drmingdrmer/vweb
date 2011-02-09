@@ -1,6 +1,11 @@
 <?php
 
+header("Location: tlogin.php");
+exit();
+
+
 session_start();
+
 if( isset($_SESSION['last_key']) ) {
     header("Location: weibolist.php");
     exit();

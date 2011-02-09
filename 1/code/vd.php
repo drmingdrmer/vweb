@@ -3,7 +3,8 @@
 session_start();
 
 include_once( 'config.php' );
-include_once( 'vDisk.class.php' );
+include_once( 'lib/vDisk.class.php' );
+include_once( 'util.php' );
 
 
 function keeptoken( &$vdisk ) {
@@ -19,12 +20,10 @@ function keeptoken( &$vdisk ) {
      */
 
     if ( $r && $r[ 'err_code' ] == 0 ) {
-        echo "{\"rst\" : \"ok\"}";
-        return true;
+        resmsg( "ok", "成功" );
     }
     else {
-        echo "{\"rst\" : \"fail\", \"msg\" : \"" . $r[ 'err_msg' ] . "\"}";
-        exit();
+        resmsg( "invalid_token", $r[ 'err_msg' ] );
     }
 
 }
@@ -116,8 +115,7 @@ else if ( $verb == "PUT" ) {
     $path = $_REQUEST[ 'path' ];
 
     if ( !$path ) {
-        echo "{\"rst\" : \"invalid_path\", \"msg\" : \"不合法路径:'$path'\"}";
-        exit();
+        resmsg( "invalid_path", "不合法路径:'$path'" );
     }
 
     if ( $path[ 0 ] != "/" ) {
@@ -154,7 +152,8 @@ else if ( $verb == "PUT" ) {
 
     // $r = $vdisk->get_token( "drdr.xp@gmail.com", "123qwe" );
     // TODO 
-    $r = $vdisk->keep_token( $_SESSION[ 'token' ] );
+    $vdisk->keep_token( $_SESSION[ 'token' ] )
+        || resmsg( "invalid_token", "请重新登录" );
 
     $r = $vdisk->upload_file( $localfn, $parent, 'yes' );
     if ( $r && $r[ 'err_code' ] == 0 ) {
@@ -165,7 +164,12 @@ else if ( $verb == "PUT" ) {
         $r = $vdisk->move_file( $fid, $dirid, $fn );
 
         if ( $r && $r[ 'err_code' ] == 0 ) {
-            echo "{\"rst\" : \"ok\", \"path\" : \"$path\", \"fid\" : \"{$r['data']['fid']}\"}";
+            resjson( array(
+                "rst" => "ok",
+                "path" => "$path",
+                "fid" => "{$r['data']['fid']}", 
+                "msg" => "成功保存到$path"
+            ) );
         }
         else {
             // existed. delete it first
@@ -180,16 +184,26 @@ else if ( $verb == "PUT" ) {
             $r = $vdisk->move_file( $fid, $dirid, $fn );
 
             if ( $r && $r[ 'err_code' ] == 0 ) {
-                echo "{\"rst\" : \"ok\", \"path\" : \"$path\", \"fid\" : \"{$r['data']['fid']}\"}";
+                resjson( array(
+                    "rst" => "ok",
+                    "path" => "$path",
+                    "fid" => "{$r['data']['fid']}", 
+                    "msg" => "成功保存到$path"
+                ) );
             }
             else {
-                echo "{\"rst\" : \"fail\", \"msg\" : \"{$r['err_msg']} 动作:重命名fid:'$fid'到'$fn'\"}";
+                resmsg( "move", "{$r['err_msg']} 动作:重命名fid:'$fid'到'$fn'" );
             }
 
         }
     }
+    else if ( $r && $r[ 'err_code' ] == 702 ) {
+        // invalid token
+        resmsg( "invalid_token", "请重新登录" );
+        
+    }
     else {
-        echo "{\"rst\" : \"fail\", \"msg\" : \"{$r['err_msg']} 动作:上传'$localfn'到'$parent'\"}";
+        resmsg( "upload", "{$r['err_msg']} 动作:上传'$localfn'到'$parent'" );
     }
 
     $r = unlink( $localfn );

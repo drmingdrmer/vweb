@@ -35,10 +35,12 @@
                     <a href="javascript:ui.acc.pub();">pub</a>
                 </div>
                 <span id="vdacc" style="display:block; padding-right: 40px;">
-                    <a id="login" href="javascript:ui.vdacc.show_form();">登录微盘</a>
-                    <a id="logout" href="javascript:ui.vdacc.logout();" style="display:none;">退出微盘</a>
-                    <span class="ui-icon ui-button-icon-primary " style="background: url(img/light-red-16.png);"></span>
-                    <form id="vdlogin" class="ui-dialog"
+                    <!--
+                       - <a id="login" href="javascript:ui.vdacc.show_form();">登录微盘</a>
+                       - <a id="logout" href="javascript:ui.vdacc.logout();" style="display:none;">退出微盘</a>
+                       - <span class="ui-icon ui-button-icon-primary " style="background: url(img/light-red-16.png);"></span>
+                       -->
+                    <form id="vdform" class="ui-dialog"
                         action="/vd.php" method="POST" accept-charset="utf-8"
                         enctype="application/x-www-form-urlencoded">
                         <label for="vdisk_username">用户名</label>
@@ -49,12 +51,14 @@
                     </form>
                     <!-- <span class="ui-state-error-text"><span class="ui-icon ui-icon-notice "></span></span> -->
                 </span>
-                <span id="acc">
-                    <a id="login" href="javascript:ui.acc.login();">登录微博</a>
-                    <a id="logout" href="javascript:ui.acc.logout();" style="display:none;">退出微博</a>
-                    <span class="ui-icon " style="background: url(img/light-red-16.png);"></span>
-                    <!-- <span class="ui-state-error-text"><span class="ui-icon ui-icon-notice "></span></span> -->
-                </span>
+                <!--
+                   - <span id="acc">
+                   -     <a id="login" href="javascript:ui.acc.login();">登录微博</a>
+                   -     <a id="logout" href="javascript:ui.acc.logout();" style="display:none;">退出微博</a>
+                   -     <span class="ui-icon " style="background: url(img/light-red-16.png);"></span>
+                   -     [> <span class="ui-state-error-text"><span class="ui-icon ui-icon-notice "></span></span> <]
+                   - </span>
+                   -->
             </div>
             <div id="appmsg">
             </div>
