@@ -20,20 +20,47 @@ body { background: #ddd; }
     padding: 10px;
     background: #aaa;
     overflow: hidden; zoom: 1; }
-#hd #lg { float: left; }
-#hd #lg img{ height: 40px; }
-#hd #vdacc { float: right; }
-#hd #acc { float: right; }
+
+    #lg { float: left; }
+    #lg img{ height: 40px; }
+    #vdacc { float: right; }
+    #acc { float: right; }
 
 #bd { overflow: hidden; zoom: 1; }
-#bd #edit { width: 600px; float: left;
-    padding: 20px; }
-#bd #edit #cont { width: 100%; height: 100%;
-    overflow: auto;
-    color: #000; background: #fff; }
-#bd #tool { width: 360px; float: right;
-    background: #aaa;
-    overflow: visible; zoom: 1; }
+    #edit {
+    position: relative;
+    width: 600px; float: left;
+    padding: 40px 20px 20px 20px; }
+    #edit .g_mode {
+        position: absolute;
+        top: 4px;
+        left: 20px; }
+        #cont { width: 100%; height: 100%;
+            overflow: auto;
+            color: #000; background: #fff; }
+        #cont.standard {  }
+        #cont.album .t_msg {
+            -moz-border-radius: 0;
+            -webkit-border-radius: 0;
+            border-radius: 0;
+
+            float: left;
+
+            margin: 1px;
+            padding: 0; }
+            #page {
+                width: 560px;
+                min-height: 400px;
+                overflow: hidden; zoom: 1; }
+            #cont.album .t_msg .avatar { display: none; }
+            #cont.album .t_msg .cont { margin: 0; }
+            #cont.album .t_msg .cont img.thumb { float: none; }
+            #cont.album .t_msg .cont .user { display: none; }
+            #cont.album .t_msg .cont .msg { display: none; }
+
+    #tool { width: 360px; float: right;
+        background: #aaa;
+        overflow: visible; zoom: 1; }
 
 
 
@@ -138,7 +165,9 @@ body { background: #ddd; }
 
 
 .t_msg {
-    -moz-border-radius: 12px; -webkit-border-radius: 12px; border-radius: 12px;
+    -moz-border-radius: 12px;
+    -webkit-border-radius: 12px;
+    border-radius: 12px;
     margin: 2px 0 5px 0; padding: 6px;
     background-color: #eee;
     position: relative;

@@ -29,7 +29,8 @@
             <div id="hd" class="t-panel">
                 <div id="lg"><img src="img/x.png" alt="vweb"/></div>
                 <div id="menu">
-                    <span>/vweb/</span><input id="path" type="text" name="path" value="Untitled.html"/>
+                    <span></span>
+                    <input id="path" type="text" name="path" value="Untitled"/>
                     <a href="javascript:ui.vdacc.save();">save</a>
                     <a href="javascript:ui.acc.pub();">pub</a>
                 </div>
@@ -59,7 +60,24 @@
             </div>
             <div id="bd">
                 <div id="edit" class="ui-widget ui-widget-content">
-                    <div id="cont"></div>
+                    <form class="f_args g_mode left" >
+                        <span id="edit_mode" class="t_opt" name="mode" _type="radio">
+                            <a href="standard">**</a>
+                            <a href="album">图</a>
+                        </span>
+
+                        <label for="pagewidth">width:</label>
+                        <input id="pagewidth" class="v_width" type="text" name="width" value="560"/>
+
+                        <span id="screen_mode" class="t_opt" name="screen_mode" _type="radio">
+                            <a href="0">全</a>
+                            <a href="1">原</a>
+                        </span>
+                    </form>
+                    <div id="cont">
+                        <div id="page">
+                        </div>
+                    </div>
                 </div>
                 <div id="tool" class="t-panel -invisible">
                     <!-- -------------------------------- function here -------------------------------- -->
@@ -207,13 +225,6 @@
        </div>
        <script id="tmpl_msg" type="text/x-jquery-tmpl">
            <div id="${id}" class="t_msg ui-widget ui-corner-all ${retweet}">
-               <!--
-                  - {{if retweet}}
-                  - <span class="retweet_symbol left">
-                  -     [> <span class="ui-icon ui-icon-arrowreturnthick-1-e"></span> <]
-                  - </span>
-                  - {{/if}}
-                  -->
                <div class="handle ui-corner-all hidden"></div>
                <div class="avatar ui-corner-all"><img src="${user.avatar_30}" /></div>
                <div class="cont msg">

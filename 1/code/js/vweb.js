@@ -336,17 +336,33 @@ $.extend( ui.vdacc, {
 
 $.extend( ui.edit, {
     init : function () {
+        var self = this;
         this.edit = $( "#edit" );
         this.cont = this.edit.children( "#cont" );
+        this.page = this.cont.children( "#page" );
 
-        this.cont.empty();
+        this.page.empty();
+
         this.setup_func();
+
+
+        this.edit.find( "#edit_mode input" ).button().click( function() {
+            $( this ).parent().find( "input" ).each( function() {
+                self.cont.removeClass( $( this ).val() );
+            } );
+            self.cont.addClass( $( this ).val() );
+        } )
+        .parent().buttonset();
+
+        this.edit.find( "#screen_mode input" ).button();
+
+
     },
     setup_func : function () {
-        ui.setup_img_switch( this.cont );
+        ui.setup_img_switch( this.page );
 
-        this.cont.sortable({
-            handle : ".handle",
+        this.page.sortable({
+            // handle : ".handle",
             receive : function ( ev, ui ) {
                 var msg = ui.item;
                 msg.hide();
@@ -358,12 +374,14 @@ $.extend( ui.edit, {
                 log( ui );
                 log( ui.item.parent().attr( "id" ) );
                 log( ui.helper.parent().attr( "id" ) );
-            }
+            }, 
+            // NOTE: helper setting to "clone" prevents click event to trigger
+            helper : "clone"
         });
     },
     ids : function () {
         var ids = [];
-        this.cont.find( ".t_msg" ).each( function() {
+        this.page.find( ".t_msg" ).each( function() {
             ids.push( $( this ).attr( "id" ) );
         } );
         log( "ids=", ids );
@@ -371,8 +389,9 @@ $.extend( ui.edit, {
     },
     layoutdata : function () {
         var rst = [];
-        log( this.cont );
         var root = this.cont.offset();
+        root.top -= this.cont.scrollTop();
+        root.left -= this.cont.scrollLeft();
 
         // var rootw = this.cont.innerWidth();
         // var rooth = this.cont.innerHeight();
@@ -397,18 +416,21 @@ $.extend( ui.edit, {
                 rst.push( thumbData );
             }
 
-            var p = e.offset();
+            if ( e.find( ".cont .msg:visible" ).length > 0 ) {
+                var p = e.offset();
 
-            var d = {
-                t : p.top - root.top,
-                l : p.left - root.left,
-                w : e.outerWidth() - ( thumbData ? thumbData.w + 4 : 0 ),
-                h : e.outerHeight(),
-                color : "#000",
-                text : $.trim( e.text() ).replace( / +/g, ' ' )
-            };
+                var d = {
+                    t : p.top - root.top,
+                    l : p.left - root.left,
+                    w : e.outerWidth() - ( thumbData ? thumbData.w + 4 : 0 ),
+                    h : e.outerHeight(),
+                    color : "#000",
+                    text : $.trim( e.text() ).replace( / +/g, ' ' )
+                };
 
-            rst.push( d );
+                rst.push( d );
+            }
+
 
             var midpic = e.find( "img.midpic:visible" );
 
@@ -498,7 +520,7 @@ $.extend( ui.list, {
     setup_draggable : function () {
 
         this.eltList.children().draggable( {
-            connectToSortable: "#edit>#cont",
+            connectToSortable: "#page",
             // handle : ".handle",
             helper : "clone",
             revert : "invalid",
@@ -522,11 +544,6 @@ $.extend( ui.my, {
 
         self.set_dialog_pos();
 
-
-
-        // self.myDialog.find( ".t_opt" ).buttonset().click( function( ev ){
-        //     ev.stopPropagation();
-        // } );
 
         self.myButton.click( function (ev){
             log( 'click' );

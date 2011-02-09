@@ -1,0 +1,16 @@
+{
+    "w":300,
+    "h":300,
+    "bgcolor":"#ffffff",
+    "bgimg":"url",
+    "d":[
+        {
+            "t" : 10,
+            "l" : 10,
+            "w" : 100,
+            "h" : 100,
+            "color" : "#000", 
+            "text" : "this is text"
+        }
+    ]
+}
