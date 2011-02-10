@@ -258,6 +258,8 @@ $.extend( ui.acc, {
 
 $.extend( ui.vdacc, {
     afterLogin : [],
+    curPath : "",
+    curFile : "Untitled",
     init : function() {
         var self = this;
         self.vdform = $( "form#vdform" );
@@ -309,9 +311,8 @@ $.extend( ui.vdacc, {
         var self = this;
         var url = "/vd.php?act=list";
 
-
         if ( opt ) {
-            url += opt.path ? "&path=" + opt.path : "&dirid=" + opt.dirid;
+            url += opt.dirid ? "&dirid=" + opt.dirid : "&path=" + opt.path;
         }
 
         $.ajax( {
@@ -331,7 +332,7 @@ $.extend( ui.vdacc, {
     save : function( cb ) {
 
         var self = this;
-        var html = ui.edit.html();
+        var html = $.trim( ui.edit.html() );
 
         // TODO unicode, utf-8, url-encoding test
         var path = ui.menu.path();
@@ -359,7 +360,7 @@ $.extend( ui.vdacc, {
     load : function( what ) {
         var self = this;
         var url = "/vd.php?act=load&";
-        url += what.path ? "&path=" + what.path : "&fid=" + what.fid;
+        url += what.fid ? "&fid=" + what.fid : "&path=" + what.path;
 
 
         log( "to load path=" + url );
@@ -371,6 +372,8 @@ $.extend( ui.vdacc, {
                 "ok" : function( json, st, xhr ){
                     log( json.html );
                     ui.edit.html( json.html );
+                    // what.path ?
+
                 },
                 "invalid_token" : function () {
                     self.afterLogin.push( function(){
@@ -390,7 +393,10 @@ $.extend( ui.tree, {
         $( "#tree ul" )
         .delegate( "li.file", "click", function(){
             var e = $( this );
-            ui.vdacc.load( { "fid" : e.attr( "id" ) } );
+            ui.vdacc.load( {
+                "fid" : e.attr( "id" ), 
+                "name"  : $.trim( e.text() )
+            } );
         } )
         .delegate( "li.folder", "click", function(){
             var e = $( this );
@@ -536,11 +542,11 @@ $.extend( ui.edit, {
     },
     html : function( h ) {
         if ( h ) {
-            this.cont.html( h );
+            this.page.html( h );
         }
         else {
             // TODO filter and cleanup
-            return this.cont.html();
+            return this.page.html();
         }
     }
 } );
@@ -601,7 +607,7 @@ $.extend( ui.list, {
             // handle : ".handle",
             helper : "clone",
             revert : "invalid",
-            zIndex : 2000, 
+            zIndex : 2000,
             stop : function ( ev, ui ) {
                 // log( "stop" );
                 // log( $( ev.target ).parent().attr( 'id' ) );
