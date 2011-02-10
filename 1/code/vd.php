@@ -27,7 +27,6 @@ function keeptoken( &$vdisk ) {
     }
 
 }
-
 function get_fid( &$vdisk, $path ) {
     $elts = explode( "/", $path );
     $fn = array_pop( $elts );
@@ -60,15 +59,9 @@ function get_fid( &$vdisk, $path ) {
 
     return false;
 }
-
-$verb = $_SERVER[ 'REQUEST_METHOD' ];
-
-if ( $verb == "POST" ) {
-
+function login( &$vdisk ) {
     $username = $_POST[ 'username' ];
     $password = $_POST[ 'password' ];
-
-    $vdisk = new vDisk(VWEB_VD_KEY, VWEB_VD_SEC);
 
     $r = $vdisk->get_token($username, $password);
 
@@ -93,25 +86,14 @@ if ( $verb == "POST" ) {
 
     if ( $r && $r[ 'err_code' ] == 0 ) {
         $_SESSION['token'] = $vdisk->token;
-        echo "{\"rst\" : \"ok\"}";
+        resmsg( "ok", "登录成功" );
     }
     else {
-        echo "{\"rst\" : \"fail\", \"msg\" : \"" . $r[ 'err_msg' ] . "\"}";
+        resmsg( "fail", $r[ 'err_msg' ] );
     }
+    
 }
-else if ( $verb == "GET" ) {
-
-    $act = $_GET[ 'act' ];
-
-    if ( $act == "keeptoken" ) {
-
-        $vdisk = new vDisk(VWEB_VD_KEY, VWEB_VD_SEC);
-        keeptoken( $vdisk );
-    }
-}
-else if ( $verb == "PUT" ) {
-
-
+function putfile( &$vdisk ) {
     $path = $_REQUEST[ 'path' ];
 
     if ( !$path ) {
@@ -148,13 +130,6 @@ else if ( $verb == "PUT" ) {
 
 
 
-    $vdisk = new vDisk(VWEB_VD_KEY, VWEB_VD_SEC);
-
-    // $r = $vdisk->get_token( "drdr.xp@gmail.com", "123qwe" );
-    // TODO 
-    $vdisk->keep_token( $_SESSION[ 'token' ] )
-        || resmsg( "invalid_token", "请重新登录" );
-
     $r = $vdisk->upload_file( $localfn, $parent, 'yes' );
     if ( $r && $r[ 'err_code' ] == 0 ) {
 
@@ -164,6 +139,7 @@ else if ( $verb == "PUT" ) {
         $r = $vdisk->move_file( $fid, $dirid, $fn );
 
         if ( $r && $r[ 'err_code' ] == 0 ) {
+            unlink( $localfn );
             resjson( array(
                 "rst" => "ok",
                 "path" => "$path",
@@ -184,6 +160,7 @@ else if ( $verb == "PUT" ) {
             $r = $vdisk->move_file( $fid, $dirid, $fn );
 
             if ( $r && $r[ 'err_code' ] == 0 ) {
+                unlink( $localfn );
                 resjson( array(
                     "rst" => "ok",
                     "path" => "$path",
@@ -192,6 +169,7 @@ else if ( $verb == "PUT" ) {
                 ) );
             }
             else {
+                unlink( $localfn );
                 resmsg( "move", "{$r['err_msg']} 动作:重命名fid:'$fid'到'$fn'" );
             }
 
@@ -199,14 +177,69 @@ else if ( $verb == "PUT" ) {
     }
     else if ( $r && $r[ 'err_code' ] == 702 ) {
         // invalid token
+        // NOTE: actually vdisk SDK does not return 702, but False!
+        // Thus following statement will never be executed.
+        unlink( $localfn );
         resmsg( "invalid_token", "请重新登录" );
-        
+
     }
     else {
+        unlink( $localfn );
         resmsg( "upload", "{$r['err_msg']} 动作:上传'$localfn'到'$parent'" );
     }
 
-    $r = unlink( $localfn );
+}
+function listdir( &$vdisk ) {
+    $root = '/vweb';
+    $relpath = $_GET[ 'path' ];
+    $path = "$root/$relpath";
+
+    $r = $vdisk->get_dirid_with_path( $path );
+    !$r && resmsg( "invalid_token", "请重新登录" );
+
+    if ( $r[ 'err_code' ] != 0 ) {
+        // TODO no such dir
+        resmsg( "ok", array() );
+    }
+
+    $dirid = $r[ 'data' ][ 'id' ];
+
+    $r = $vdisk->get_list( $dirid );
+    !$r && resmsg( "list", "列目录失败" );
+
+    if ( $r[ 'err_code' ] != 0 ) {
+        resmsg( "list", $r[ 'err_msg' ] );
+    }
+
+    resjson( array( "rst" => "ok", "data" => $r[ 'data' ] ) );
+}
+
+$vdisk = new vDisk(VWEB_VD_KEY, VWEB_VD_SEC);
+
+$verb = $_SERVER[ 'REQUEST_METHOD' ];
+
+if ( $verb == "POST" ) { login( $vdisk ); }
+
+$vdisk->keep_token( $_SESSION[ 'token' ] )
+    || resmsg( "invalid_token", "请重新登录" );
+
+if ( $verb == "GET" ) {
+
+    $act = $_GET[ 'act' ];
+
+    switch ( $act ) {
+        case "keeptoken" :
+            keeptoken( $vdisk );
+            break;
+        case "list" :
+            listdir( $vdisk );
+            break;
+        default:
+            resmsg( "unknown_act", "非法act参数=$act" );
+    }
+}
+else if ( $verb == "PUT" ) {
+    putfile( $vdisk );
 }
 
 function move_file( &$vdisk, $fid, $desc ) {

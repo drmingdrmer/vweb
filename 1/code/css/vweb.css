@@ -242,10 +242,10 @@ body { background: #ddd; }
 }
 
 #appmsg {
-    width: 100%;
+    z-index: 1000;
     position: absolute;
-    left: 0;
-    top: 0;
+    width: 100%;
+    left: 0; top: 0;
     text-align: center;
 }
 #appmsg .msg {

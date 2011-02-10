@@ -643,8 +643,7 @@ $.extend( ui.my.friend, {
         // TODO realod search if group "search" is active
         self.elt.find( ".f_idx" ).click( friend_simp_load );
 
-        self.formSimp.find( "input" ).button()
-            .click( friend_simp_load );
+        self.formSimp.find( "input" ).button().click( friend_simp_load );
 
     }
 } );
