@@ -16,7 +16,9 @@
         <script language="javascript" type="text/javascript" src="js/jquery-1.4.4.min.js"></script>
         <script language="javascript" type="text/javascript" src="js/jquery-ui-1.8.9.custom.min.js"></script>
         <script language="javascript" type="text/javascript" src="plugin/tmpl/jquery.tmpl.js"></script>
-        <script language="javascript" type="text/javascript" src="plugin/layout/jquery.layout.js"></script>
+        <!-- <script language="javascript" type="text/javascript" src="plugin/layout/jquery.layout.js"></script> -->
+        <!-- <script language="javascript" type="text/javascript" src="plugin/tree/lib/jquery.cookie.js"></script> -->
+        <!-- <script language="javascript" type="text/javascript" src="plugin/tree/jquery.treeview.js"></script> -->
 
         <script language="javascript" type="text/javascript" src="js/cmds.js"></script>
         <script language="javascript" type="text/javascript" src="js/vweb.js"></script>
@@ -31,6 +33,7 @@
                     <span></span>
                     <input id="path" type="text" name="path" value="Untitled"/>
                     <a href="javascript:ui.vdacc.save();">保存</a>
+                    <a href="javascript:ui.vdacc.browse();">打开</a>
                     <a href="javascript:ui.acc.pub();">发布</a>
                 </div>
                 <span id="vdacc" style="display:block; padding-right: 40px;">
@@ -82,8 +85,6 @@
                 </div>
                 <div id="tool" class="t-panel -invisible">
                     <!-- -------------------------------- function here -------------------------------- -->
-                    <div id="list" class="t-list">
-                    </div>
                     <div id="func">
                         <div id="my" class="t-dialog hideall but-friend" style="background:url(img/t101.png);">
                             <fieldset id="friend">
@@ -218,26 +219,35 @@
                             </div>
                         </div>
                     </div>
+                    <div id="list" class="t-list">
+                    </div>
                 </div>
             </div>
             <div id="appmsg"></div>
-        </div>
-        <script id="tmpl_msg" type="text/x-jquery-tmpl">
-            <div id="${id}" class="t_msg ui-widget ui-corner-all ${retweet}">
-                <div class="handle ui-corner-all hidden"></div>
-                <div class="avatar ui-corner-all"><img src="${user.avatar_30}" /></div>
-                <div class="cont msg">
-                    {{if thumbnail_pic}} <img class="msgimg thumb" src="${thumbnail_pic}" /> {{/if}}
-                    <span class="user" id="${user.id}">${user.name}:</span>
-                    <span class="msg">${text}</span>
-                    {{if bmiddle_pic}} <img class="msgimg midpic" src="${bmiddle_pic}"/> {{/if}}
-                </div>
+            <div id="tree">
+                <ul>
+                </ul>
             </div>
-        </script>
-        <script id="tmpl_opts" type="text/x-jquery-tmpl">
-            <input type="${type}" id="${id}" name="${name}" value="${value}" />
-            <label for="${id}">${label}</label>
-        </script>
+        </div>
+<script id="tmpl_msg" type="text/x-jquery-tmpl">
+<div id="${id}" class="t_msg ui-widget ui-corner-all ${retweet}">
+    <div class="handle ui-corner-all hidden"></div>
+    <div class="avatar ui-corner-all"><img src="${user.avatar_30}" /></div>
+    <div class="cont msg">
+        {{if thumbnail_pic}} <img class="msgimg thumb" src="${thumbnail_pic}" /> {{/if}}
+        <span class="user" id="${user.id}">${user.name}:</span>
+        <span class="msg">${text}</span>
+        {{if bmiddle_pic}} <img class="msgimg midpic" src="${bmiddle_pic}"/> {{/if}}
+    </div>
+</div>
+</script>
+<script id="tmpl_opts" type="text/x-jquery-tmpl">
+<input type="${type}" id="${id}" name="${name}" value="${value}" />
+<label for="${id}">${label}</label>
+</script>
+<script id="tmpl_tree_item" type="text/x-jquery-tmpl">
+<li id="${id}" class="${class}">${name}</li>
+</script>
     </body>
 
 

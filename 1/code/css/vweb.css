@@ -16,15 +16,25 @@ body { background: #ddd; }
     background-color: #ddd;
 }
 
-#hd { height: 40px; margin: 0 0 2px 0;
+#hd {
+    z-index: 1002;
+
+    height: 40px; margin: 0 0 2px 0;
     padding: 10px;
     background: #aaa;
-    overflow: hidden; zoom: 1; }
+    overflow: visible; zoom: 1; }
 
     #lg { float: left; }
     #lg img{ height: 40px; }
     #vdacc { float: right; }
     #acc { float: right; }
+    #tree {
+        z-index: 1001;
+        position: absolute;
+        top: 100px;
+        border: 1px solid #000;
+        background: #ddd;
+    }
 
 #bd { overflow: hidden; zoom: 1; }
     #edit {
@@ -43,9 +53,7 @@ body { background: #ddd; }
             -moz-border-radius: 0;
             -webkit-border-radius: 0;
             border-radius: 0;
-
             float: left;
-
             margin: 1px;
             padding: 0; }
             #page {
@@ -65,50 +73,48 @@ body { background: #ddd; }
 
 
     #func {
+        position: relative;
         height: 30px;
         overflow: visible; zoom: 1;
         margin: 0 0 2px 0; padding: 4px; }
-    /*
-     * #func>.t-panel,
-     * #func>.t-btn { margin: 0 6px 0 0; }
-     */
 
-        /* #expand.t-btn { float: left; } */
-        #my.t-dialog {
+        #my {
             width: 356px;
             left:0; top: 0;
             position: absolute;
             overflow: hidden; zoom: 1; }
 
-        #my.t-dialog legend { display: block; }
-        #my.t-dialog.hideall legend { display: inline; float: left; }
-        #my.t-dialog.hideall form { display: inline; }
+        #my legend { display: block; }
+        #my.hideall legend { display: inline; float: left; }
+        #my.hideall form { display: inline; }
 
 
-        #my.t-dialog .f_idx .ui-button-icon-primary.ui-icon-idx {
+        #my .f_idx .ui-button-icon-primary.ui-icon-idx {
             /* .ui-icon-refresh { background-position: -64px -80px; } */
             background-position: -64px -80px;
         }
-        #my.t-dialog.hideall .f_idx .ui-button-icon-primary.ui-icon-idx {
+        #my.hideall .f_idx .ui-button-icon-primary.ui-icon-idx {
             /* .ui-icon-arrow-4-diag { background-position: -16px -80px; } */
             background-position: -16px -80px;
         }
 
-        #my.t-dialog.hideall #friend,
-        #my.t-dialog.hideall #mine,
-        #my.t-dialog.hideall #re,
-        #my.t-dialog.hideall #at,
-        #my.t-dialog.hideall #fav,
-        #my.t-dialog.hideall #global { display: none; }
+        #my.hideall #friend,
+        #my.hideall #mine,
+        #my.hideall #re,
+        #my.hideall #at,
+        #my.hideall #fav,
+        #my.hideall #global { display: none; }
 
-        #my.t-dialog.hideall.but-friend #friend { display: block; }
-        #my.t-dialog.hideall.but-mine   #mine   { display: block; }
-        #my.t-dialog.hideall.but-re     #re     { display: block; }
-        #my.t-dialog.hideall.but-at     #at     { display: block; }
-        #my.t-dialog.hideall.but-fav    #fav    { display: block; }
-        #my.t-dialog.hideall.but-global #global { display: block; }
+        #my.hideall.but-friend #friend { display: block; }
+        #my.hideall.but-mine   #mine   { display: block; }
+        #my.hideall.but-re     #re     { display: block; }
+        #my.hideall.but-at     #at     { display: block; }
+        #my.hideall.but-fav    #fav    { display: block; }
+        #my.hideall.but-global #global { display: block; }
 
         #search #keyword{ border: 0; width: 80px; height: 20px; }
+
+    #list {  }
 
 .t-ctrl { padding: 2px; margin-bottom: 4px; position: relative; overflow: hidden; zoom:1; }
 .t_ctrl_title { border: 0px solid #444; margin: 0 0 5px 0;  }
@@ -164,7 +170,6 @@ body { background: #ddd; }
     color: #aaa;
 }
 
-#bd #tool #list {  }
 
 .t-list {
     color: #000;

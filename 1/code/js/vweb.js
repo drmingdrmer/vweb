@@ -24,7 +24,7 @@ function json_succ( handlers ) {
     return hdlr;
 }
 
-var ui = { appmsg : {}, menu : {}, edit : {}, list : {}, my : {}, acc : {}, vdacc : {}, tool : {} };
+var ui = { appmsg : {}, menu : {}, edit : {}, list : {}, my : {}, acc : {}, vdacc : {}, tool : {}, tree : {} };
 
 var wb = {
     cmd : function ( cmd, args, cb ) {
@@ -67,31 +67,6 @@ $.extend( ui, {
 
         self.relayout();
 
-        var bodyLayout, appLayout, toolLayout;
-
-        appLayout = $( "#app" ).layout( {
-            center__paneSelector : "#edit",
-            east__paneSelector : "#tool",
-            north__paneSelector : "#hd",
-            spacing_open : 0,
-            spacing_closed : 2,
-            east__size : 360,
-            resizerClass : "hidden",
-
-            east__onresize_end : function() {
-                ui.my.set_dialog_pos();
-            }
-
-        } );
-        toolLayout = $( "#tool" ).layout( {
-            spacing_open : 0,
-            north__paneSelector : "#func",
-            center__paneSelector : "#list",
-            north__size: 36, 
-        } );
-
-
-
 
         $( ".t-btn" ).each( function() {
             $( this ).button( $( this ).btn_opt() );
@@ -123,10 +98,10 @@ $.extend( ui, {
 
         } );
 
-        $.each( [ "appmsg", "menu", "acc", "vdacc", "edit", "list", "my" ],
+        $.each( [ "appmsg", "menu", "acc", "vdacc", "edit", "list", "my", "tree" ],
             function( i, v ){ self[ v ].init && self[ v ].init(); } );
 
-        // $( window ).resize( function() { self.relayout(); } );
+        $( window ).resize( function() { self.relayout(); } );
         $( "body" ).click( function( ev ) { $( ".t-autoclose" ).hide(); } );
 
 
@@ -144,11 +119,6 @@ $.extend( ui, {
         var bodyHeight = $( window ).height();
         var appHeightDiff = app.outerHeight() - app.height();
         var appHeight = bodyHeight - appHeightDiff;
-
-
-        // try
-        app.height( appHeight );
-        return
 
 
         var appWidth = app.width();
@@ -189,6 +159,9 @@ $.extend( ui.appmsg, {
 
     },
     show : function ( text ) {
+        if ( !text ) {
+            return;
+        }
         var self = this;
 
         self.container.empty();
@@ -291,7 +264,8 @@ $.extend( ui.vdacc, {
         self.vddialog = self.vdform.dialog({ autoOpen: false });
 
 
-        self.vdform.find( "input[name=submit]" ).click( function( ev ) {
+        // self.vdform.find( "input[name=submit]" ).click( function( ev ) {
+        self.vdform.find( "input[name=submit]" ).submit( function( ev ) {
             self.do_login();
         } );
 
@@ -301,8 +275,6 @@ $.extend( ui.vdacc, {
 
         self.vdform.jsonRequest( json_succ( {
             "ok" : function () {
-                log( "vdisk login rst=" );
-                log( json );
 
                 self.vddialog.dialog( "close" );
 
@@ -333,6 +305,29 @@ $.extend( ui.vdacc, {
             }
         } );
     },
+    browse : function( opt ) {
+        var self = this;
+        var url = "/vd.php?act=list";
+
+
+        if ( opt ) {
+            url += opt.path ? "&path=" + opt.path : "&dirid=" + opt.dirid;
+        }
+
+        $.ajax( {
+            type : "GET", url : url,
+            dataType : 'json',
+            success : json_succ( {
+                "ok" : function( json ){ ui.tree.update( json.data ); },
+                "invalid_token" : function () {
+                    self.afterLogin.push( function(){
+                        self.browse();
+                    } );
+                    self.vddialog.dialog( "open" );
+                }
+            } )
+        } );
+    },
     save : function( cb ) {
 
         var self = this;
@@ -361,9 +356,61 @@ $.extend( ui.vdacc, {
             } )
         } );
     },
+    load : function( what ) {
+        var self = this;
+        var url = "/vd.php?act=load&";
+        url += what.path ? "&path=" + what.path : "&fid=" + what.fid;
+
+
+        log( "to load path=" + url );
+
+        $.ajax( {
+            type : "GET", url : url,
+            dataType : 'json',
+            success : json_succ( {
+                "ok" : function( json, st, xhr ){
+                    log( json.html );
+                    ui.edit.html( json.html );
+                },
+                "invalid_token" : function () {
+                    self.afterLogin.push( function(){
+                        self.load( path );
+                    } );
+                    self.vddialog.dialog( "open" );
+                }
+            } )
+        } );
+    },
     logout : function() {
 
     }
+} );
+$.extend( ui.tree, {
+    init : function() {
+        $( "#tree ul" )
+        .delegate( "li.file", "click", function(){
+            var e = $( this );
+            ui.vdacc.load( { "fid" : e.attr( "id" ) } );
+        } )
+        .delegate( "li.folder", "click", function(){
+            var e = $( this );
+            ui.vdacc.browse( { "dirid" : e.attr( "id" ) } );
+        } );
+    },
+    update : function ( data ) {
+        $.each( data, function( i, v ){
+            if ( v.sha1 ) {
+                v.class = "file";
+            }
+            else {
+                v.class = "folder";
+            }
+        } );
+
+        $( "#tmpl_tree_item" ).tmpl( data )
+        .appendTo( $( "#tree ul" ).empty() );
+    }
+
 } );
 
 $.extend( ui.edit, {
@@ -492,7 +539,6 @@ $.extend( ui.edit, {
             this.cont.html( h );
         }
         else {
-            // get
             // TODO filter and cleanup
             return this.cont.html();
         }
@@ -555,6 +601,7 @@ $.extend( ui.list, {
             // handle : ".handle",
             helper : "clone",
             revert : "invalid",
+            zIndex : 2000, 
             stop : function ( ev, ui ) {
                 // log( "stop" );
                 // log( $( ev.target ).parent().attr( 'id' ) );
@@ -569,7 +616,7 @@ $.extend( ui.my, {
     init : function () {
         var self = this;
         self.myButton = $( "#expand.t-btn" );
-        self.myDialog  = $( "#my.t-dialog" );
+        self.myDialog  = $( "#my" );
 
         self.friend.init( self.myDialog );
 
@@ -622,7 +669,6 @@ $.extend( ui.my.friend, {
         log( self.elt );
 
         function friend_simp_load( ev ) {
-
             ev.stopPropagation();
 
             var args = self.formSimp.serialize();
@@ -635,7 +681,7 @@ $.extend( ui.my.friend, {
             wb.cmd( 'friends_timeline', args, function( rst ) {
                 ui.appmsg.show( "updated" );
                 ui.list.show( rst );
-                ui.close_all();
+                $( ".t-autoclose" ).hide();
             } );
         }
 

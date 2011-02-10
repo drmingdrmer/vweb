@@ -190,19 +190,23 @@ function putfile( &$vdisk ) {
 
 }
 function listdir( &$vdisk ) {
-    $root = '/vweb';
-    $relpath = $_GET[ 'path' ];
-    $path = "$root/$relpath";
-
-    $r = $vdisk->get_dirid_with_path( $path );
-    !$r && resmsg( "invalid_token", "请重新登录" );
-
-    if ( $r[ 'err_code' ] != 0 ) {
-        // TODO no such dir
-        resmsg( "ok", array() );
+    if ( $_GET[ 'dirid' ] ) {
+        $dirid = $_GET[ 'dirid' ];
     }
+    else {
+        $root = '/vweb';
+        $relpath = $_GET[ 'path' ];
+        $path = "$root/$relpath";
 
-    $dirid = $r[ 'data' ][ 'id' ];
+        $r = $vdisk->get_dirid_with_path( $path );
+        !$r && resmsg( "invalid_path", "非法路径:$path" );
+        if ( $r[ 'err_code' ] != 0 ) {
+            // TODO no such dir
+            resmsg( "ok", array() );
+        }
+
+        $dirid = $r[ 'data' ][ 'id' ];
+    }
 
     $r = $vdisk->get_list( $dirid );
     !$r && resmsg( "list", "列目录失败" );
@@ -212,6 +216,19 @@ function listdir( &$vdisk ) {
     }
 
     resjson( array( "rst" => "ok", "data" => $r[ 'data' ] ) );
+}
+function load( &$vdisk ) {
+    $fid = $_GET[ 'fid' ];
+    if ( $fid ) {
+        $r = $vdisk->get_file_info( $fid );
+        if ( $r && $r[ 'err_code' ] == 0 ) {
+            $cont = file_get_contents( $r[ 'data' ][ 'url' ] );
+            resjson( array( "rst" => "ok", "html" => $cont ) );
+        }
+        else {
+            resmsg( "get_file_info", "取得文件信息失败" );
+        }
+    }
 }
 
 $vdisk = new vDisk(VWEB_VD_KEY, VWEB_VD_SEC);
@@ -233,6 +250,9 @@ if ( $verb == "GET" ) {
             break;
         case "list" :
             listdir( $vdisk );
+            break;
+        case "load" :
+            load( $vdisk );
             break;
         default:
             resmsg( "unknown_act", "非法act参数=$act" );
