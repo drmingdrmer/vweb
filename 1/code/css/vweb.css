@@ -64,42 +64,51 @@ body { background: #ddd; }
 
 
 
-#bd #tool #func { overflow: hidden; zoom: 1; margin: 0 0 2px 0; padding: 4px; }
+    #func {
+        height: 30px;
+        overflow: visible; zoom: 1;
+        margin: 0 0 2px 0; padding: 4px; }
+    /*
+     * #func>.t-panel,
+     * #func>.t-btn { margin: 0 6px 0 0; }
+     */
 
-#bd #tool #func>.t-panel,
-#bd #tool #func>.t-btn { margin: 0 6px 0 0; }
-    #expand.t-btn { float: left; }
-    #my.t-dialog { width: 356px; overflow: visible; zoom: 1; }
+        /* #expand.t-btn { float: left; } */
+        #my.t-dialog {
+            width: 356px;
+            left:0; top: 0;
+            position: absolute;
+            overflow: hidden; zoom: 1; }
 
-    #my.t-dialog legend { display: block; }
-    #my.t-dialog.hideall legend { display: inline; float: left; }
-    #my.t-dialog.hideall form { display: inline; }
+        #my.t-dialog legend { display: block; }
+        #my.t-dialog.hideall legend { display: inline; float: left; }
+        #my.t-dialog.hideall form { display: inline; }
 
 
-    #my.t-dialog .f_idx .ui-button-icon-primary.ui-icon-idx {
-        /* .ui-icon-refresh { background-position: -64px -80px; } */
-        background-position: -64px -80px;
-    }
-    #my.t-dialog.hideall .f_idx .ui-button-icon-primary.ui-icon-idx {
-        /* .ui-icon-arrow-4-diag { background-position: -16px -80px; } */
-        background-position: -16px -80px;
-    }
+        #my.t-dialog .f_idx .ui-button-icon-primary.ui-icon-idx {
+            /* .ui-icon-refresh { background-position: -64px -80px; } */
+            background-position: -64px -80px;
+        }
+        #my.t-dialog.hideall .f_idx .ui-button-icon-primary.ui-icon-idx {
+            /* .ui-icon-arrow-4-diag { background-position: -16px -80px; } */
+            background-position: -16px -80px;
+        }
 
-    #my.t-dialog.hideall #friend,
-    #my.t-dialog.hideall #mine,
-    #my.t-dialog.hideall #re,
-    #my.t-dialog.hideall #at,
-    #my.t-dialog.hideall #fav,
-    #my.t-dialog.hideall #global { display: none; }
+        #my.t-dialog.hideall #friend,
+        #my.t-dialog.hideall #mine,
+        #my.t-dialog.hideall #re,
+        #my.t-dialog.hideall #at,
+        #my.t-dialog.hideall #fav,
+        #my.t-dialog.hideall #global { display: none; }
 
-    #my.t-dialog.hideall.but-friend #friend { display: block; }
-    #my.t-dialog.hideall.but-mine   #mine   { display: block; }
-    #my.t-dialog.hideall.but-re     #re     { display: block; }
-    #my.t-dialog.hideall.but-at     #at     { display: block; }
-    #my.t-dialog.hideall.but-fav    #fav    { display: block; }
-    #my.t-dialog.hideall.but-global #global { display: block; }
+        #my.t-dialog.hideall.but-friend #friend { display: block; }
+        #my.t-dialog.hideall.but-mine   #mine   { display: block; }
+        #my.t-dialog.hideall.but-re     #re     { display: block; }
+        #my.t-dialog.hideall.but-at     #at     { display: block; }
+        #my.t-dialog.hideall.but-fav    #fav    { display: block; }
+        #my.t-dialog.hideall.but-global #global { display: block; }
 
-    #search #keyword{ border: 0; width: 80px; height: 20px; }
+        #search #keyword{ border: 0; width: 80px; height: 20px; }
 
 .t-ctrl { padding: 2px; margin-bottom: 4px; position: relative; overflow: hidden; zoom:1; }
 .t_ctrl_title { border: 0px solid #444; margin: 0 0 5px 0;  }

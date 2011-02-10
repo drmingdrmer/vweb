@@ -4,8 +4,8 @@
         <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
         <title>m</title>
         <!--
-           - <script type="text/javascript" src="http://js.wcdn.cn/t3/platform/js/api/wb.js" charset="utf-8" ></script>
-           -->
+        - <script type="text/javascript" src="http://js.wcdn.cn/t3/platform/js/api/wb.js" charset="utf-8" ></script>
+        -->
         <link rel="stylesheet" type="text/css" href="css/global.css" />
         <!-- <link rel="stylesheet" type="text/css" href="theme/smoothness/jquery-ui-1.8.9.custom.css" /> -->
         <link rel="stylesheet" type="text/css" href="theme/trontastic/jquery-ui-1.8.9.custom.css" />
@@ -16,9 +16,8 @@
         <script language="javascript" type="text/javascript" src="js/jquery-1.4.4.min.js"></script>
         <script language="javascript" type="text/javascript" src="js/jquery-ui-1.8.9.custom.min.js"></script>
         <script language="javascript" type="text/javascript" src="plugin/tmpl/jquery.tmpl.js"></script>
-        <!-- <script language="javascript" type="text/javascript" src="js/wb.js"></script> -->
-        <!-- <script language="javascript" type="text/javascript" src="js/wb_connect.js"></script> -->
-        <!-- <script language="javascript" type="text/javascript" src="js/wb_client.js"></script> -->
+        <script language="javascript" type="text/javascript" src="plugin/layout/jquery.layout.js"></script>
+
         <script language="javascript" type="text/javascript" src="js/cmds.js"></script>
         <script language="javascript" type="text/javascript" src="js/vweb.js"></script>
         <style type="text/css" media="screen">
@@ -31,15 +30,15 @@
                 <div id="menu">
                     <span></span>
                     <input id="path" type="text" name="path" value="Untitled"/>
-                    <a href="javascript:ui.vdacc.save();">save</a>
-                    <a href="javascript:ui.acc.pub();">pub</a>
+                    <a href="javascript:ui.vdacc.save();">保存</a>
+                    <a href="javascript:ui.acc.pub();">发布</a>
                 </div>
                 <span id="vdacc" style="display:block; padding-right: 40px;">
                     <!--
-                       - <a id="login" href="javascript:ui.vdacc.show_form();">登录微盘</a>
-                       - <a id="logout" href="javascript:ui.vdacc.logout();" style="display:none;">退出微盘</a>
-                       - <span class="ui-icon ui-button-icon-primary " style="background: url(img/light-red-16.png);"></span>
-                       -->
+                    - <a id="login" href="javascript:ui.vdacc.show_form();">登录微盘</a>
+                    - <a id="logout" href="javascript:ui.vdacc.logout();" style="display:none;">退出微盘</a>
+                    - <span class="ui-icon ui-button-icon-primary " style="background: url(img/light-red-16.png);"></span>
+                    -->
                     <form id="vdform" class="ui-dialog"
                         action="/vd.php" method="POST" accept-charset="utf-8"
                         enctype="application/x-www-form-urlencoded">
@@ -52,25 +51,24 @@
                     <!-- <span class="ui-state-error-text"><span class="ui-icon ui-icon-notice "></span></span> -->
                 </span>
                 <!--
-                   - <span id="acc">
-                   -     <a id="login" href="javascript:ui.acc.login();">登录微博</a>
-                   -     <a id="logout" href="javascript:ui.acc.logout();" style="display:none;">退出微博</a>
-                   -     <span class="ui-icon " style="background: url(img/light-red-16.png);"></span>
-                   -     [> <span class="ui-state-error-text"><span class="ui-icon ui-icon-notice "></span></span> <]
-                   - </span>
-                   -->
+                - <span id="acc">
+                    -     <a id="login" href="javascript:ui.acc.login();">登录微博</a>
+                    -     <a id="logout" href="javascript:ui.acc.logout();" style="display:none;">退出微博</a>
+                    -     <span class="ui-icon " style="background: url(img/light-red-16.png);"></span>
+                    -     [> <span class="ui-state-error-text"><span class="ui-icon ui-icon-notice "></span></span> <]
+                    - </span>
+                -->
             </div>
-            <div id="appmsg">
-            </div>
+            <div id="appmsg"></div>
             <div id="bd">
                 <div id="edit" class="ui-widget ui-widget-content">
                     <form class="f_args g_mode left" >
-                        <span id="edit_mode" class="t_opt" name="mode" _type="radio">
-                            <a href="standard">**</a>
+                        <span id="edit_mode" class="t_opt t_btn_set" name="mode" _type="radio">
+                            <a href="standard">标</a>
                             <a href="album">图</a>
                         </span>
 
-                        <label for="pagewidth">width:</label>
+                        <label for="pagewidth">宽:</label>
                         <input id="pagewidth" class="v_width" type="text" name="width" value="560"/>
 
                         <span id="screen_mode" class="t_opt" name="screen_mode" _type="radio">
@@ -85,165 +83,162 @@
                 </div>
                 <div id="tool" class="t-panel -invisible">
                     <!-- -------------------------------- function here -------------------------------- -->
+                    <div id="list" class="t-list">
+                    </div>
                     <div id="func">
-                       <button id="expand" class="t-btn" _text="no" _icon="arrow-4-diag">Expand</button>
-                       <!-- <div id="my" class="t-dialog t-autoclose _hidden" style="background:url(img/t101.png);"> -->
-                       <div id="my" class="t-dialog hideall but-friend" style="background:url(img/t101.png);">
-                           <fieldset id="friend">
-                               <legend class="t_btn_set">
-                                   <button class="f_idx t-btn" _icon="idx">我的首页</button>
-                                   <!-- <button class="f_grp t-btn" _icon2="triangle-1-s">Group</button> -->
-                               </legend>
-                               <form class="f_args t_group g_simp left" >
-                                   <span id="fr_feature" class="t_opt" name="feature" _type="radio">
-                                       <a href="0">全</a>
-                                       <a href="1">原</a>
-                                       <a href="2">图</a>
-                                       <a href="3">视</a>
-                                       <a href="4">音</a>
-                                   </span>
-                               </form>
-                               <div class="t_group g_search left hidden">
-                                   <form class="f_args">
-                                       <p> <input class="search-keyword" type="text" name="s" value="search"> </p>
-                                       <p>
-                                           <input class="search-time" type="text" name="s_0" value="00-00-00"/> -
-                                           <input class="search-time" type="text" name="s_1" value="00-00-00"/>
-                                       </p>
-                                       <p>
-                                           <span id="my_fo_search_range" class="t_opt" _type="checkbox">
-                                               <a href="gid">原</a>
-                                               <a href="gid">转</a>
-                                           </span>
-                                           <span id="my_fo_search_type" class="t_opt" _type="checkbox">
-                                               <a href="gid">字</a>
-                                               <a href="gid">图</a>
-                                               <a href="gid">视</a>
-                                               <a href="gid">音</a>
-                                           </span>
-                                       </p>
-                                   </form>
-                               </div>
-                           </fieldset>
-                           <div id="mine" class="t-ctrl highlight">
-                               <div class="t-tabs t-filter-tabs">
-                                   <ul>
-                                       <li><a href="#tab-mine-short">我的微博</a></li>
-                                       <li><a href="#tab-mine-search">
-                                           <input class="search-keyword" type="text" name="search" value="search">
-                                       </a></li>
-                                   </ul>
-                                   <div id="tab-mine-short">
-                                       <div class="t_line">
-                                           <span id="mine_type" class="t_opt" _type="radio">
-                                               <a href="#">原</a>
-                                               <a href="#">图</a>
-                                               <a href="#">视</a>
-                                               <a href="#">音</a>
-                                           </span>
-                                       </div>
-                                   </div>
-                                   <div id="tab-mine-search">
-                                       <div class="t_line">
-                                           <span id="mine_search_range" class="t_opt" _type="checkbox">
-                                               <a href="gid">原</a>
-                                               <a href="gid">转</a>
-                                           </span>
-                                           <span id="mine_search_type" class="t_opt" _type="checkbox">
-                                               <a href="gid">字</a>
-                                               <a href="gid">图</a>
-                                               <a href="gid">视</a>
-                                               <a href="gid">音</a>
-                                           </span>
-                                       </div>
-                                       <div class="t_line">
-                                           <input class="search-time" type="text" name="search_tstart" value="00-00-00"/> -
-                                           <input class="search-time" type="text" name="search_tend" value="00-00-00"/>
-                                       </div>
-                                   </div>
-                               </div>
-                           </div>
-                           <div id="fav" class="t-ctrl">
-                               <a href="href">收藏</a>
-                           </div>
-                           <div id="at" class="t-ctrl">
-                               提到我的:
-                               <!--
-                                  - <span class="t_opt">
-                                  -     <input type="radio" id="at_all_p" checked name="at_range" value="img"/><label for="at_all_p">提到我的:</label>
-                                  - </span>
-                                  -->
-                               <!-- <br /> -->
-                               <span class="t_opt">
-                                   <!-- <input type="radio" id="at_all_msg" name="at_type" value="img"/><label for="at_all_msg">全部微博</label> -->
-                                   <input type="checkbox" id="at_fo"  name="at_range" value="img"/><label for="at_fo">关注的人</label>
-                                   <input type="checkbox" id="at_ori" name="at_type" value="img"/><label for="at_ori">原创</label>
-                               </span>
-                           </div>
-                           <div id="re" class="t-ctrl">
-                               <span class="t_opt">
-                                   <input type="radio" id="re_all_p" checked name="re_range" value="img"/><label for="re_all_p">我的评论:</label>
-                                   <input type="radio" id="re_fo"  name="re_range" value="img"/><label for="re_fo">关注的人</label>
-                                   <input type="radio" id="re_unk"  name="re_range" value="img"/><label for="re_unk">陌生人</label>
-                               </span>
-                               <input type="text" name="search" value="search"/>
-                           </div>
-                           <div id="global" class="t-ctrl">
-                               <div class="t-tabs t-filter-tabs">
-                                   <ul>
-                                       <!-- <li><a href="#tab-global-short">name</a></li> -->
-                                       <li><a href="#tab-glboal-search">
-                                           <input class="search-keyword" type="text" name="search" value="search">
-                                       </a></li>
-                                   </ul>
-                                   <div id="tab-glboal-search">
-                                       <div class="t_line">
-                                           <span id="global_search_range" class="t_opt" _type="checkbox">
-                                               <a href="gid">all</a>
-                                               <a href="gid">原</a>
-                                               <a href="gid">热</a>
-                                           </span>
-                                           <span id="global_search_type" class="t_opt" _type="checkbox">
-                                               <a href="gid">all</a>
-                                               <a href="gid">图</a>
-                                               <a href="gid">视</a>
-                                               <a href="gid">音</a>
-                                               <a href="gid">链</a>
-                                           </span>
-                                       </div>
-                                       <div class="t_line">
-                                           <input class="search-time" type="text" name="search_tstart" value="00-00-00"/> -
-                                           <input class="search-time" type="text" name="search_tend" value="00-00-00"/>
-                                       </div>
-                                   </div>
-                               </div>
-                           </div>
-                       </div>
-                   </div>
-                   <div id="list" class="t-list">
-                   </div>
-               </div>
-           </div>
-       </div>
-       <div id="forms">
-       </div>
-       <script id="tmpl_msg" type="text/x-jquery-tmpl">
-           <div id="${id}" class="t_msg ui-widget ui-corner-all ${retweet}">
-               <div class="handle ui-corner-all hidden"></div>
-               <div class="avatar ui-corner-all"><img src="${user.avatar_30}" /></div>
-               <div class="cont msg">
-                   {{if thumbnail_pic}} <img class="msgimg thumb" src="${thumbnail_pic}" /> {{/if}}
-                   <span class="user" id="${user.id}">${user.name}:</span>
-                   <span class="msg">${text}</span>
-                   {{if bmiddle_pic}} <img class="msgimg midpic" src="${bmiddle_pic}"/> {{/if}}
-               </div>
-           </div>
-       </script>
-       <script id="tmpl_opts" type="text/x-jquery-tmpl">
-           <input type="${type}" id="${id}" name="${name}" value="${value}" />
-           <label for="${id}">${label}</label>
-       </script>
-   </body>
+                        <div id="my" class="t-dialog hideall but-friend" style="background:url(img/t101.png);">
+                            <fieldset id="friend">
+                                <legend class="t_btn_set">
+                                    <button id="expand" class="t-btn" _text="no" _icon="arrow-4-diag">Expand</button>
+                                    <button class="f_idx t-btn">我的首页</button>
+                                    <!-- <button class="f_grp t-btn" _icon2="triangle-1-s">Group</button> -->
+                                </legend>
+                                <form class="f_args t_group g_simp left" >
+                                    <span id="fr_feature" class="t_opt t_btn_set" name="feature" _type="radio">
+                                        <a href="0">全</a>
+                                        <a href="1">原</a>
+                                        <a href="2">图</a>
+                                        <a href="3">视</a>
+                                        <a href="4">音</a>
+                                    </span>
+                                </form>
+                                <div class="t_group g_search left hidden">
+                                    <form class="f_args">
+                                        <p> <input class="search-keyword" type="text" name="s" value="search"> </p>
+                                        <p>
+                                        <input class="search-time" type="text" name="s_0" value="00-00-00"/> -
+                                        <input class="search-time" type="text" name="s_1" value="00-00-00"/>
+                                        </p>
+                                        <p>
+                                        <span id="my_fo_search_range" class="t_opt" _type="checkbox">
+                                            <a href="gid">原</a>
+                                            <a href="gid">转</a>
+                                        </span>
+                                        <span id="my_fo_search_type" class="t_opt" _type="checkbox">
+                                            <a href="gid">字</a>
+                                            <a href="gid">图</a>
+                                            <a href="gid">视</a>
+                                            <a href="gid">音</a>
+                                        </span>
+                                        </p>
+                                    </form>
+                                </div>
+                            </fieldset>
+                            <div id="mine" class="t-ctrl highlight">
+                                <div class="t-tabs t-filter-tabs">
+                                    <ul>
+                                        <li><a href="#tab-mine-short">我的微博</a></li>
+                                        <li><a href="#tab-mine-search">
+                                            <input class="search-keyword" type="text" name="search" value="search">
+                                        </a></li>
+                                    </ul>
+                                    <div id="tab-mine-short">
+                                        <div class="t_line">
+                                            <span id="mine_type" class="t_opt" _type="radio">
+                                                <a href="#">原</a>
+                                                <a href="#">图</a>
+                                                <a href="#">视</a>
+                                                <a href="#">音</a>
+                                            </span>
+                                        </div>
+                                    </div>
+                                    <div id="tab-mine-search">
+                                        <div class="t_line">
+                                            <span id="mine_search_range" class="t_opt" _type="checkbox">
+                                                <a href="gid">原</a>
+                                                <a href="gid">转</a>
+                                            </span>
+                                            <span id="mine_search_type" class="t_opt" _type="checkbox">
+                                                <a href="gid">字</a>
+                                                <a href="gid">图</a>
+                                                <a href="gid">视</a>
+                                                <a href="gid">音</a>
+                                            </span>
+                                        </div>
+                                        <div class="t_line">
+                                            <input class="search-time" type="text" name="search_tstart" value="00-00-00"/> -
+                                            <input class="search-time" type="text" name="search_tend" value="00-00-00"/>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div id="fav" class="t-ctrl">
+                                <a href="href">收藏</a>
+                            </div>
+                            <div id="at" class="t-ctrl">
+                                提到我的:
+                                <!--
+                                - <span class="t_opt">
+                                    -     <input type="radio" id="at_all_p" checked name="at_range" value="img"/><label for="at_all_p">提到我的:</label>
+                                    - </span>
+                                -->
+                                <!-- <br /> -->
+                                <span class="t_opt">
+                                    <!-- <input type="radio" id="at_all_msg" name="at_type" value="img"/><label for="at_all_msg">全部微博</label> -->
+                                    <input type="checkbox" id="at_fo"  name="at_range" value="img"/><label for="at_fo">关注的人</label>
+                                    <input type="checkbox" id="at_ori" name="at_type" value="img"/><label for="at_ori">原创</label>
+                                </span>
+                            </div>
+                            <div id="re" class="t-ctrl">
+                                <span class="t_opt">
+                                    <input type="radio" id="re_all_p" checked name="re_range" value="img"/><label for="re_all_p">我的评论:</label>
+                                    <input type="radio" id="re_fo"  name="re_range" value="img"/><label for="re_fo">关注的人</label>
+                                    <input type="radio" id="re_unk"  name="re_range" value="img"/><label for="re_unk">陌生人</label>
+                                </span>
+                                <input type="text" name="search" value="search"/>
+                            </div>
+                            <div id="global" class="t-ctrl">
+                                <div class="t-tabs t-filter-tabs">
+                                    <ul>
+                                        <!-- <li><a href="#tab-global-short">name</a></li> -->
+                                        <li><a href="#tab-glboal-search">
+                                            <input class="search-keyword" type="text" name="search" value="search">
+                                        </a></li>
+                                    </ul>
+                                    <div id="tab-glboal-search">
+                                        <div class="t_line">
+                                            <span id="global_search_range" class="t_opt" _type="checkbox">
+                                                <a href="gid">all</a>
+                                                <a href="gid">原</a>
+                                                <a href="gid">热</a>
+                                            </span>
+                                            <span id="global_search_type" class="t_opt" _type="checkbox">
+                                                <a href="gid">all</a>
+                                                <a href="gid">图</a>
+                                                <a href="gid">视</a>
+                                                <a href="gid">音</a>
+                                                <a href="gid">链</a>
+                                            </span>
+                                        </div>
+                                        <div class="t_line">
+                                            <input class="search-time" type="text" name="search_tstart" value="00-00-00"/> -
+                                            <input class="search-time" type="text" name="search_tend" value="00-00-00"/>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <script id="tmpl_msg" type="text/x-jquery-tmpl">
+            <div id="${id}" class="t_msg ui-widget ui-corner-all ${retweet}">
+                <div class="handle ui-corner-all hidden"></div>
+                <div class="avatar ui-corner-all"><img src="${user.avatar_30}" /></div>
+                <div class="cont msg">
+                    {{if thumbnail_pic}} <img class="msgimg thumb" src="${thumbnail_pic}" /> {{/if}}
+                    <span class="user" id="${user.id}">${user.name}:</span>
+                    <span class="msg">${text}</span>
+                    {{if bmiddle_pic}} <img class="msgimg midpic" src="${bmiddle_pic}"/> {{/if}}
+                </div>
+            </div>
+        </script>
+        <script id="tmpl_opts" type="text/x-jquery-tmpl">
+            <input type="${type}" id="${id}" name="${name}" value="${value}" />
+            <label for="${id}">${label}</label>
+        </script>
+    </body>
 
 
     <script language="javascript" type="text/javascript">

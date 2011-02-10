@@ -67,10 +67,37 @@ $.extend( ui, {
 
         self.relayout();
 
+        var bodyLayout, appLayout, toolLayout;
+
+        appLayout = $( "#app" ).layout( {
+            center__paneSelector : "#edit",
+            east__paneSelector : "#tool",
+            north__paneSelector : "#hd",
+            spacing_open : 0,
+            spacing_closed : 2,
+            east__size : 360,
+            resizerClass : "hidden",
+
+            east__onresize_end : function() {
+                ui.my.set_dialog_pos();
+            }
+
+        } );
+        toolLayout = $( "#tool" ).layout( {
+            spacing_open : 0,
+            north__paneSelector : "#func",
+            center__paneSelector : "#list",
+            north__size: 36, 
+        } );
+
+
+
 
         $( ".t-btn" ).each( function() {
             $( this ).button( $( this ).btn_opt() );
         } );
+
+        $( ".t_btn_set" ).buttonset();
 
 
         $( ".t_opt" ).each( function() {
@@ -97,9 +124,9 @@ $.extend( ui, {
         } );
 
         $.each( [ "appmsg", "menu", "acc", "vdacc", "edit", "list", "my" ],
-            function( i, v ){ v.init && v.init(); } );
+            function( i, v ){ self[ v ].init && self[ v ].init(); } );
 
-        $( window ).resize( function() { self.relayout(); } );
+        // $( window ).resize( function() { self.relayout(); } );
         $( "body" ).click( function( ev ) { $( ".t-autoclose" ).hide(); } );
 
 
@@ -117,6 +144,12 @@ $.extend( ui, {
         var bodyHeight = $( window ).height();
         var appHeightDiff = app.outerHeight() - app.height();
         var appHeight = bodyHeight - appHeightDiff;
+
+
+        // try
+        app.height( appHeight );
+        return
+
 
         var appWidth = app.width();
         var toolWidth = tool.outerWidth( true );
@@ -350,8 +383,7 @@ $.extend( ui.edit, {
                 self.cont.removeClass( $( this ).val() );
             } );
             self.cont.addClass( $( this ).val() );
-        } )
-        .parent().buttonset();
+        } );
 
         this.edit.find( "#screen_mode input" ).button();
 
@@ -557,9 +589,11 @@ $.extend( ui.my, {
     },
     set_dialog_pos : function () {
         var tool = $( "#tool" );
-        var ppos = tool.offset();
-        log( ppos );
-        this.myDialog.css( ppos );
+
+        // // when using layout, tool is absolute positioned
+        // var ppos = tool.offset();
+        // log( ppos );
+        this.myDialog.css( { left:0, top:0 } );
 
     },
     switchPanel : function ( vis ) {
@@ -611,8 +645,6 @@ $.extend( ui.my.friend, {
 
         self.formSimp.find( "input" ).button()
             .click( friend_simp_load );
-
-        self.formSimp.find( "#fr_feature" ).buttonset();
 
     }
 } );
