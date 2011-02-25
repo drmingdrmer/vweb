@@ -1,1 +1,19 @@
 .ui-state-black .ui-icon { background-image: url(images/ui-icons_000000_256x240.png); }
+
+.ui-button-h-small.ui-button .ui-button-text,
+input.ui-button-h-small.ui-button { padding-top: 0; padding-bottom: 0; }
+
+.ui-corner-big { -moz-border-radius: 12px;
+    -webkit-border-radius: 12px; border-radius: 12px; }
+
+.ui-button.st_app { border: 1px solid #000; }
+.ui-button.st_app .ui-button-text {
+    border: 1px solid #626262;
+    border-color: #7a7a7a #626262 #4a4a4a #626262;
+    color: #fff;
+    background: #252525;
+    background-image: -webkit-gradient(linear, left top, left bottom, from(#252525), to(#5a5a5a));
+    background-image: -moz-linear-gradient(top, #252525, #5a5a5a);
+    padding: 2px 12px 2px 12px;
+
+}

@@ -107,13 +107,26 @@ $.extend( ui, {
 
     },
     relayout : function () {
+        var body = $( "body" );
         var app = $( "#app" );
+        var bd = $( "#bd" );
         var head = $( "#hd" );
+        var menu = $( "#menu" );
         var edit = $( "#edit" );
-        // var cont = $( "#edit>#cont" );
+
+
+        edit.height( body.height() - head.outerHeight(true) - menu.outerHeight(true) );
+
+        $( "#edit>#cont" )
+        .width( edit.width() - 30 )
+        .height( edit.height() - 30 );
+
         var tool = $( "#tool" );
         var func = $( "#tool>#func" );
         var list = $( "#tool>#list" );
+        var tree = $( "#tree" );
+
+        tree.height( body.height() - $( "#tabs" ).outerHeight( true ) - $( "#vdaccpane" ).outerHeight( true ) );
 
 
         var bodyHeight = $( window ).height();
@@ -124,19 +137,14 @@ $.extend( ui, {
         var appWidth = app.width();
         var toolWidth = tool.outerWidth( true );
         var editHeight = appHeight - head.outerHeight( true );
-        var editWidth = appWidth - toolWidth - 4;
 
         var toolHeight = editHeight;
         var funcHeight = func.outerHeight( true );
         var listHieght = toolHeight - funcHeight;
 
-        editHeight -= edit.innerHeight() - edit.height();
-        editWidth = editWidth - ( edit.innerWidth() - edit.width() );
 
         app.height( appHeight );
 
-        edit.height( editHeight );
-        edit.width( editWidth );
         // cont.width( contWidth );
 
         tool.height( toolHeight );
@@ -391,6 +399,9 @@ $.extend( ui.vdacc, {
 $.extend( ui.tree, {
     init : function() {
         $( "#tree ul" )
+        .delegate( "li", "hover", function(){
+            $( this ).toggleClass( 'hover' );
+        } )
         .delegate( "li.file", "click", function(){
             var e = $( this );
             ui.vdacc.load( {
@@ -405,12 +416,21 @@ $.extend( ui.tree, {
     },
     update : function ( data ) {
         $.each( data, function( i, v ){
+            
             if ( v.sha1 ) {
                 v.class = "file";
             }
             else {
                 v.class = "folder";
             }
+        } );
+
+        data.sort( function( a, b ){
+            var va = a.class == "folder" ? 0 : 1;
+            var vb = b.class == "folder" ? 0 : 1;
+
+            return va == vb ? ( a.name > b.name ? 1 : ( a.name < b.name ? -1 : 0 ) ) : ( va - vb );
+
         } );
 
         $( "#tmpl_tree_item" ).tmpl( data )
