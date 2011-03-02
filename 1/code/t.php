@@ -1,4 +1,4 @@
-<? 
+<?
 
 session_start();
 include_once( 'config.php' );
@@ -10,7 +10,7 @@ include_once( 'img.php' );
 header('Content-Type:text/html; charset=utf-8');
 
 
-$cmds = array( 
+$cmds = array(
     "statuses/public_timeline"        =>  "/statuses/public_timeline.json"       , // 获取最新更新的公共微博消息
     "statuses/friends_timeline"       =>  "/statuses/friends_timeline.json"      , // 获取当前用户所关注用户的最新微博信息
     "statuses/user_timeline"          =>  "/statuses/user_timeline.json"         , // 获取用户发布的微博信息列表
@@ -65,22 +65,6 @@ $cmds = array(
 
 class MySaeTClient extends SaeTClient
 {
-    function friends_timeline( $page = 1, $count = 20, $since_id = NULL, $max_id = NULL, $feature = 0 )
-    {
-        $params = array();
-        if ($since_id) {
-            $this->id_format($since_id);
-            $params['since_id'] = $since_id;
-        }
-        if ($max_id) {
-            $this->id_format($max_id);
-            $params['max_id'] = $max_id;
-        }
-        $params[ 'feature' ] = $feature;
-
-        return $this->request_with_pager('http://api.t.sina.com.cn/statuses/friends_timeline.json', $page, $count, $params );
-    }
-
     function _load_cmd( $cmd, &$p )
     {
         def( $p, 'page', 1 );
@@ -91,7 +75,7 @@ class MySaeTClient extends SaeTClient
         return $rst;
     }
 
-} 
+}
 
 $c = new MySaeTClient( WB_AKEY, WB_SKEY,
     $_SESSION['last_key']['oauth_token'],
@@ -113,7 +97,7 @@ if ( $verb == "GET" ) {
         $rst = $c->_load_cmd( $act, $p );
         if ( $rst ) {
             !$rst[ 'error_code' ]
-                && resjson( array( "rst" => "ok", "data" => $rst) ) 
+                && resjson( array( "rst" => "ok", "data" => $rst) )
                 || resmsg( "load", $rst[ 'error' ] );
         }
         else {
@@ -151,7 +135,7 @@ else if ( $verb == "POST" ) {
              */
 
             $r = $c->upload( $msg, $fn );
-            $r && resmsg( "ok", "published" ) 
+            $r && resmsg( "ok", "published" )
                 || resmsg( "publish", "publish" );
 
 
@@ -161,7 +145,7 @@ else if ( $verb == "POST" ) {
 
 /*
  * $ms  = $c->show_user( null ); // done
- * 
+ *
  * var_dump(  );
  */
 
