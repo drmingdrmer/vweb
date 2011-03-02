@@ -8,7 +8,6 @@ var cfg = {
 function log (mes) {
     console.log( mes );
 }
-
 function json_succ( handlers ) {
 
     function hdlr ( json, st, xhr ) {
@@ -23,10 +22,61 @@ function json_succ( handlers ) {
 
     return hdlr;
 }
+function evstop ( ev ) {
+    ev.stopPropagation();          /* pop up                  */
+    ev.preventDefault()            /* other event on this DOM */
+}
+function init_sub ( self ) {
+    $.each( self, function( k, v ){
+        self[ k ]._elt = $( "#" + k );
+        log( self[ k ]._elt );
+        self[ k ].init && self[ k ].init();
+    } );
+}
 
-var ui = { appmsg : {}, menu : {}, edit : {}, list : {}, my : {}, acc : {}, vdacc : {}, tool : {}, tree : {} };
+Function.prototype.dele = function( self, args ) {
+    var fun = this;
+    return function () {
+        return fun.apply( self || this, args || arguments );
+    }
+}
+Function.prototype.dele$ = function() {
+    var args = arguments;
+    var fun = this;
+    return function () {
+        return fun.apply( $( this ), args );
+    }
+}
+Function.prototype.delethis = function( self, args ) {
+    var thiz = this;
+    return function () {
+        return thiz.apply( self || this, args );
+    }
+}
+
+var ui = {
+    appmsg : {},
+    fav : {
+        hd : {},
+        menu : {},
+        edit : {}
+    },
+    tabs : {},
+    t : {
+        acc : {},
+        my : {
+            friend : {},
+        },
+        list : {},
+    },
+    vd : {
+        vdacc : {},
+        tree : {}
+    },
+};
 
 var wb = {
+
     cmd : function ( cmd, args, cb ) {
 
         if ( $.isPlainObject( args ) ) {
@@ -67,14 +117,6 @@ $.extend( ui, {
 
         self.relayout();
 
-
-        $( ".t-btn" ).each( function() {
-            $( this ).button( $( this ).btn_opt() );
-        } );
-
-        $( ".t_btn_set" ).buttonset();
-
-
         $( ".t_opt" ).each( function() {
             var container = $( this );
             var tp = container.attr( "_type" );
@@ -98,8 +140,24 @@ $.extend( ui, {
 
         } );
 
-        $.each( [ "appmsg", "menu", "acc", "vdacc", "edit", "list", "my", "tree" ],
-            function( i, v ){ self[ v ].init && self[ v ].init(); } );
+        $( ".t_btn" ).each( function() {
+            $( this ).button( $( this ).btn_opt() );
+        } );
+
+        $( ".t_btn_set" ).buttonset();
+
+        $( ".t-dialog" ).addClass( "ui-dialog ui-widget ui-widget-content ui-corner-all" );
+        $( ".t-panel" ).addClass( "ui-widget ui-corner-all" );
+        $( ".t-ctrl" ).addClass( "ui-widget ui-corner-all" );
+        $( ".t-group" ).addClass( "ui-widget ui-corner-all" );
+        $( "#menu" ).addClass( "cont_dark2 cont_dark_shad2" );
+        $( "#func" ).addClass( "cont_dark2 cont_dark_shad2" );
+        $( "#edit" ).addClass( "cont_white0 cont_white_shad0" );
+        $( "#list" ).addClass( "cont_white0 cont_white_shad0" );
+        $( "#paging" ).addClass( "cont_dark0 cont_dark_shad0" );
+
+
+        init_sub( this );
 
         $( window ).resize( function() { self.relayout(); } );
         $( "body" ).click( function( ev ) { $( ".t-autoclose" ).hide(); } );
@@ -107,50 +165,18 @@ $.extend( ui, {
 
     },
     relayout : function () {
-        var body = $( "body" );
-        var app = $( "#app" );
-        var bd = $( "#bd" );
-        var head = $( "#hd" );
-        var menu = $( "#menu" );
+        var bodyHeight = $( "body" ).height();
+        var tabsHeight = $( "#tabs" ).h();
         var edit = $( "#edit" );
 
+        edit.height( bodyHeight - $( "#hd" ).h() - $( "#menu" ).h() );
+        $( "#t>#list" ).height( bodyHeight - tabsHeight - $( "#t>#func" ).h() - $( "#t>#paging" ).h() );
+        $( "#tree" ).height( bodyHeight - tabsHeight - $( "#vdaccpane" ).h() );
 
-        edit.height( body.height() - head.outerHeight(true) - menu.outerHeight(true) );
-
-        $( "#edit>#cont" )
-        .width( edit.width() - 30 )
-        .height( edit.height() - 30 );
-
-        var tool = $( "#tool" );
-        var func = $( "#tool>#func" );
-        var list = $( "#tool>#list" );
-        var tree = $( "#tree" );
-
-        tree.height( body.height() - $( "#tabs" ).outerHeight( true ) - $( "#vdaccpane" ).outerHeight( true ) );
-
-
-        var bodyHeight = $( window ).height();
-        var appHeightDiff = app.outerHeight() - app.height();
-        var appHeight = bodyHeight - appHeightDiff;
-
-
-        var appWidth = app.width();
-        var toolWidth = tool.outerWidth( true );
-        var editHeight = appHeight - head.outerHeight( true );
-
-        var toolHeight = editHeight;
-        var funcHeight = func.outerHeight( true );
-        var listHieght = toolHeight - funcHeight;
-
-
-        app.height( appHeight );
-
-        // cont.width( contWidth );
-
-        tool.height( toolHeight );
-        list.height( listHieght );
+        $( "#edit>#cont" ).width( edit.width() - 30 ).height( edit.height() - 30 );
 
     },
+
     setup_img_switch : function ( container ) {
         $( container ).delegate( ".t_msg img.msgimg", "click", function(){
             var e = $( this );
@@ -161,289 +187,66 @@ $.extend( ui, {
 } );
 
 $.extend( ui.appmsg, {
-    init : function() {
-        var self = this;
-        self.container = $( "#appmsg" );
-
-    },
     show : function ( text ) {
-        if ( !text ) {
-            return;
+        if ( text ) {
+            var e = this._elt;
+            $( "#tmpl_appmsg" ).tmpl( [{text:text}] ).appendTo( e.empty() );
+            this.lastid && window.clearTimeout( this.lastid );
+            this.lastid = window.setTimeout( function(){ e.empty(); }, 5000 );
         }
-        var self = this;
-
-        self.container.empty();
-
-        var node = $( "<span></span>" );
-
-        node
-        .text( text )
-        .addClass( "msg ui-state-highlight ui-corner-all" )
-        .prependTo( self.container );
-
-        window.setTimeout( function(){
-            node.remove();
-        }, 5000 );
-
     }
 } );
 
-$.extend( ui.menu, {
+$.extend( ui.fav, {
+    _path : [],
+    _fn   : "",
+
     init : function () {
+        // TODO need these?
         this.eltMenu = $( "#menu" );
         this.eltPath = this.eltMenu.find( "#path" );
+        init_sub( this );
     },
+
     path : function ( p ) {
         if ( p ) {
-            this.eltPath.val( p );
+            this._path = p;
+            // this.eltPath.val( p );
         }
         else {
-            return "/vweb/" + this.eltPath.val() + ".html";
+            return this._path;
+            // return "/vweb/" + this.eltPath.val() + ".html";
         }
-    }
-
-} );
-
-$.extend( ui.acc, {
-    init : function() {
-        this.tool = $( "#tool" );
-        // this.alogin = $( "#acc #login" );
-        // this.alogout = $( "#acc #logout" );
     },
-    login : function () {
-        log( "login called" );
-        var self = this;
-        WB.connect.login(function() {
-            log( 'login ok' );
-            self.tool.removeClass( "invisible" );
-            // self.alogin.hide();
-            // self.alogout.show();
-        });
-    },
-    logout : function () {
-        var self = this;
-        WB.connect.logout(function() {
-            log( 'logout ok' );
-
-            // self.alogin.show();
-            // self.alogout.hide();
-
-            self.tool.addClass( "invisible" );
-        });
-    },
-    pub : function () {
-
-        var data = ui.edit.layoutdata();
-
-        // TODO specific title
-        var msg = ( new Date() );
-        if ( data.d.length > 0 ) {
-            msg += data.d[ 0 ].text;
+    filename : function (fn) {
+        if ( fn ) {
+            this._fn = fn;
         }
-
-        log( "layout data:" );
-        log( data );
-
-        $.ajax( {
-            type : "POST", url : "t.php?act=pub&msg=" + msg,
-            data : JSON.stringify( data ),
-            dataType : "json",
-            success : function( rst, st, xhr ) {
-                log( "pub rst=" );
-                log( rst );
-                if ( rst.rst == "ok" ) {
-                    ui.appmsg.show( "published" );
-                    // TODO message
-                }
-                else {
-                    ui.appmsg.show( rst.msg );
-                }
-            }
-
-        } );
-    }
-} );
-
-$.extend( ui.vdacc, {
-    afterLogin : [],
-    curPath : "",
-    curFile : "Untitled",
-    init : function() {
-        var self = this;
-        self.vdform = $( "form#vdform" );
-        self.vddialog = self.vdform.dialog({ autoOpen: false });
-
-
-        // self.vdform.find( "input[name=submit]" ).click( function( ev ) {
-        self.vdform.find( "input[name=submit]" ).submit( function( ev ) {
-            self.do_login();
-        } );
-
-    },
-    do_login : function() {
-        var self = this;
-
-        self.vdform.jsonRequest( json_succ( {
-            "ok" : function () {
-
-                self.vddialog.dialog( "close" );
-
-                var jobs = self.afterLogin;
-                self.afterLogin = [];
-                $.each( jobs, function( i, v ){
-                    v();
-                } );
-            }
-
-        } ) );
-
-        ev.preventDefault();
-        ev.stopPropagation();
-    },
-    keeptoken : function( cb ) {
-        var self = this;
-        var url = "/vd.php?act=keeptoken";
-
-        $.ajax( {
-            url : url,
-            dataType : "json",
-            success : function( rst, st, xhr ) {
-                ui.appmsg.show( rst.msg );
-                if ( rst.rst == "ok" ) {
-                    cb && cb( rst, st, xhr );
-                }
-            }
-        } );
-    },
-    browse : function( opt ) {
-        var self = this;
-        var url = "/vd.php?act=list";
-
-        if ( opt ) {
-            url += opt.dirid ? "&dirid=" + opt.dirid : "&path=" + opt.path;
-        }
-
-        $.ajax( {
-            type : "GET", url : url,
-            dataType : 'json',
-            success : json_succ( {
-                "ok" : function( json ){ ui.tree.update( json.data ); },
-                "invalid_token" : function () {
-                    self.afterLogin.push( function(){
-                        self.browse();
-                    } );
-                    self.vddialog.dialog( "open" );
-                }
-            } )
-        } );
-    },
-    save : function( cb ) {
-
-        var self = this;
-        var html = $.trim( ui.edit.html() );
-
-        // TODO unicode, utf-8, url-encoding test
-        var path = ui.menu.path();
-
-        var url = "/vd.php?path=" + path;
-
-        log( "to save html=" + html );
-        log( "to save path=" + path );
-
-        $.ajax( {
-            type : "PUT", url : url,
-            data : html,
-            dataType : 'json',
-            success : json_succ( {
-                "ok" : cb,
-                "invalid_token" : function () {
-                    self.afterLogin.push( function(){
-                        self.save( cb );
-                    } );
-                    self.vddialog.dialog( "open" );
-                }
-            } )
-        } );
-    },
-    load : function( what ) {
-        var self = this;
-        var url = "/vd.php?act=load&";
-        url += what.fid ? "&fid=" + what.fid : "&path=" + what.path;
-
-
-        log( "to load path=" + url );
-
-        $.ajax( {
-            type : "GET", url : url,
-            dataType : 'json',
-            success : json_succ( {
-                "ok" : function( json, st, xhr ){
-                    log( json.html );
-                    ui.edit.html( json.html );
-                    // what.path ?
-
-                },
-                "invalid_token" : function () {
-                    self.afterLogin.push( function(){
-                        self.load( path );
-                    } );
-                    self.vddialog.dialog( "open" );
-                }
-            } )
-        } );
-    },
-    logout : function() {
-
-    }
-} );
-$.extend( ui.tree, {
-    init : function() {
-        $( "#tree ul" )
-        .delegate( "li", "hover", function(){
-            $( this ).toggleClass( 'hover' );
-        } )
-        .delegate( "li.file", "click", function(){
-            var e = $( this );
-            ui.vdacc.load( {
-                "fid" : e.attr( "id" ), 
-                "name"  : $.trim( e.text() )
-            } );
-        } )
-        .delegate( "li.folder", "click", function(){
-            var e = $( this );
-            ui.vdacc.browse( { "dirid" : e.attr( "id" ) } );
-        } );
-    },
-    update : function ( data ) {
-        $.each( data, function( i, v ){
-            
-            if ( v.sha1 ) {
-                v.class = "file";
-            }
-            else {
-                v.class = "folder";
-            }
-        } );
-
-        data.sort( function( a, b ){
-            var va = a.class == "folder" ? 0 : 1;
-            var vb = b.class == "folder" ? 0 : 1;
-
-            return va == vb ? ( a.name > b.name ? 1 : ( a.name < b.name ? -1 : 0 ) ) : ( va - vb );
-
-        } );
-
-        $( "#tmpl_tree_item" ).tmpl( data )
-        .appendTo( $( "#tree ul" ).empty() );
+        return this._fn;
     }
 
 } );
 
-$.extend( ui.edit, {
+$.extend( ui.fav.hd, {
+    init : function () {
+        $( "#pub" ).click( function( ev ){
+            evstop( ev );
+            ui.t.acc.pub();
+        } );
+    },
+
+} );
+
+$.extend( ui.fav.menu, {
+    init : function () {
+
+    }
+} );
+
+$.extend( ui.fav.edit, {
     init : function () {
         var self = this;
-        this.edit = $( "#edit" );
-        this.cont = this.edit.children( "#cont" );
+        this.cont = this._elt.children( "#cont" );
         this.page = this.cont.children( "#page" );
 
         this.page.empty();
@@ -451,14 +254,14 @@ $.extend( ui.edit, {
         this.setup_func();
 
 
-        this.edit.find( "#edit_mode input" ).button().click( function() {
+        this._elt.find( "#edit_mode input" ).button().click( function() {
             $( this ).parent().find( "input" ).each( function() {
                 self.cont.removeClass( $( this ).val() );
             } );
             self.cont.addClass( $( this ).val() );
         } );
 
-        this.edit.find( "#screen_mode input" ).button();
+        this._elt.find( "#screen_mode input" ).button();
 
 
     },
@@ -571,28 +374,281 @@ $.extend( ui.edit, {
     }
 } );
 
-$.extend( ui.list, {
-    init : function () {
-        this.eltList = $( "#list" );
-        this.eltList.empty();
-        ui.setup_img_switch( this.eltList );
+$.extend( ui.t.acc, {
+    init : function() {
+        this.t = $( "#t" );
     },
-    filter_existed : function ( data ) {
-        var ids = ui.edit.ids();
-
-        log( ids );
-
-        if ( ids.length > 0 ) {
-            data = $.grep( data, function( v, i ) {
-                return ids.indexOf( v.id + "" ) < 0;
-            } );
+    login : function () {
+        log( "login called" );
+        var self = this;
+        WB.connect.login(function() {
+            log( 'login ok' );
+            self.t.removeClass( "invisible" );
+        });
+    },
+    create_loader : function ( cmdname, opt ) {
+        var realload = this.load;
+        return function ( ev ) {
+            ev && evstop( ev );
+            realload.apply( $(this), [ cmdname, opt ] );
         }
+    },
+
+    load : function( cmdname, opt ) {
+        // 'this' is set by create_loader and which is the DOM fired the event
+
+        var args = opt.args && opt.args.apply( this, [] ) || {};
+
+        log( "args:" );
+        log( args );
+
+        ui.appmsg.show( "载入中..." );
+
+        wb.cmd( cmdname, args, function( data ) {
+            var cb = opt.cb;
+
+            ui.appmsg.show( "载入成功" );
+            cb[0][ cb[1] ]( data );
+        } );
+    },
+
+    pub : function () {
+
+        var data = ui.fav.edit.layoutdata();
+
+        // TODO specific title
+        var msg = ( new Date() );
+        if ( data.d.length > 0 ) {
+            msg += data.d[ 0 ].text;
+        }
+
+        log( "layout data:" );
+        log( data );
+
+        $.ajax( {
+            type : "POST", url : "t.php?act=pub&msg=" + msg,
+            data : JSON.stringify( data ),
+            dataType : "json",
+            success : function( rst, st, xhr ) {
+                log( "pub rst=" );
+                log( rst );
+                if ( rst.rst == "ok" ) {
+                    ui.appmsg.show( "published" );
+                    // TODO message
+                }
+                else {
+                    ui.appmsg.show( rst.msg );
+                }
+            }
+
+        } );
+    }
+} );
+
+$.extend( ui.vdacc, {
+    afterLogin : [],
+    curPath : "",
+    curFile : "Untitled",
+    init : function() {
+        var self = this;
+        self.vdform = $( "form#vdform" );
+        // self.vddialog = self.vdform.dialog({ autoOpen: false });
+
+
+        // self.vdform.find( "input[name=submit]" ).click( function( ev ) {
+        self.vdform.find( "input[name=submit]" ).submit( function( ev ) {
+            self.do_login();
+        } );
+
+    },
+    do_login : function() {
+        var self = this;
+
+        self.vdform.jsonRequest( json_succ( {
+            "ok" : function () {
+
+                // self.vddialog.dialog( "close" );
+
+                var jobs = self.afterLogin;
+                self.afterLogin = [];
+                $.each( jobs, function( i, v ){
+                    v();
+                } );
+            }
+
+        } ) );
+
+        ev.preventDefault();
+        ev.stopPropagation();
+    },
+    keeptoken : function( cb ) {
+        var self = this;
+        var url = "/vd.php?act=keeptoken";
+
+        $.ajax( {
+            url : url,
+            dataType : "json",
+            success : function( rst, st, xhr ) {
+                ui.appmsg.show( rst.msg );
+                if ( rst.rst == "ok" ) {
+                    cb && cb( rst, st, xhr );
+                }
+            }
+        } );
+    },
+    browse : function( opt ) {
+        var self = this;
+        var url = "/vd.php?act=list";
+
+        if ( opt ) {
+            url += opt.dirid ? "&dirid=" + opt.dirid : "&path=" + opt.path;
+        }
+
+        $.ajax( {
+            type : "GET", url : url,
+            dataType : 'json',
+            success : json_succ( {
+                "ok" : function( json ){ ui.tree.update( json.data ); },
+                "invalid_token" : function () {
+                    self.afterLogin.push( function(){
+                        self.browse();
+                    } );
+                    // self.vddialog.dialog( "open" );
+                }
+            } )
+        } );
+    },
+    save : function( cb ) {
+
+        var self = this;
+        var html = $.trim( ui.edit.html() );
+
+        // TODO unicode, utf-8, url-encoding test
+        var path = ui.menu.path();
+
+        var url = "/vd.php?path=" + path;
+
+        log( "to save html=" + html );
+        log( "to save path=" + path );
+
+        $.ajax( {
+            type : "PUT", url : url,
+            data : html,
+            dataType : 'json',
+            success : json_succ( {
+                "ok" : cb,
+                "invalid_token" : function () {
+                    self.afterLogin.push( function(){
+                        self.save( cb );
+                    } );
+                    // self.vddialog.dialog( "open" );
+                }
+            } )
+        } );
+    },
+    load : function( what ) {
+        var self = this;
+        var url = "/vd.php?act=load&";
+        url += what.fid ? "&fid=" + what.fid : "&path=" + what.path;
+
+
+        log( "to load path=" + url );
+
+        $.ajax( {
+            type : "GET", url : url,
+            dataType : 'json',
+            success : json_succ( {
+                "ok" : function( json, st, xhr ){
+                    log( json.html );
+                    ui.edit.html( json.html );
+                    // what.path ?
+
+                },
+                "invalid_token" : function () {
+                    self.afterLogin.push( function(){
+                        self.load( path );
+                    } );
+                    self.vddialog.dialog( "open" );
+                }
+            } )
+        } );
+    },
+    logout : function() {
+
+    }
+} );
+$.extend( ui.tree, {
+    init : function() {
+        $( "#tree ul" )
+        .delegate( "li", "hover", $.fn.toggleClass.dele$( 'hover' ) )
+        .delegate( "li.file", "click", function(){
+            var e = $( this );
+            ui.vdacc.load( {
+                "fid" : e.attr( "id" ),
+                "name"  : $.trim( e.text() )
+            } );
+        } )
+        .delegate( "li.folder", "click", function(){
+            var e = $( this );
+            ui.vdacc.browse( { "dirid" : e.attr( "id" ) } );
+        } );
+    },
+    update : function ( data ) {
+        $.each( data, function( i, v ){
+
+            if ( v.sha1 ) {
+                v.class = "file";
+            }
+            else {
+                v.class = "folder";
+            }
+        } );
+
+        data.sort( function( a, b ){
+            var va = a.class == "folder" ? 0 : 1;
+            var vb = b.class == "folder" ? 0 : 1;
+
+            return va == vb ? ( a.name > b.name ? 1 : ( a.name < b.name ? -1 : 0 ) ) : ( va - vb );
+
+        } );
+
+        $( "#tmpl_tree_item" ).tmpl( data )
+        .appendTo( $( "#tree ul" ).empty() );
+    }
+
+} );
+
+$.extend( ui.t.list, {
+    init : function () {
+        ui.setup_img_switch( this._elt.empty() );
+        this.setup_func();
+    },
+
+    setup_func : function () {
+
+        var uldr = ui.t.acc.create_loader(
+            'statuses/user_timeline', {
+                args: function(){ return { user_id: this.attr( 'id' ) }; },
+                cb: [ ui.t.list, 'show' ]
+            } );
+
+        var atldr = ui.t.acc.create_loader(
+            'statuses/user_timeline', {
+                args: function(){ log( this.attr( 'screen_name' ) ); return { screen_name: this.attr( 'screen_name' ) }; },
+                cb: [ ui.t.list, 'show' ]
+            } );
+
+        this._elt
+        .delegate( ".t_msg .avatar a.user", "click", uldr )
+        .delegate( ".t_msg .cont.msg a.at", "click", atldr );
+    },
+
+    filter_existed : function ( data ) {
 
         return data
     },
-    show : function ( data, name ) {
-        var self = this;
 
+    reform_data : function ( data ) {
         var d = []
         $.each( data, function( i, v ) {
             d.push( v );
@@ -601,28 +657,51 @@ $.extend( ui.list, {
                 d.push( v.retweeted_status );
             }
         } );
+        data = d;
 
+        var ids = ui.fav.edit.ids();
+        log( ids );
 
-        data = this.filter_existed( d );
+        if ( ids.length > 0 ) {
+            data = $.grep( data, function( v, i ) {
+                return ids.indexOf( v.id + "" ) < 0;
+            } );
+        }
 
         $.each( data, function( i, v ) {
             if ( v.user.profile_image_url ) {
                 v.user.avatar_50 = v.user.profile_image_url;
                 v.user.avatar_30 = v.user.profile_image_url.replace( /\/50\//, '/30/' );
             }
+　
+            v.html = v.text.replace( /http:\/\/[^ ]+/g, function(a){
+                return "<a target='_blank' href='" + a + "'>" + a + "</a>";
+            } ).replace( /@[_a-zA-Z\u00ff-\u2fff\u3001-\uffff]+/g, function(a){
+                return "<a class='at' screen_name='" + a.substr( 1 ) + "' href=''>" + a + "</a>";
+            } );
+
+            log( v.html );
+
         } );
+
+        return data;
+    },
+
+    show : function ( data ) {
+        var self = this;
+
+        data = this.reform_data( data );
 
         log( data );
 
-        this.eltList.empty();
-        $( "#tmpl_msg" ).tmpl( data ).appendTo( this.eltList );
-
+        this._elt.empty();
+        $( "#tmpl_msg" ).tmpl( data ).appendTo( this._elt );
 
         this.setup_draggable();
     },
     setup_draggable : function () {
 
-        this.eltList.children().draggable( {
+        this._elt.children().draggable( {
             connectToSortable: "#page",
             // handle : ".handle",
             helper : "clone",
@@ -638,16 +717,19 @@ $.extend( ui.list, {
     }
 } );
 
-$.extend( ui.my, {
+$.extend( ui.t, {
+    init: function (){
+        init_sub( this );
+    }
+} );
+
+$.extend( ui.t.my, {
     init : function () {
         var self = this;
-        self.myButton = $( "#expand.t-btn" );
+        self.myButton = $( "#expand.t_btn" );
+
+        // TODO stand alone #my in ui hierarchy
         self.myDialog  = $( "#my" );
-
-        self.friend.init( self.myDialog );
-
-        self.set_dialog_pos();
-
 
         self.myButton.click( function (ev){
             log( 'click' );
@@ -658,21 +740,11 @@ $.extend( ui.my, {
 
         } );
 
-
-    },
-    set_dialog_pos : function () {
-        var tool = $( "#tool" );
-
-        // // when using layout, tool is absolute positioned
-        // var ppos = tool.offset();
-        // log( ppos );
-        this.myDialog.css( { left:0, top:0 } );
-
+        init_sub( this );
     },
     switchPanel : function ( vis ) {
         if ( vis ) {
             this.myDialog.show();
-            this.set_dialog_pos();
         }
         else {
             this.myDialog.hide();
@@ -680,54 +752,34 @@ $.extend( ui.my, {
     },
 } );
 
-$.extend( ui.my, {
-    friend : {}
-} );
-
-$.extend( ui.my.friend, {
-    init : function( dialog ){
+$.extend( ui.t.my.friend, {
+    init : function(){
         var self = this;
-        self.dialog = dialog;
-        self.elt = self.dialog.find( "#friend" );
-        self.formSimp = self.elt.find( "form.g_simp" );
-        self.formSearch = self.elt.find( "form.g_search" );
+        self.formSimp = self._elt.find( "form.g_simp" );
+        self.formSearch = self._elt.find( "form.g_search" );
 
-        log( self.elt );
+        log( self._elt );
 
-        function friend_simp_load( ev ) {
-            ev.stopPropagation();
+        var simpLoader = ui.t.acc.create_loader(
+            'statuses/friends_timeline',
+            {
+                args: function() { return self.formSimp.serialize(); },
+                cb: [ ui.t.list, 'show' ]
+            }
+        );
 
-            var args = self.formSimp.serialize();
-            log( "args:" );
-            log( args );
-
-
-            ui.appmsg.show( "loadding..." );
-
-            wb.cmd( 'friends_timeline', args, function( rst ) {
-                ui.appmsg.show( "updated" );
-                ui.list.show( rst );
-                $( ".t-autoclose" ).hide();
-            } );
-        }
+        self._elt.find( ".f_idx" ).click( simpLoader );
+        self.formSimp.find( "input" ).button().click( simpLoader );
+    },
 
 
-        // TODO realod search if group "search" is active
-        self.elt.find( ".f_idx" ).click( friend_simp_load );
-
-        self.formSimp.find( "input" ).button().click( friend_simp_load );
-
-    }
 } );
 
-
-
-
-var filter = {
-
-};
+var filter = { };
 
 ( function( $ ) {
+    $.fn.h = function() { return this.outerHeight( true ); }
+
     $.fn.btn_opt = function (  ) {
         var e = $( this );
         var opt = {

@@ -26,8 +26,8 @@
             <tr>
                 <td id="lg">
                     <div class="wrap rel">
-                        <img src="img/x.png" alt="vweb"/>
-                        <div id="appname">Favbo</div>
+                        <img src="img/LOGO.png" alt="vweb"/>
+                        <!-- <div id="appname">Favbo</div> -->
                         <div id="applinks">
                             <a href="#">关于</a>
                             <a href="#">关于</a>
@@ -36,15 +36,19 @@
                     </div>
                 </td>
                 <td id="curfile" >
-                    <div id="path">/jfksdlf/f/fjds/f/fds/</div>
-                    <input id="fn" type="text" name="fn" value="Sample text很多很多文字"/> <br />
+                    <div class="wrap rel">
+                        <div id="path">/jfksdlf/f/fjds/f/fds/</div>
+                        <input id="fn" type="text" name="fn" value="Sample text很多很多文字"/> <br />
+                    </div>
                 </td>
                 <td id="tdpub">
-                    <button id="pub" class="ui-button ui-button-text-icon-primary ">
-                        <span class="ui-icon vweb_icon icon_pub"></span>
-                        <span class="ui-button-text">发布</span>
-                        <!-- <a href="javascript:ui.acc.pub();">发布</a> -->
-                    </button>
+                    <div class="wrap rel">
+                        <button id="pub" class="ui-button ui-button-text-icon-primary ">
+                            <span class="ui-icon vweb_icon icon_pub"></span>
+                            <span class="ui-button-text">发布</span>
+                            <!-- <a href="javascript:ui.acc.pub();">发布</a> -->
+                        </button>
+                    </div>
                 </td>
             </tr>
         </table>
@@ -54,11 +58,11 @@
                 <a id="open" href="javascript:ui.vdacc.browse();">从微盘打开</a>
             </form>
             <form class="f_args g_mode left" >
-                <span id="edit_mode" class="t_opt t_btn_set" name="mode" _type="radio">
+                <span id="edit_mode" class="t_opt grad_white1 t_btn_set" name="mode" _type="radio">
                     <a href="standard">标</a>
                     <a href="album">图</a>
                 </span>
-                <span id="screen_mode" class="t_opt" name="screen_mode" _type="radio">
+                <span id="screen_mode" class="t_opt grad_white1 t_btn_set" name="screen_mode" _type="radio">
                     <a href="0">全</a>
                     <a href="1">原</a>
                 </span>
@@ -75,18 +79,22 @@
 <td id="td_side">
 <div id="side">
     <div id="tabs">
+        <div id="product" class="t_opt grad_white1 t_btn_set" name="product" _type="radio">
+            <a href="#">微盘</a>
+            <a href="#">微博</a>
+        </div>
     </div>
-    <div id="tool" class="t-panel hidden">
+    <div id="t" class="t-panel -hidden">
         <!-- -------------------------------- function here -------------------------------- -->
         <div id="func">
-            <div id="my" class="t-dialog hideall but-friend" style="background:url(img/t101.png);">
+            <div id="my" class="hideall but-friend">
                 <fieldset id="friend">
                     <legend class="t_btn_set">
-                        <button id="expand" class="t-btn" _text="no" _icon="arrow-4-diag">Expand</button>
-                        <button class="f_idx t-btn">我的首页</button>
+                        <button id="expand" class="t_btn" _text="no" _icon="arrow-4-diag">Expand</button>
+                        <button class="f_idx t_btn">我的首页</button>
                     </legend>
                     <form class="f_args t_group g_simp left" >
-                        <span id="fr_feature" class="t_opt t_btn_set" name="feature" _type="radio">
+                        <span id="fr_feature" class="t_opt grad_white1 t_btn_set" name="feature" _type="radio">
                             <a href="0">全</a>
                             <a href="1">原</a>
                             <a href="2">图</a>
@@ -102,11 +110,11 @@
                             <input class="search-time" type="text" name="s_1" value="00-00-00"/>
                             </p>
                             <p>
-                            <span id="my_fo_search_range" class="t_opt" _type="checkbox">
+                            <span id="my_fo_search_range" class="t_opt grad_white1" _type="checkbox">
                                 <a href="gid">原</a>
                                 <a href="gid">转</a>
                             </span>
-                            <span id="my_fo_search_type" class="t_opt" _type="checkbox">
+                            <span id="my_fo_search_type" class="t_opt grad_white1" _type="checkbox">
                                 <a href="gid">字</a>
                                 <a href="gid">图</a>
                                 <a href="gid">视</a>
@@ -126,7 +134,7 @@
                         </ul>
                         <div id="tab-mine-short">
                             <div class="t_line">
-                                <span id="mine_type" class="t_opt" _type="radio">
+                                <span id="mine_type" class="t_opt grad_white1" _type="radio">
                                     <a href="#">原</a>
                                     <a href="#">图</a>
                                     <a href="#">视</a>
@@ -136,11 +144,11 @@
                         </div>
                         <div id="tab-mine-search">
                             <div class="t_line">
-                                <span id="mine_search_range" class="t_opt" _type="checkbox">
+                                <span id="mine_search_range" class="t_opt grad_white1" _type="checkbox">
                                     <a href="gid">原</a>
                                     <a href="gid">转</a>
                                 </span>
-                                <span id="mine_search_type" class="t_opt" _type="checkbox">
+                                <span id="mine_search_type" class="t_opt grad_white1" _type="checkbox">
                                     <a href="gid">字</a>
                                     <a href="gid">图</a>
                                     <a href="gid">视</a>
@@ -160,19 +168,19 @@
                 <div id="at" class="t-ctrl">
                     提到我的:
                     <!--
-                    - <span class="t_opt">
+                    - <span class="t_opt grad_white1">
                         -     <input type="radio" id="at_all_p" checked name="at_range" value="img"/><label for="at_all_p">提到我的:</label>
                         - </span>
                     -->
                     <!-- <br /> -->
-                    <span class="t_opt">
+                    <span class="t_opt grad_white1">
                         <!-- <input type="radio" id="at_all_msg" name="at_type" value="img"/><label for="at_all_msg">全部微博</label> -->
                         <input type="checkbox" id="at_fo"  name="at_range" value="img"/><label for="at_fo">关注的人</label>
                         <input type="checkbox" id="at_ori" name="at_type" value="img"/><label for="at_ori">原创</label>
                     </span>
                 </div>
                 <div id="re" class="t-ctrl">
-                    <span class="t_opt">
+                    <span class="t_opt grad_white1">
                         <input type="radio" id="re_all_p" checked name="re_range" value="img"/><label for="re_all_p">我的评论:</label>
                         <input type="radio" id="re_fo"  name="re_range" value="img"/><label for="re_fo">关注的人</label>
                         <input type="radio" id="re_unk"  name="re_range" value="img"/><label for="re_unk">陌生人</label>
@@ -189,12 +197,12 @@
                         </ul>
                         <div id="tab-glboal-search">
                             <div class="t_line">
-                                <span id="global_search_range" class="t_opt" _type="checkbox">
+                                <span id="global_search_range" class="t_opt grad_white1" _type="checkbox">
                                     <a href="gid">all</a>
                                     <a href="gid">原</a>
                                     <a href="gid">热</a>
                                 </span>
-                                <span id="global_search_type" class="t_opt" _type="checkbox">
+                                <span id="global_search_type" class="t_opt grad_white1" _type="checkbox">
                                     <a href="gid">all</a>
                                     <a href="gid">图</a>
                                     <a href="gid">视</a>
@@ -210,15 +218,29 @@
                     </div>
                 </div>
             </div>
+            <button id="refresh" class="t_btn" _text="no" _icon="refresh">刷新</button>
         </div>
-        <div id="list" class="t-list">
+        <div id="paging">
+            <input id="begindate" type="text" name="begindate" value="11-02-27 15:34"/>
+            <a href="#">上页</a>
+            <a href="#">下页</a>
+        </div>
+        <div id="list">
         </div>
     </div>
-    <div id="vd" style="display:block; padding-right: 40px;">
+    <div id="vd" class="hidden">
         <div id="vdaccpane">
-            <div id="vdfunc">
-                <span id="vdname">未登录</span>
-                <button id="upload" class="ui-button ui-button-text-icon-primary ">
+            <div id="vdfunc" class="">
+                <form id="vdform" class="when onloggedin"
+                    action="/vd.php" method="POST" accept-charset="utf-8"
+                    enctype="application/x-www-form-urlencoded">
+                    <input id="vdisk_username" type="text" name="username" value="用户名"/>
+                    <input id="vdisk_password" type="text" name="password" value="密码"/>
+                    <input id="submit" type="submit" name="submit" value="登录微盘"/>
+                </form>
+
+                <span id="vdname" class="when loggedin">username</span>
+                <button id="upload" class="when loggedin ui-button ui-button-text-icon-primary ">
                     <span class="ui-icon vweb_icon icon_upload"></span>
                     <span class="ui-button-text">上传</span>
                     <!-- <a href="javascript:ui.acc.pub();">发布</a> -->
@@ -256,15 +278,6 @@
                 </li>
             </ul>
         </div>
-        <form id="vdform" class="ui-dialog"
-            action="/vd.php" method="POST" accept-charset="utf-8"
-            enctype="application/x-www-form-urlencoded">
-            <label for="vdisk_username">用户名</label>
-            <input id="vdisk_username" type="text" name="username" value=""/>
-            <label for="vdisk_password">密码</label>
-            <input id="vdisk_password" type="password" name="password" value=""/>
-            <input type="submit" name="submit" value="登录微盘"/>
-        </form>
     </div>
 
 </div>
@@ -276,11 +289,15 @@
 <script id="tmpl_msg" type="text/x-jquery-tmpl">
 <div id="${id}" class="t_msg ui-widget ui-corner-all ${retweet}">
     <div class="handle ui-corner-all hidden"></div>
-    <div class="avatar ui-corner-all"><img src="${user.avatar_30}" /></div>
+    <div class="avatar ui-corner-all">
+        <a class="user" id="${user.id}" href="#"><img src="${user.avatar_30}" /></a>
+    </div>
     <div class="cont msg">
         {{if thumbnail_pic}} <img class="msgimg thumb" src="${thumbnail_pic}" /> {{/if}}
         <span class="user" id="${user.id}">${user.name}:</span>
-        <span class="msg">${text}</span>
+        <span class="msg">
+            {{html html}}
+        </span>
         {{if bmiddle_pic}} <img class="msgimg midpic" src="${bmiddle_pic}"/> {{/if}}
     </div>
 </div>
@@ -300,25 +317,12 @@
 </li>
 </script>
 
+<script id="tmpl_appmsg" type="text/x-jquery-tmpl">
+<span class="msg ui-state-highlight ui-corner-all">${text}</span>
+</script>
+
     </body>
-
-
     <script language="javascript" type="text/javascript">
-        $( function() {
-            $( ".t-dialog" ).addClass( "ui-dialog ui-widget ui-widget-content ui-corner-all" );
-            //$( ".t-panel" ).addClass( "ui-widget ui-widget-content ui-corner-all" );
-            $( ".t-panel" ).addClass( "ui-widget ui-corner-all" );
-            //$( ".t-ctrl" ).addClass( "ui-widget ui-widget-content ui-corner-all" );
-            $( ".t-ctrl" ).addClass( "ui-widget ui-corner-all" );
-            $( ".t-group" ).addClass( "ui-widget ui-corner-all" );
-            $( ".t-list" ).addClass( "ui-widget ui-corner-all" );
-            //$( ".t-btn" ).addClass( "ui-button ui-widget ui-state-default ui-corner-all ui-button-text-only" );
-            $( ".t-tabs" ).tabs();
-            //WB.connect.init(cfg);
-            //WB.client.init(cfg);
-            //log( "wb init ok" );
-            ui.init();
-            //ui.acc.login();
-        } );
+        $( function() { ui.init(); } );
     </script>
 </html>

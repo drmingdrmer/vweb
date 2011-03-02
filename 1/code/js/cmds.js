@@ -45,6 +45,5 @@ var cmds = {
     "usr.search"               : "/users/search.json"                   , // 搜索微博用户(仅对新浪合作开发者开放)
     "search"                   : "/search.json"                         , // 搜索微博文章(仅对新浪合作开发者开放)
     "sts.search"               : "/statuses/search.json"                , // 搜索微博(多条件组合)(仅对合作开发者开放)
-    "sts.magic_followers"      : "/statuses/magic_followers.json"       , // 获取用户优质粉丝列表
-    NULL : undefined
+    "sts.magic_followers"      : "/statuses/magic_followers.json"         // 获取用户优质粉丝列表
 };

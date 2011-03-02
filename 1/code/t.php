@@ -2,11 +2,66 @@
 
 session_start();
 include_once( 'config.php' );
-include_once( 'saet.ex.class.php' );
+// include_once( 'saet.ex.class.php' );
+include_once( 'ss.php' );
 include_once( 'util.php' );
 include_once( 'img.php' );
 
 header('Content-Type:text/html; charset=utf-8');
+
+
+$cmds = array( 
+    "statuses/public_timeline"        =>  "/statuses/public_timeline.json"       , // 获取最新更新的公共微博消息
+    "statuses/friends_timeline"       =>  "/statuses/friends_timeline.json"      , // 获取当前用户所关注用户的最新微博信息
+    "statuses/user_timeline"          =>  "/statuses/user_timeline.json"         , // 获取用户发布的微博信息列表
+    "statuses/mentions"               =>  "/statuses/mentions.json"              , // 获取@当前用户的微博列表
+    "statuses/comments_timeline"      =>  "/statuses/comments_timeline.json"     , // 获取当前用户发送及收到的评论列表
+    "statuses/comments_by_me"         =>  "/statuses/comments_by_me.json"        , // 获取当前用户发出的评论
+    "statuses/comments"               =>  "/statuses/comments.json"              , // 获取指定微博的评论列表
+    "statuses/counts"                 =>  "/statuses/counts.json"                , // 批量获取一组微博的评论数及转发数
+    "statuses/unread"                 =>  "/statuses/unread.json"                , // 获取当前用户未读消息数
+    "statuses/show/#{id}"             =>  "/statuses/show/#{id}.json"            , // 根据ID获取单条微博信息内容
+    "#{userid}/statuses/#{id}"             =>  "/#{userid}/statuses/#{id}"            , // 根据微博ID和用户ID跳转到单条微博页面(验证不成功)
+    "statuses/update"                 =>  "/statuses/update.json"                , // 发布一条微博信息
+    "statuses/upload"                 =>  "/statuses/upload.json"                , // 上传图片并发布一条微博信息(验证不成功)
+    "statuses/destroy/#{uid}"         =>  "/statuses/destroy/#{uid}.json"        , // 删除一条微博信息
+    "statuses/retweet/#{id}"          =>  "/statuses/retweet/#{id}.json"         , // 转发一条微博信息（可加评论）
+    "statuses/comment"                =>  "/statuses/comment.json"               , // 对一条微博信息进行评论
+    "statuses/comment_destroy/#{id}"  =>  "/statuses/comment_destroy/#{id}.json" , // 删除当前用户的微博评论信息
+    "statuses/reply"                  =>  "/statuses/reply.json"                 , // 回复微博评论信息
+    "users/show"                      =>  "/users/show.json"                     , // 根据用户ID获取用户资料（授权用户）
+    "statuses/friends"                =>  "/statuses/friends.json"               , // 获取当前用户关注对象列表及最新一条微博信息
+    "statuses/followers"              =>  "/statuses/followers.json"             , // 获取当前用户粉丝列表及最新一条微博信息
+    "direct_messages"                 =>  "/direct_messages.json"                , // 获取当前用户最新私信列表
+    "direct_messages/sent"            =>  "/direct_messages/sent.json"           , // 获取当前用户发送的最新私信列表
+    "direct_messages/new"             =>  "/direct_messages/new.json"            , // 发送一条私信
+    "direct_messages/destroy/#{id}"   =>  "/direct_messages/destroy/#{id}.json"  , // 删除一条私信
+    "friendships/create"              =>  "/friendships/create.json"             , // 关注某用户
+    "friendships/destroy"             =>  "/friendships/destroy.json"            , // 取消关注
+    "friendships/exists"              =>  "/friendships/exists.json"             , // 是否关注某用户(推荐使用friendships/show)
+    "friendships/show"                =>  "/friendships/show.json"               , // 获取两个用户关系的详细情况
+    "friends/ids"                     =>  "/friends/ids.json"                    , // 获取用户关注对象uid列表
+    "followers/ids"                   =>  "/followers/ids.json"                  , // 获取用户粉丝对象uid列表
+    "account/verify_credentials"      =>  "/account/verify_credentials.json"     , // 验证当前用户身份是否合法
+    "account/rate_limit_status"       =>  "/account/rate_limit_status.json"      , // 获取当前用户API访问频率限制
+    "account/end_session"             =>  "/account/end_session.json"            , // 当前用户退出登录
+    "account/update_profile_image"    =>  "/account/update_profile_image.json"   , // 更改头像
+    "account/update_profile"          =>  "/account/update_profile.json"         , // 更改资料
+    "account/register"                =>  "/account/register.json"               , // 注册新浪微博帐号
+    "Account/activate"                =>  "/Account/activate.json"               , // 二次注册微博的接口
+    "emotions"                        =>  "/emotions.json"                       , // 表情接口，获取表情列表
+    "favorites"                       =>  "/favorites.json"                      , // 获取当前用户的收藏列表
+    "favorites/create"                =>  "/favorites/create.json"               , // 添加收藏
+    "favorites/destroy"               =>  "/favorites/destroy.json"              , // 删除当前用户收藏的微博信息
+    "users/search"                    =>  "/users/search.json"                   , // 搜索微博用户(仅对新浪合作开发者开放)
+    "search"                          =>  "/search.json"                         , // 搜索微博文章(仅对新浪合作开发者开放)
+    "statuses/search"                 =>  "/statuses/search.json"                , // 搜索微博(多条件组合)(仅对合作开发者开放)
+    "statuses/magic_followers"        =>  "/statuses/magic_followers.json"         // 获取用户优质粉丝列表
+);
+
+
+
+
 
 class MySaeTClient extends SaeTClient
 {
@@ -23,7 +78,17 @@ class MySaeTClient extends SaeTClient
         }
         $params[ 'feature' ] = $feature;
 
-        return $this->request_with_pager('http://api.t.sina.com.cn/statuses/home_timeline.json', $page, $count, $params );
+        return $this->request_with_pager('http://api.t.sina.com.cn/statuses/friends_timeline.json', $page, $count, $params );
+    }
+
+    function _load_cmd( $cmd, &$p )
+    {
+        def( $p, 'page', 1 );
+        def( $p, 'count', 20 );
+
+        $url = "http://api.t.sina.com.cn/$cmd.json";
+        $rst = $this->oauth->get($url , $p );
+        return $rst;
     }
 
 } 
@@ -37,36 +102,28 @@ $c = new MySaeTClient( WB_AKEY, WB_SKEY,
 
 $verb = $_SERVER[ 'REQUEST_METHOD' ];
 $act = $_GET[ 'act' ];
+
 !$act && resmsg( 'noact', 'noact' );
 
 if ( $verb == "GET" ) {
 
     $p = $_GET;
-    def( $p, 'page', 1 );
-    def( $p, 'count', 20 );
-    def( $p, 'since_id', NULL );
-    def( $p, 'max_id', NULL );
-    def( $p, 'feature', 0 );
 
-
-    switch ( $act ) {
-        case "friends_timeline" :
-            $rst = $c->friends_timeline( $p[ 'page' ], $p[ 'count' ],
-                $p[ 'since_id' ], $p[ 'max_id' ], $p[ 'feature' ] );
-
-            if ( $rst ) {
-                !$rst[ 'error_code' ]
-                    && resjson( array( "rst" => "ok", "data" => $rst) ) 
-                    || resmsg( "load", $rst[ 'error' ] );
-            }
-            else {
-                resmsg( "load", "unknown" );
-            }
-            break;
-
-        default:
-            resmsg( "unknown_act", $act );
+    if ( $cmds[ $act ] ) {
+        $rst = $c->_load_cmd( $act, $p );
+        if ( $rst ) {
+            !$rst[ 'error_code' ]
+                && resjson( array( "rst" => "ok", "data" => $rst) ) 
+                || resmsg( "load", $rst[ 'error' ] );
+        }
+        else {
+            resmsg( "load", "微薄接口调用失败" );
+        }
     }
+    else {
+        resmsg( "unknown_act", $act );
+    }
+
 }
 else if ( $verb == "POST" ) {
     switch ( $act ) {
