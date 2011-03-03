@@ -66,13 +66,14 @@ var ui = {
         acc : {},
         my : {
             friend : {},
+            globalsearch : {}
         },
         list : {},
     },
     vd : {
         vdacc : {},
         tree : {}
-    },
+    }
 };
 
 var wb = {
@@ -148,7 +149,7 @@ $.extend( ui, {
 
         $( ".t-dialog" ).addClass( "ui-dialog ui-widget ui-widget-content ui-corner-all" );
         $( ".t-panel" ).addClass( "ui-widget ui-corner-all" );
-        $( ".t-ctrl" ).addClass( "ui-widget ui-corner-all" );
+        $( ".t_ctrl" ).addClass( "ui-widget ui-corner-all" );
         $( ".t-group" ).addClass( "ui-widget ui-corner-all" );
         $( "#menu" ).addClass( "cont_dark2 cont_dark_shad2" );
         $( "#func" ).addClass( "cont_dark2 cont_dark_shad2" );
@@ -160,8 +161,12 @@ $.extend( ui, {
         init_sub( this );
 
         $( window ).resize( function() { self.relayout(); } );
-        $( "body" ).click( function( ev ) { $( ".t-autoclose" ).hide(); } );
-
+        $( "body" ).click( function( ev ) {
+            var tagname = ev.target.tagname;
+            if ( tagname != 'INPUT' && tagname != 'BUTTON' ) {
+                $( ".t-autoclose" ).hide();
+            }
+        } );
 
     },
     relayout : function () {
@@ -726,30 +731,20 @@ $.extend( ui.t, {
 $.extend( ui.t.my, {
     init : function () {
         var self = this;
-        self.myButton = $( "#expand.t_btn" );
+        $( "#expand.t_btn" ).click( function (ev){
+            evstop( ev );
+            self._elt.removeClass( 'hideall' );
+        } );
 
-        // TODO stand alone #my in ui hierarchy
-        self.myDialog  = $( "#my" );
-
-        self.myButton.click( function (ev){
-            log( 'click' );
-            ev.preventDefault()            /* other event on this DOM */
-            ev.stopPropagation();          /* pop up                  */
-            // ev.stopImmediatePropagation(); [> pop up and other        <]
-            self.switchPanel( true );
-
+        $( "body" ).click( function( ev ){
+            var tagname = ev.target.tagName;
+            if ( tagname != 'INPUT' && tagname != 'BUTTON' ) {
+                self._elt.addClass( 'hideall' );
+            }
         } );
 
         init_sub( this );
-    },
-    switchPanel : function ( vis ) {
-        if ( vis ) {
-            this.myDialog.show();
-        }
-        else {
-            this.myDialog.hide();
-        }
-    },
+    }
 } );
 
 $.extend( ui.t.my.friend, {
@@ -758,21 +753,39 @@ $.extend( ui.t.my.friend, {
         self.formSimp = self._elt.find( "form.g_simp" );
         self.formSearch = self._elt.find( "form.g_search" );
 
-        log( self._elt );
+        log( self.formSimp );
 
         var simpLoader = ui.t.acc.create_loader(
             'statuses/friends_timeline',
             {
-                args: function() { return self.formSimp.serialize(); },
+                args: function() { log( 'what' ); return self.formSimp.serialize(); },
                 cb: [ ui.t.list, 'show' ]
             }
         );
 
         self._elt.find( ".f_idx" ).click( simpLoader );
         self.formSimp.find( "input" ).button().click( simpLoader );
-    },
 
+        init_sub( self );
+    }
 
+} );
+$.extend( ui.t.my.globalsearch, {
+    init : function(){
+        var self = this;
+        self.buttonSubmit = self._elt.find( ".f_submit" );
+        self.formParam = self._elt.find( "form.g_search" );
+
+        var searchLoader = ui.t.acc.create_loader(
+            'statuses/search',
+            {
+                args: function() { return self.formParam.serialize(); },
+                cb: [ ui.t.list, 'show' ]
+            }
+        );
+
+        self.buttonSubmit.click( searchLoader );
+    }
 } );
 
 var filter = { };
@@ -810,7 +823,7 @@ var filter = { };
 
         } );
     }
-    $.fn.myDialog = function( opt ) {
+    $.fn.fullPanel = function( opt ) {
 
         opt = $.extend( {
             autoOpen : false,

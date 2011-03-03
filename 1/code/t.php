@@ -94,6 +94,8 @@ if ( $verb == "GET" ) {
     $p = $_GET;
 
     if ( $cmds[ $act ] ) {
+        unset( $p[ 'act' ] );
+
         $rst = $c->_load_cmd( $act, $p );
         if ( $rst ) {
             !$rst[ 'error_code' ]
@@ -101,6 +103,7 @@ if ( $verb == "GET" ) {
                 || resmsg( "load", $rst[ 'error' ] );
         }
         else {
+            
             resmsg( "load", "微薄接口调用失败" );
         }
     }

@@ -11,7 +11,7 @@
 }
 
 .cont_dark2 { background-color: #252525; }
-.cont_dark2 a { color: #777; }
+.cont_dark2 a { color: #bbb; }
 .cont_dark_shad2 {
     background-image: -webkit-gradient(linear, 0 0, 0 8, from(#000), to(#252525));
     background-image: -moz-linear-gradient(top, #000, #252525 8px);
@@ -28,6 +28,22 @@
     background: -webkit-gradient(linear, left top, left bottom, from(#e1e1e1), to(#757575));
     background: -moz-linear-gradient(top, #e1e1e1, #757575);
 }
+
+.grad_dark1 {
+    background-color: #333;
+    background: -webkit-gradient(linear, left top, left bottom, from(#333), to(#121212));
+    background: -moz-linear-gradient(top, #333, #121212);
+}
+.grad_dark1,
+.grad_dark1 .ui-button-text {
+    color: #bbb;
+}
+
+/*
+ * .text_white2 {
+ *     color: #e1e1e1;
+ * }
+ */
 
 
 .shadow {
@@ -102,7 +118,7 @@ body { background: #ddd; }
         #curfile {
             padding: 0 0 0 20px;
             vertical-align: bottom; }
-        #curfile #path { color: #676776; margin: 4px 0 0 0; }
+        #curfile #path { color: #676776; margin: 2px 0 0 0; }
         #curfile #fn {
             border: 1px solid #404040;
             background: #1d1d1d; color: #fff;
@@ -196,6 +212,7 @@ body { background: #ddd; }
         background-color: #121212; }
 
         #product {
+            overflow: hidden;
             position: absolute;
             bottom: 0px; right: 4px; }
 
@@ -208,12 +225,21 @@ body { background: #ddd; }
         overflow: visible; zoom: 1; }
 
         #my {
-            width: 356px;
+            z-index: 2;
+            width: 100%;
             left:0; top: 0;
             position: absolute;
             overflow: hidden; zoom: 1; }
 
-        #my legend { display: block; }
+        #my>fieldset {
+            /* left:5%; */
+            /* width: 90%; */
+            margin: 0 0 10px 0; }
+        #my legend { display: inline; }
+        #my.hideall>fieldset {
+            /* left:0%; */
+            /* width: 100%; */
+            margin: 0; }
         #my.hideall legend { display: inline; float: left; }
         #my.hideall form { display: inline; }
 
@@ -230,18 +256,28 @@ body { background: #ddd; }
         #my.hideall #re,
         #my.hideall #at,
         #my.hideall #fav,
-        #my.hideall #global { display: none; }
+        #my.hideall #globalsearch { display: none; }
 
-        #my.hideall.but-friend #friend { display: block; }
-        #my.hideall.but-mine   #mine   { display: block; }
-        #my.hideall.but-re     #re     { display: block; }
-        #my.hideall.but-at     #at     { display: block; }
-        #my.hideall.but-fav    #fav    { display: block; }
-        #my.hideall.but-global #global { display: block; }
+        #my.hideall.but-friend #friend       { display: block; }
+        #my.hideall.but-mine   #mine         { display: block; }
+        #my.hideall.but-re     #re           { display: block; }
+        #my.hideall.but-at     #at           { display: block; }
+        #my.hideall.but-fav    #fav          { display: block; }
+        #my.hideall.but-global #globalsearch { display: block; }
+
+            #friend legend {
+                padding: 8px 0 0 16px;
+                margin: 0 16px 0 0;
+            }
+            #friend .f_args {
+                padding: 4px 0;
+            }
 
         #search #keyword{ border: 0; width: 80px; height: 20px; }
 
-        #refresh { position: absolute; top: 0; right: 0; }
+        #expand {
+            z-index: 3;
+            position: absolute; top: 0; right: 0; }
 
     #paging {
         width: 100%; height: 20px;
@@ -348,7 +384,7 @@ body { background: #ddd; }
         #tree li.folder .ui-icon { background-position: 0 -96px; }
         #tree li.file .ui-icon { background-position: -32px -96px; }
 
-.t-ctrl { padding: 2px; margin-bottom: 4px; position: relative; overflow: hidden; zoom:1; }
+.t_ctrl { padding: 2px; margin-bottom: 4px; position: relative; overflow: hidden; zoom:1; }
 .t_ctrl_title { border: 0px solid #444; margin: 0 0 5px 0;  }
 .t_group {
     /* padding: 10px 10px 0 10px; */
@@ -485,24 +521,24 @@ body { background: #ddd; }
     font-size: 14px;
 }
 
-.t-ctrl .current {
+.t_ctrl .current {
     width: 14px;
     height: 14px;
     margin: 4px 14px 0 0;
     display: inline-block;
     float: right;
 }
-.t-ctrl.highlight .current {
+.t_ctrl.highlight .current {
     /* background: #000 url(../theme/trontastic/images/ui-icons_b8ec79_256x240.png); */
     /* background-position: -32px -16px; */
     /* background-position: -80px -144px;; */
 }
 
-.t-ctrl.highlight {
+.t_ctrl.highlight {
     background: #000;
     /* background: url(../img/t101.png); */
 }
-.t-ctrl input {
+.t_ctrl input {
 
     border: 1px solid #666;
 
@@ -515,7 +551,7 @@ body { background: #ddd; }
 
 }
 
-.t-ctrl input.search-keyword {
+.t_ctrl input.search-keyword {
 
     width: 120px;
 
@@ -524,7 +560,7 @@ body { background: #ddd; }
     border-radius: 2px;
 }
 
-.t-ctrl input.search-time {
+.t_ctrl input.search-time {
 
     width: 80px;
 

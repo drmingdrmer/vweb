@@ -37,7 +37,7 @@
                 </td>
                 <td id="curfile" >
                     <div class="wrap rel">
-                        <div id="path">/jfksdlf/f/fjds/f/fds/</div>
+                        <div id="path" class="hidden">/jfksdlf/f/fjds/f/fds/</div>
                         <input id="fn" type="text" name="fn" value="Sample text很多很多文字"/> <br />
                     </div>
                 </td>
@@ -52,22 +52,24 @@
                 </td>
             </tr>
         </table>
-        <div id="menu">
-            <form class="f_args g_vdacc right">
-                <a href="javascript:ui.vdacc.save();">保存</a>
-                <a id="open" href="javascript:ui.vdacc.browse();">从微盘打开</a>
-            </form>
-            <form class="f_args g_mode left" >
-                <span id="edit_mode" class="t_opt grad_white1 t_btn_set" name="mode" _type="radio">
-                    <a href="standard">标</a>
-                    <a href="album">图</a>
-                </span>
-                <span id="screen_mode" class="t_opt grad_white1 t_btn_set" name="screen_mode" _type="radio">
-                    <a href="0">全</a>
-                    <a href="1">原</a>
-                </span>
-            </form>
-        </div>
+        <!--
+           - <div id="menu">
+           -     <form class="f_args g_vdacc right">
+           -         <a href="javascript:ui.vdacc.save();">保存</a>
+           -         <a id="open" href="javascript:ui.vdacc.browse();">从微盘打开</a>
+           -     </form>
+           -     <form class="f_args g_mode left" >
+           -         <span id="edit_mode" class="t_opt grad_white1 t_btn_set" name="mode" _type="radio">
+           -             <a href="standard">标</a>
+           -             <a href="album">图</a>
+           -         </span>
+           -         <span id="screen_mode" class="t_opt grad_white1 t_btn_set" name="screen_mode" _type="radio">
+           -             <a href="0">全</a>
+           -             <a href="1">原</a>
+           -         </span>
+           -     </form>
+           - </div>
+           -->
         <div id="edit" class="">
             <div id="cont">
                 <div id="page"></div>
@@ -78,23 +80,24 @@
 <td id="td_sidepad"></td>
 <td id="td_side">
 <div id="side">
-    <div id="tabs">
-        <div id="product" class="t_opt grad_white1 t_btn_set" name="product" _type="radio">
-            <a href="#">微盘</a>
-            <a href="#">微博</a>
-        </div>
-    </div>
-    <div id="t" class="t-panel -hidden">
+    <!--
+       - <div id="tabs">
+       -     <div id="product" class="t_opt grad_dark1 t_btn_set" name="product" _type="radio">
+       -         <a href="#">微盘</a>
+       -         <a href="#">微博</a>
+       -     </div>
+       - </div>
+       -->
+    <div id="t" class="t-panel">
         <!-- -------------------------------- function here -------------------------------- -->
         <div id="func">
-            <div id="my" class="hideall but-friend">
+            <div id="my" class="hideall but-friend cont_dark2">
                 <fieldset id="friend">
-                    <legend class="t_btn_set">
-                        <button id="expand" class="t_btn" _text="no" _icon="arrow-4-diag">Expand</button>
-                        <button class="f_idx t_btn">我的首页</button>
+                    <legend class="">
+                        <a href="#" class="f_idx">我的首页</a>
                     </legend>
                     <form class="f_args t_group g_simp left" >
-                        <span id="fr_feature" class="t_opt grad_white1 t_btn_set" name="feature" _type="radio">
+                        <span id="fr_feature" class="t_opt grad_dark1 t_btn_set" name="feature" _type="radio">
                             <a href="0">全</a>
                             <a href="1">原</a>
                             <a href="2">图</a>
@@ -124,14 +127,13 @@
                         </form>
                     </div>
                 </fieldset>
-                <div id="mine" class="t-ctrl highlight">
+                <fieldset id="mine" class="t_ctrl highlight hidden">
+                    <legend class="t_btn_set">
+                        <button id="expand2" class="t_btn" _text="no" _icon="arrow-4-diag">Expand</button>
+                        <button class="f_idx t_btn">我的微博</button>
+                        <input class="search-keyword" type="text" name="search" value="search">
+                    </legend>
                     <div class="t-tabs t-filter-tabs">
-                        <ul>
-                            <li><a href="#tab-mine-short">我的微博</a></li>
-                            <li><a href="#tab-mine-search">
-                                <input class="search-keyword" type="text" name="search" value="search">
-                            </a></li>
-                        </ul>
                         <div id="tab-mine-short">
                             <div class="t_line">
                                 <span id="mine_type" class="t_opt grad_white1" _type="radio">
@@ -161,11 +163,11 @@
                             </div>
                         </div>
                     </div>
-                </div>
-                <div id="fav" class="t-ctrl">
+                </fieldset>
+                <div id="fav" class="t_ctrl hidden">
                     <a href="href">收藏</a>
                 </div>
-                <div id="at" class="t-ctrl">
+                <div id="at" class="t_ctrl hidden">
                     提到我的:
                     <!--
                     - <span class="t_opt grad_white1">
@@ -179,7 +181,7 @@
                         <input type="checkbox" id="at_ori" name="at_type" value="img"/><label for="at_ori">原创</label>
                     </span>
                 </div>
-                <div id="re" class="t-ctrl">
+                <div id="re" class="t_ctrl hidden">
                     <span class="t_opt grad_white1">
                         <input type="radio" id="re_all_p" checked name="re_range" value="img"/><label for="re_all_p">我的评论:</label>
                         <input type="radio" id="re_fo"  name="re_range" value="img"/><label for="re_fo">关注的人</label>
@@ -187,43 +189,40 @@
                     </span>
                     <input type="text" name="search" value="search"/>
                 </div>
-                <div id="global" class="t-ctrl">
-                    <div class="t-tabs t-filter-tabs">
-                        <ul>
-                            <!-- <li><a href="#tab-global-short">name</a></li> -->
-                            <li><a href="#tab-glboal-search">
-                                <input class="search-keyword" type="text" name="search" value="search">
-                            </a></li>
-                        </ul>
-                        <div id="tab-glboal-search">
-                            <div class="t_line">
-                                <span id="global_search_range" class="t_opt grad_white1" _type="checkbox">
-                                    <a href="gid">all</a>
-                                    <a href="gid">原</a>
-                                    <a href="gid">热</a>
-                                </span>
-                                <span id="global_search_type" class="t_opt grad_white1" _type="checkbox">
-                                    <a href="gid">all</a>
-                                    <a href="gid">图</a>
-                                    <a href="gid">视</a>
-                                    <a href="gid">音</a>
-                                    <a href="gid">链</a>
-                                </span>
-                            </div>
-                            <div class="t_line">
-                                <input class="search-time" type="text" name="search_tstart" value="00-00-00"/> -
-                                <input class="search-time" type="text" name="search_tend" value="00-00-00"/>
-                            </div>
-                        </div>
-                    </div>
-                </div>
+                <!--
+                   - <fieldset id="globalsearch" class="t_ctrl highlight">
+                   -     <legend class="">
+                   -         <input class="search-keyword" type="text" name="search" value="search">
+                   -         <button class="f_submit">搜</button>
+                   -     </legend>
+                   -     <form class="f_args t_group g_search" >
+                   -         <div class="t_line">
+                   -             <span id="global_search_ori" class="t_opt grad_white1" name="filter_ori" _type="radio">
+                   -                 <a href="0">全部</a>
+                   -                 <a href="5">原创</a>
+                   -                 [> <a href="gid">热</a> <]
+                   -             </span>
+                   -             <span id="global_search_media" class="t_opt grad_white1" name="filter_pic" _type="checkbox">
+                   -                 <a href="0">全部</a>
+                   -                 <a href="1">图</a>
+                   -             </span>
+                   -         </div>
+                   -         <div class="t_line">
+                   -             <input class="search-time" type="text" name="starttime" value=""/> -
+                   -             <input class="search-time" type="text" name="endtime" value=""/>
+                   -         </div>
+                   -     </form>
+                   - </fieldset>
+                   -->
             </div>
-            <button id="refresh" class="t_btn" _text="no" _icon="refresh">刷新</button>
+            <button id="expand" class="t_btn" _text="no" _icon="arrow-4-diag">Expand</button>
+            <!-- <button id="refresh" class="t_btn" _text="no" _icon="refresh">刷新</button> -->
         </div>
         <div id="paging">
             <input id="begindate" type="text" name="begindate" value="11-02-27 15:34"/>
             <a href="#">上页</a>
             <a href="#">下页</a>
+            <a href="#">历史</a>
         </div>
         <div id="list">
         </div>
