@@ -5,13 +5,67 @@ var cfg = {
     xdpath: 'http://vweb.sinaapp.com/xd.html'
 };
 
+var ui = {
+    appmsg : {},
+    fav : {
+        hd : {},
+        menu : {},
+        edit : {}
+    },
+    tabs : {},
+    t : {
+        acc : {},
+        update : {},
+        my : {
+            friend : {},
+            globalsearch : {}
+        },
+        paging : {},
+        list : {}
+    },
+    vd : {
+        vdacc : {},
+        tree : {}
+    }
+};
+
+var wb = {
+
+    cmd : function ( cmd, args, cb ) {
+
+        if ( $.isPlainObject( args ) ) {
+            args = $.param( args );
+        }
+
+        log( cmd, args );
+
+        $.ajax( {
+            type : "GET",
+            url : "t.php?act=" + cmd + "&" + args,
+            dataType : "json",
+            success : function( rst, st, xhr ) {
+                if ( rst.rst == "ok" ) {
+                    cb && cb( rst.data );
+                }
+                else {
+                    ui.appmsg.msg( rst.rst + " " + rst.msg );
+                }
+            },
+            error : function( xhr, st, err ) {
+                ui.appmsg.msg( st );
+            }
+        } );
+
+    }
+};
+
 function log (mes) {
     console.log( mes );
 }
 function json_succ( handlers ) {
 
     function hdlr ( json, st, xhr ) {
-        ui.appmsg.show( json.msg );
+        ui.appmsg.msg( json.msg );
         if ( handlers[ json.rst ] ) {
             return handlers[ json.rst ]( json, st, xhr );
         }
@@ -29,11 +83,76 @@ function evstop ( ev ) {
 function init_sub ( self ) {
     $.each( self, function( k, v ){
         self[ k ]._elt = $( "#" + k );
-        log( self[ k ]._elt );
         self[ k ].init && self[ k ].init();
     } );
 }
+function $td ( data ) {
+    var self = {
+        _d : data,
+        get: function () { return this._d; },
+        splitRetweet: function () {
+            var d = [];
+            $.each( this._d, function( i, v ){
+                d.push( v );
+                if ( v.retweeted_status ) {
+                    v.retweeted_status.retweet = "retweet";
+                    d.push( v.retweeted_status );
+                }
+            } );
+            this._d = d;
+            return this;
+        },
+        filter: function (ids) {
+            this._d = ids.length == 0
+                ? this._d
+                : $.grep( this._d, function( v, i ) {
+                    return ids.indexOf( v.id + "" ) < 0;
+                } );
+            return this;
+        },
+        stdAvatar: function () {
+            $.each( this._d, function( i, v ) {
+                if ( v.user.profile_image_url ) {
+                    v.user.avatar_50 = v.user.profile_image_url;
+                    v.user.avatar_30 = v.user.profile_image_url.replace( /\/50\//, '/30/' );
+                }
+            } );
+            return this;
+        },
+        htmlLinks: function () {
+            $.each( this._d, function( i, v ) {
+                v.html = v.text.replace( /http:\/\/sinaurl.cn\/[a-zA-Z0-9_]+/g, function(a){
+                    return "<a target='_blank' href='" + a + "'>" + a + "</a>";
+                } ).replace( /@[_a-zA-Z0-9\u4e00-\u9fa5]+/g, function(a){
+                    return "<a class='at' screen_name='" + a.substr( 1 ) + "' href=''>" + a + "</a>";
+                } );
+            } );
+            return this;
+        },
+        historyText: function () {
+            $.each( this._d, function( i, v ){
+                v.text_forhis = v.text.replace( /([\u0100-\uffff])/g, '\u00ff$1' )
+                .substr( 0, 10 ).replace( /\u00ff/g, '' );
 
+                if ( v.text_forhis != v.text ) {
+                    v.text_forhis +=  '...';
+                }
+            } );
+            return this;
+        },
+        historyTime: function () {
+            var now = new Date();
+            $.each( this._d, function( i, v ){
+                var d = new Date( v.created_at );
+                var dt = d.getYear() + "年" + d.getMonth() + "月" + d.getDate();
+                dt = ( dt == now.getYear() + "年" + now.getMonth() + "月" + now.getDate() ) ?  "今天" : dt;
+                v.time_forhis = dt + " " + d.getHours() + ":" + d.getMinutes() + ":" + d.getSeconds();
+            } );
+            return this;
+        }
+    };
+    return self;
+}
 Function.prototype.dele = function( self, args ) {
     var fun = this;
     return function () {
@@ -54,62 +173,6 @@ Function.prototype.delethis = function( self, args ) {
     }
 }
 
-var ui = {
-    appmsg : {},
-    fav : {
-        hd : {},
-        menu : {},
-        edit : {}
-    },
-    tabs : {},
-    t : {
-        acc : {},
-        my : {
-            friend : {},
-            globalsearch : {}
-        },
-        list : {},
-    },
-    vd : {
-        vdacc : {},
-        tree : {}
-    }
-};
-
-var wb = {
-
-    cmd : function ( cmd, args, cb ) {
-
-        if ( $.isPlainObject( args ) ) {
-            args = $.param( args );
-        }
-
-        log( cmd, args );
-
-
-        $.ajax( {
-            type : "GET",
-            url : "t.php?act=" + cmd + "&" + args,
-            dataType : "json",
-            success : function( rst, st, xhr ) {
-                log( "cmd ok:"  );
-                log( rst );
-                if ( rst.rst == "ok" ) {
-                    cb && cb( rst.data );
-                }
-                else {
-                    ui.appmsg.show( rst.rst + " " + rst.msg );
-                }
-            },
-            error : function( xhr, st, err ) {
-                log( "cmd error" );
-                ui.appmsg.show( st );
-                // ui.appmsg.show( err );
-            }
-        } );
-
-    }
-};
 
 $.extend( ui, {
     init : function () {
@@ -183,16 +246,18 @@ $.extend( ui, {
     },
 
     setup_img_switch : function ( container ) {
+        var swi = { thumb: "midpic", midpic: "thumb" };
+
         $( container ).delegate( ".t_msg img.msgimg", "click", function(){
-            var e = $( this );
-            var toshow = e.hasClass( "thumb" ) ? "midpic" : "thumb";
-            e.hide().siblings( "img." + toshow ).show();
+            var e = $( this ).parents( ".t_msg" );
+            e.toggleClass( 'thumb' );
+            e.toggleClass( 'midpic' );
         } );
     }
 } );
 
 $.extend( ui.appmsg, {
-    show : function ( text ) {
+    msg : function ( text ) {
         if ( text ) {
             var e = this._elt;
             $( "#tmpl_appmsg" ).tmpl( [{text:text}] ).appendTo( e.empty() );
@@ -365,38 +430,57 @@ $.extend( ui.fav.edit, {
             h : rooth,
             bgcolor : "#fff",
             d : rst
-
         };
     },
+    addhis: function ( rec ) {
+        this.page.find( "#" + rec.hisid ).remove();
+        $( "#tmpl_hisrec" ).tmpl( [ rec ] ).prependTo( this.page );
+    },
+    removehis: function ( id ) {
+        this.page.find( ".t_his#" + id ).remove();
+    },
     html : function( h ) {
-        if ( h ) {
-            this.page.html( h );
-        }
-        else {
-            // TODO filter and cleanup
-            return this.page.html();
-        }
+        return this.page.html( h );
     }
 } );
 
 $.extend( ui.t.acc, {
-    init : function() {
-        this.t = $( "#t" );
-    },
-    login : function () {
-        log( "login called" );
-        var self = this;
-        WB.connect.login(function() {
-            log( 'login ok' );
-            self.t.removeClass( "invisible" );
-        });
-    },
+    init : function() { },
     create_loader : function ( cmdname, opt ) {
         var realload = this.load;
         return function ( ev ) {
             ev && evstop( ev );
             realload.apply( $(this), [ cmdname, opt ] );
         }
+    },
+
+    cmdtostr: function ( cmdname, opt ) {
+        var args = [];
+
+        if ( $.isPlainObject( opt ) ) {
+            $.each( opt, function( k, v ){ args.push( k + '_' + v ); } );
+        }
+        else {
+            args = opt.split( '&' );
+            $.each( args, function( i, v ){ args[ i ] = args[ i ].replace( /=/, '_' ); } );
+        }
+        args.sort();
+
+        var s = cmdname.replace( /\//g, '_' ) + '____' + args.join( '____' );
+        log( 'cmd str=' + s );
+        return s;
+    },
+
+    strtocmd: function ( s ) {
+        var args = s.split( /____/ );
+        var cmdname = args.shift().replace( /_/g, '/' );
+        var opt = {};
+        $.each( args, function( i, v ){
+            var q = v.split( '_' );
+            opt[ q[ 0 ] ] = q[ 1 ];
+        } );
+
+        return [ cmdname, opt ];
     },
 
     load : function( cmdname, opt ) {
@@ -407,12 +491,19 @@ $.extend( ui.t.acc, {
         log( "args:" );
         log( args );
 
-        ui.appmsg.show( "载入中..." );
+        ui.appmsg.msg( "载入中..." );
 
         wb.cmd( cmdname, args, function( data ) {
             var cb = opt.cb;
+            var first = data[ 0 ];
+            first.hisid = ui.t.acc.cmdtostr( cmdname, args );
 
-            ui.appmsg.show( "载入成功" );
+            hisdata = $td( [ first ] ).stdAvatar().historyText().historyTime().get();
+
+            ui.t.paging.addhis( hisdata[ 0 ] );
+            ui.fav.edit.addhis( hisdata[ 0 ] );
+
+            ui.appmsg.msg( "载入成功" );
             cb[0][ cb[1] ]( data );
         } );
     },
@@ -435,19 +526,27 @@ $.extend( ui.t.acc, {
             data : JSON.stringify( data ),
             dataType : "json",
             success : function( rst, st, xhr ) {
-                log( "pub rst=" );
-                log( rst );
                 if ( rst.rst == "ok" ) {
-                    ui.appmsg.show( "published" );
+                    ui.appmsg.msg( "published" );
                     // TODO message
                 }
                 else {
-                    ui.appmsg.show( rst.msg );
+                    ui.appmsg.msg( rst.msg );
                 }
             }
 
         } );
     }
+} );
+
+$.extend( ui.t.update, {
+    init: function () {
+
+    }, 
+    upload_cb: function (rst) {
+        log( rst );
+    }
+
 } );
 
 $.extend( ui.vdacc, {
@@ -494,7 +593,7 @@ $.extend( ui.vdacc, {
             url : url,
             dataType : "json",
             success : function( rst, st, xhr ) {
-                ui.appmsg.show( rst.msg );
+                ui.appmsg.msg( rst.msg );
                 if ( rst.rst == "ok" ) {
                     cb && cb( rst, st, xhr );
                 }
@@ -526,15 +625,12 @@ $.extend( ui.vdacc, {
     save : function( cb ) {
 
         var self = this;
-        var html = $.trim( ui.edit.html() );
+        var html = $.trim( ui.fav.edit.html() );
 
         // TODO unicode, utf-8, url-encoding test
         var path = ui.menu.path();
 
         var url = "/vd.php?path=" + path;
-
-        log( "to save html=" + html );
-        log( "to save path=" + path );
 
         $.ajax( {
             type : "PUT", url : url,
@@ -557,15 +653,13 @@ $.extend( ui.vdacc, {
         url += what.fid ? "&fid=" + what.fid : "&path=" + what.path;
 
 
-        log( "to load path=" + url );
 
         $.ajax( {
             type : "GET", url : url,
             dataType : 'json',
             success : json_succ( {
                 "ok" : function( json, st, xhr ){
-                    log( json.html );
-                    ui.edit.html( json.html );
+                    ui.fav.edit.html( json.html );
                     // what.path ?
 
                 },
@@ -600,7 +694,6 @@ $.extend( ui.tree, {
     },
     update : function ( data ) {
         $.each( data, function( i, v ){
-
             if ( v.sha1 ) {
                 v.class = "file";
             }
@@ -639,7 +732,7 @@ $.extend( ui.t.list, {
 
         var atldr = ui.t.acc.create_loader(
             'statuses/user_timeline', {
-                args: function(){ log( this.attr( 'screen_name' ) ); return { screen_name: this.attr( 'screen_name' ) }; },
+                args: function(){ return { screen_name: this.attr( 'screen_name' ) }; },
                 cb: [ ui.t.list, 'show' ]
             } );
 
@@ -653,49 +746,12 @@ $.extend( ui.t.list, {
         return data
     },
 
-    reform_data : function ( data ) {
-        var d = []
-        $.each( data, function( i, v ) {
-            d.push( v );
-            if ( v.retweeted_status ) {
-                v.retweeted_status.retweet = "retweet";
-                d.push( v.retweeted_status );
-            }
-        } );
-        data = d;
-
-        var ids = ui.fav.edit.ids();
-        log( ids );
-
-        if ( ids.length > 0 ) {
-            data = $.grep( data, function( v, i ) {
-                return ids.indexOf( v.id + "" ) < 0;
-            } );
-        }
-
-        $.each( data, function( i, v ) {
-            if ( v.user.profile_image_url ) {
-                v.user.avatar_50 = v.user.profile_image_url;
-                v.user.avatar_30 = v.user.profile_image_url.replace( /\/50\//, '/30/' );
-            }
-　
-            v.html = v.text.replace( /http:\/\/[^ ]+/g, function(a){
-                return "<a target='_blank' href='" + a + "'>" + a + "</a>";
-            } ).replace( /@[_a-zA-Z\u00ff-\u2fff\u3001-\uffff]+/g, function(a){
-                return "<a class='at' screen_name='" + a.substr( 1 ) + "' href=''>" + a + "</a>";
-            } );
-
-            log( v.html );
-
-        } );
-
-        return data;
-    },
-
     show : function ( data ) {
         var self = this;
 
-        data = this.reform_data( data );
+        data = $td( data ).splitRetweet().filter( ui.fav.edit.ids() )
+        .stdAvatar().htmlLinks()
+        .get();
 
         log( data );
 
@@ -713,12 +769,31 @@ $.extend( ui.t.list, {
             revert : "invalid",
             zIndex : 2000,
             stop : function ( ev, ui ) {
-                // log( "stop" );
-                // log( $( ev.target ).parent().attr( 'id' ) );
-                // log( ui );
             },
         } );
 
+    }
+} );
+
+$.extend( ui.t.paging, {
+    init: function() {
+        this._elt.find( "#btnhis" ).click( function(){
+            $( "#history" ).toggle();
+        } );
+        $( "#history" ).delegate( ".t_msg .f_del", "click", function( ev ){
+            var e = $( this ).parent();
+            ui.fav.edit.removehis( e.attr( "id" ) );
+            e.remove();
+        } );
+    },
+    loadhis: function () {
+        ui.fav.edit.page.find( ".t_his" ).clone().appendTo( $( "#history" ).empty() );
+    },
+    addhis: function ( rec ) {
+        log( 'paging.addhis:' );
+        log( rec );
+        $( this._elt ).find( ".t_his#" + rec.hisid ).remove();
+        $( "#tmpl_hisrec" ).tmpl( [ rec ] ).prependTo( $( "#history" ) );
     }
 } );
 
@@ -753,12 +828,10 @@ $.extend( ui.t.my.friend, {
         self.formSimp = self._elt.find( "form.g_simp" );
         self.formSearch = self._elt.find( "form.g_search" );
 
-        log( self.formSimp );
-
         var simpLoader = ui.t.acc.create_loader(
             'statuses/friends_timeline',
             {
-                args: function() { log( 'what' ); return self.formSimp.serialize(); },
+                args: function() { return self.formSimp.serialize(); },
                 cb: [ ui.t.list, 'show' ]
             }
         );
@@ -767,6 +840,9 @@ $.extend( ui.t.my.friend, {
         self.formSimp.find( "input" ).button().click( simpLoader );
 
         init_sub( self );
+
+        // TODO default action after page loaded
+        window.setTimeout(function() { self._elt.find( ".f_idx" ).trigger( 'click' ); }, 0);
     }
 
 } );
@@ -791,6 +867,7 @@ $.extend( ui.t.my.globalsearch, {
 var filter = { };
 
 ( function( $ ) {
+
     $.fn.h = function() { return this.outerHeight( true ); }
 
     $.fn.btn_opt = function (  ) {
@@ -802,8 +879,6 @@ var filter = { };
 
         e.attr( "_icon" ) && ( opt.icons.primary = "ui-icon-" + e.attr( "_icon" ) );
         e.attr( "_icon2" ) && ( opt.icons.secondary = "ui-icon-" + e.attr( "_icon2" ) );
-
-        log( opt );
 
         return opt;
     }

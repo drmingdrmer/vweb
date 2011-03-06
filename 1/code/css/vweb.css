@@ -63,13 +63,16 @@ html,  body {
 body { background: #ddd; }
 
 #app {
-    width: 980px;
+    /* width: 1145px; */
     height: 100%;
     /* padding: 5px; */
     /* margin: auto; */
     background-color: #ddd;
 }
 
+#td_bd {
+    width: 600px;
+}
 
 #acc { float: right; }
 
@@ -188,21 +191,26 @@ body { background: #ddd; }
             float: left;
             margin: 1px;
             padding: 0; }
+        #cont.album .t_msg .avatar { display: none; }
+        #cont.album .t_msg .cont { margin: 0; }
+        #cont.album .t_msg .cont img.thumb { float: none; }
+        #cont.album .t_msg .cont .user { display: none; }
+        #cont.album .t_msg .cont .msg { display: none; }
             #page {
                 border: 1px solid #ddd;
                 width: 560px;
                 min-height: 400px;
                 overflow: hidden; zoom: 1; }
-            #cont.album .t_msg .avatar { display: none; }
-            #cont.album .t_msg .cont { margin: 0; }
-            #cont.album .t_msg .cont img.thumb { float: none; }
-            #cont.album .t_msg .cont .user { display: none; }
-            #cont.album .t_msg .cont .msg { display: none; }
+            #page .t_his { display: none; }
 
 #td_sidepad { width:1px; background: #cfcfcf; }
-#td_side { width:360px; }
+/* max image size is 440 plus 4*2 padding plus 40 margin and width of
+ * scrollbar */
+#td_side {  }
 #side {
-    width:100%; height:100%;
+    width:547px;
+    /* width:100%; */
+    height:100%;
     position: relative; }
 
     #tabs {
@@ -280,13 +288,48 @@ body { background: #ddd; }
             position: absolute; top: 0; right: 0; }
 
     #paging {
-        width: 100%; height: 20px;
+        position: relative;
+        width: 100%;
+        height: 20px;
+        overflow: visible;
     }
-    #begindate {
-        border: none;
-        width: 100px; height: 18px;
-        color: #fff;
-        background-color: #555;
+        #begindate {
+            position: relative;
+            border: none;
+            width: 100px; height: 18px;
+            color: #fff;
+            background-color: #555;
+        }
+
+        #btnhis {
+            position: absolute;
+            right: 8px;
+        }
+
+        #history {
+            z-index: 4;
+            position: absolute;
+            top: 20px; left:0px;
+            width: 100%;
+            background: #333;
+        }
+
+    #update {
+        position: relative;
+        padding: 8px;
+    }
+    #update .f_status {
+        width: 523px;
+        height: 40px;
+        border: 1px solid #404040;
+        /* background: #1d1d1d; color: #fff; */
+    }
+    #update .f_pic {
+        color: #888;
+    }
+    #update .f_submit {
+        position: absolute;
+        right: 10px;
     }
 
     #list {
@@ -447,19 +490,18 @@ body { background: #ddd; }
 
 
 .t_msg {
-    -moz-border-radius: 12px;
-    -webkit-border-radius: 12px;
-    border-radius: 12px;
-    margin: 2px 0 5px 0; padding: 6px;
-    background-color: #eee;
     position: relative;
-    overflow: hidden;
-    zoom: 1;
+    overflow: hidden; zoom: 1;
 
+    margin: 20px 0 0 0;
     min-height: 30px;
+
+    line-height: 166%;
+    color: #000;
+
 }
 .t_msg a.at {
-    color: #06d;
+    color: #02d;
 }
 .t_msg .retweet_symbol {
     position: absolute;
@@ -473,39 +515,62 @@ body { background: #ddd; }
     position: absolute;
 
     width: 30px; height: 30px;
-    /* float: left; */
     background-color: #777;
 }
 .t_msg .avatar {
     position: absolute;
 
     width: 30px; height: 30px;
-    /* float: left; */
+    left: 12px;
     background-color: #777;
     overflow: hidden;
 }
-.t_msg .cont { margin: 0 0 0 34px; }
+.t_msg .username {
+    /* font-weight: bold; */
+}
+.t_msg .cont {
+    padding: 0 4px 4px 4px;
+    margin: 0 12px 0 48px; }
+
+.t_msg .cont .msg_func {
+    text-align: right;
+}
 
 #list .t_msg.retweet {
-    background-color: #ddd; color: #666;
-    margin-left: 34px; }
-/* .t_msg.retweet .handle { left: 20px; } */
-/* .t_msg.retweet .cont { margin: 0 0 0 50px; } */
+    color: #333; background-color: #eee;
+    min-height: 0;
+    padding: 12px;
+    margin: 10px 48px 0 48px; }
 #list .t_msg.retweet .avatar { display: none; }
-/* #list .t_msg.retweet .cont { margin: 0 0 0 34px; } */
 #list .t_msg.retweet .cont { margin: 0 0 0 0px; }
 
-/* .t_msg:nth-child(2n) { background-color: #ddd; } */
+.t_msg .msgimg { margin: 8px 0 0 0; }
+/* .t_msg img.msgimg .cont * { display: none; } */
+.t_msg .thumb { display: block; }
+.t_msg .midpic { display: block; }
 
-.t_msg img.thumb {
-    float: right;
+.t_msg.midpic .thumb { display:none; }
+/*
+ * .t_msg.midpic .cont .username,
+ * .t_msg.midpic .cont .msg { display: none; }
+ */
+
+.t_msg.thumb .midpic { display: none; }
+
+#history .t_msg {
+    color: #ddd;
+    margin: 4px 0 0 0;
+    min-height: 35px;
+}
+#history .t_msg .f_del {
+    position: absolute;
+    top: 4px; right: 8px;
 }
 
-.t_msg img.midpic {
-    display: none;
-    /* float: right; */
-}
-
+#history .t_msg .thumb {
+    width: 30px; height: 30px;
+    margin: 0;
+    display: block; }
 
 #appmsg {
     z-index: 1000;

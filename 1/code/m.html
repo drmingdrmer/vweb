@@ -89,7 +89,16 @@
        - </div>
        -->
     <div id="t" class="t-panel">
-        <!-- -------------------------------- function here -------------------------------- -->
+        <div id="update" class="cont_dark2">
+            <form class="t_group g_update" action="/t.php" method="POST"
+                target="update_target" enctype="multipart/form-data">
+                <input type="hidden" name="act" value="upload"/>
+                <textarea class="f_status" name="status"></textarea>
+                <input class="f_pic" type="file" name="pic" value=""/>
+                <input class="f_submit" type="submit" name="submit" value="发布"/>
+            </form>
+            <iframe name="update_target" class="hidden"></iframe>
+        </div>
         <div id="func">
             <div id="my" class="hideall but-friend cont_dark2">
                 <fieldset id="friend">
@@ -222,7 +231,8 @@
             <input id="begindate" type="text" name="begindate" value="11-02-27 15:34"/>
             <a href="#">上页</a>
             <a href="#">下页</a>
-            <a href="#">历史</a>
+            <a id="btnhis" href="#">历史</a>
+            <div id="history" class="hidden"></div>
         </div>
         <div id="list">
         </div>
@@ -286,19 +296,41 @@
 <div id="appmsg"></div>
 
 <script id="tmpl_msg" type="text/x-jquery-tmpl">
-<div id="${id}" class="t_msg ui-widget ui-corner-all ${retweet}">
+<div id="${id}" class="t_msg thumb ${retweet}">
     <div class="handle ui-corner-all hidden"></div>
     <div class="avatar ui-corner-all">
         <a class="user" id="${user.id}" href="#"><img src="${user.avatar_30}" /></a>
     </div>
     <div class="cont msg">
-        {{if thumbnail_pic}} <img class="msgimg thumb" src="${thumbnail_pic}" /> {{/if}}
-        <span class="user" id="${user.id}">${user.name}:</span>
+        <span class="username" id="${user.id}">${user.name}:</span>
         <span class="msg">
             {{html html}}
         </span>
+        {{if thumbnail_pic}} <img class="msgimg thumb" src="${thumbnail_pic}" /> {{/if}}
         {{if bmiddle_pic}} <img class="msgimg midpic" src="${bmiddle_pic}"/> {{/if}}
+        <div class="msg_func">
+            <a class="f_retweet" href="#">转发</a>
+            <a class="f_fav"     href="#">收藏</a>
+            <a class="f_comment" href="#">评论</a>
+        </div>
     </div>
+</div>
+</script>
+
+<script id="tmpl_hisrec" type="text/x-jquery-tmpl">
+<div id="${hisid}" class="t_msg t_his thumb">
+    <span class="time" created_at="${created_at}">${time_forhis}:</span>
+    <div class="avatar ui-corner-all">
+        <a class="user" id="${user.id}" href="#"><img src="${user.avatar_30}" /></a>
+    </div>
+    <div class="cont msg">
+        <span class="username" id="${user.id}">${user.name}:</span>
+        <span class="msg">
+            ${text_forhis}
+        </span>
+        {{if thumbnail_pic}} <img class="msgimg thumb" src="${thumbnail_pic}" /> {{/if}}
+    </div>
+    <div class="f_del">删除</div>
 </div>
 </script>
 

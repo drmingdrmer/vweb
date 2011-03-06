@@ -85,7 +85,7 @@ $c = new MySaeTClient( WB_AKEY, WB_SKEY,
 
 
 $verb = $_SERVER[ 'REQUEST_METHOD' ];
-$act = $_GET[ 'act' ];
+$act = $_REQUEST[ 'act' ];
 
 !$act && resmsg( 'noact', 'noact' );
 
@@ -114,6 +114,30 @@ if ( $verb == "GET" ) {
 }
 else if ( $verb == "POST" ) {
     switch ( $act ) {
+        case "upload" :
+            // this api is called through normal <form>
+            if ( $_FILES[ "pic" ] ) {
+                $rst = $c->upload( $_POST[ 'status' ], $_FILES[ "pic"][ "tmp_name" ] );
+            }
+            else {
+                $rst = $c->update( $_POST[ 'status' ] );
+            }
+
+            $js = "";
+            if ( $rst ) {
+                if ( !$rst[ 'error_code' ] ) {
+                    $js = json( array( "rst" => "ok", "data" => $rst) );
+                }
+                else {
+                    $js = json( array( "rst" => "load", "msg" => $rst[ 'error' ]) );
+                }
+            }
+            else {
+                $js = json( array( "rst" => "load", "msg" => "微薄接口调用失败") );
+            }
+            echo "<script>window.parent.ui.t.update.upload_cb($js);</script>";
+            break;
+
         case "pub" :
             $msg = $_GET[ 'msg' ];
             // $msg = trim( $msg );
