@@ -95,7 +95,8 @@ function $td ( data ) {
             $.each( this._d, function( i, v ){
                 d.push( v );
                 if ( v.retweeted_status ) {
-                    v.retweeted_status.retweet = "retweet";
+                    v.status = 'retweeter';
+                    v.retweeted_status.status = "retweet";
                     d.push( v.retweeted_status );
                 }
             } );
@@ -174,6 +175,7 @@ Function.prototype.delethis = function( self, args ) {
 }
 
 
+
 $.extend( ui, {
     init : function () {
 
@@ -249,7 +251,7 @@ $.extend( ui, {
         var swi = { thumb: "midpic", midpic: "thumb" };
 
         $( container ).delegate( ".t_msg img.msgimg", "click", function(){
-            var e = $( this ).parents( ".t_msg" );
+            var e = $( this ).p( ".t_msg" );
             e.toggleClass( 'thumb' );
             e.toggleClass( 'midpic' );
         } );
@@ -264,6 +266,9 @@ $.extend( ui.appmsg, {
             this.lastid && window.clearTimeout( this.lastid );
             this.lastid = window.setTimeout( function(){ e.empty(); }, 5000 );
         }
+    },
+    err: function ( text ) {
+        return this.msg( text );
     }
 } );
 
@@ -402,7 +407,7 @@ $.extend( ui.fav.edit, {
                     w : e.outerWidth() - ( thumbData ? thumbData.w + 4 : 0 ),
                     h : e.outerHeight(),
                     color : "#000",
-                    text : $.trim( e.text() ).replace( / +/g, ' ' )
+                    text : e.simpText()
                 };
 
                 rst.push( d );
@@ -473,7 +478,7 @@ $.extend( ui.t.acc, {
 
     strtocmd: function ( s ) {
         var args = s.split( /____/ );
-        var cmdname = args.shift().replace( /_/g, '/' );
+        var cmdname = args.shift().replace( /_/, '/' );
         var opt = {};
         $.each( args, function( i, v ){
             var q = v.split( '_' );
@@ -504,7 +509,7 @@ $.extend( ui.t.acc, {
             ui.fav.edit.addhis( hisdata[ 0 ] );
 
             ui.appmsg.msg( "载入成功" );
-            cb[0][ cb[1] ]( data );
+            cb && cb[0][ cb[1] ]( data );
         } );
     },
 
@@ -542,7 +547,7 @@ $.extend( ui.t.acc, {
 $.extend( ui.t.update, {
     init: function () {
 
-    }, 
+    },
     upload_cb: function (rst) {
         log( rst );
     }
@@ -722,11 +727,41 @@ $.extend( ui.t.list, {
         this.setup_func();
     },
 
+    handle_rst: function ( rst, onsuccess ) {
+        if ( rst.rst == 'ok' ) {
+            ui.appmsg.msg( rst.msg );
+            onsuccess && onsuccess( rst );
+        }
+        else {
+            ui.appmsg.err( rst.msg );
+        }
+    },
+
+    repost_cb: function ( rst ) {
+        var self = this;
+        this.handle_rst( rst, function(){
+            self._elt.find( "#" + rst.info.id + " .g_repost" ).remove();
+        } );
+    },
+
+    comment_cb: function ( rst ) {
+        var self = this;
+        this.handle_rst( rst, function(){
+            self._elt.find( "#" + rst.info.id + " .g_comment" ).remove();
+        } );
+    },
+
     setup_func : function () {
 
         var uldr = ui.t.acc.create_loader(
             'statuses/user_timeline', {
-                args: function(){ return { user_id: this.attr( 'id' ) }; },
+                args: function(){ return { user_id: this.id() }; },
+                cb: [ ui.t.list, 'show' ]
+            } );
+
+        var atldr = ui.t.acc.create_loader(
+            'statuses/user_timeline', {
+                args: function(){ return { screen_name: this.attr( 'screen_name' ) }; },
                 cb: [ ui.t.list, 'show' ]
             } );
 
@@ -738,7 +773,43 @@ $.extend( ui.t.list, {
 
         this._elt
         .delegate( ".t_msg .avatar a.user", "click", uldr )
-        .delegate( ".t_msg .cont.msg a.at", "click", atldr );
+        .delegate( ".t_msg .cont.msg a.at", "click", atldr )
+        .delegate( ".t_msg .f_retweet", "click", function( ev ){
+            evstop( ev );
+            var e = $( this ).p( ".t_msg" );
+            $( "#tmpl_repost" ).tmpl( [ {
+                id: e.id(),
+                text: e.hasClass( "retweeter" ) ? $( ".cont.msg .msg", e ).simpText() : ''
+            } ] ).prependTo( e );
+        } )
+        .delegate( ".t_msg .g_repost .f_cancel", "click", function( ev ){
+            evstop( ev );
+            $( this ).p( ".g_repost" ).remove();
+        } )
+        .delegate( ".t_msg .f_comment", "click", function ( ev ) {
+            evstop( ev );
+            var e = $( this ).p( ".t_msg" );
+            $( "#tmpl_comment" ).tmpl( [ {
+                id: e.id(),
+                text: ''
+            } ] ).appendTo( e );
+        } )
+        .delegate( ".t_msg .g_comment .f_cancel", "click", function( ev ){
+            evstop( ev );
+            $( this ).p( ".g_comment" ).remove();
+        } )
+        .delegate( ".t_msg .f_fav", "click", function( ev ){
+            evstop( ev );
+            $.ajax( {
+                type : "POST", url : "/t.php?act=fav&resptype=json",
+                data : { id: $( this ).p( ".t_msg" ).id() },
+                dataType : 'json',
+                success : json_succ( {
+                    "ok" : function( json ){}
+                } )
+            } );
+        } )
+        ;
     },
 
     filter_existed : function ( data ) {
@@ -868,7 +939,14 @@ var filter = { };
 
 ( function( $ ) {
 
+
     $.fn.h = function() { return this.outerHeight( true ); }
+    $.fn.p = $.fn.parents;
+
+    $.fn.id = function() { return this.attr( 'id' ); }
+    $.fn.simpText = function(t) {
+        return $.trim( this.text( t ) ).replace( / +/g, ' ' );
+    }
 
     $.fn.btn_opt = function (  ) {
         var e = $( this );

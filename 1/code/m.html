@@ -93,6 +93,7 @@
             <form class="t_group g_update" action="/t.php" method="POST"
                 target="update_target" enctype="multipart/form-data">
                 <input type="hidden" name="act" value="upload"/>
+                <input type="hidden" name="cb" value="ui.t.update.upload_cb"/>
                 <textarea class="f_status" name="status"></textarea>
                 <input class="f_pic" type="file" name="pic" value=""/>
                 <input class="f_submit" type="submit" name="submit" value="发布"/>
@@ -296,7 +297,7 @@
 <div id="appmsg"></div>
 
 <script id="tmpl_msg" type="text/x-jquery-tmpl">
-<div id="${id}" class="t_msg thumb ${retweet}">
+<div id="${id}" class="t_msg thumb ${status}">
     <div class="handle ui-corner-all hidden"></div>
     <div class="avatar ui-corner-all">
         <a class="user" id="${user.id}" href="#"><img src="${user.avatar_30}" /></a>
@@ -346,6 +347,36 @@
         <span class="ui-button-text">${name}</span>
     </button>
 </li>
+</script>
+
+<script id="tmpl_repost" type="text/x-jquery-tmpl">
+<div class="g_repost">
+<form action="t.php" target="ret_${id}" method="POST"
+    enctype="application/x-www-form-urlencoded">
+    <input type="hidden" name="act" value="repost"/>
+    <input type="hidden" name="cb" value="ui.t.list.repost_cb"/>
+    <input type="hidden" name="id" value="${id}"/>
+    <textarea name="status">${text}</textarea>
+    <input type="button" class="f_cancel" name="cancel" value="取消"/>
+    <input type="submit" class="f_submit" name="submit" value="转发"/>
+</form>
+<iframe name="ret_${id}" class="hidden"></iframe>
+</div>
+</script>
+
+<script id="tmpl_comment" type="text/x-jquery-tmpl">
+<div class="g_comment">
+<form action="t.php" target="cmt_${id}" method="POST"
+    enctype="application/x-www-form-urlencoded">
+    <input type="hidden" name="act" value="comment"/>
+    <input type="hidden" name="cb" value="ui.t.list.comment_cb"/>
+    <input type="hidden" name="id" value="${id}"/>
+    <textarea name="comment">${text}</textarea>
+    <input type="button" class="f_cancel" name="cancel" value="取消"/>
+    <input type="submit" class="f_submit" name="submit" value="评论"/>
+</form>
+<iframe name="cmt_${id}" class="hidden"></iframe>
+</div>
 </script>
 
 <script id="tmpl_appmsg" type="text/x-jquery-tmpl">

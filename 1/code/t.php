@@ -59,10 +59,6 @@ $cmds = array(
     "statuses/magic_followers"        =>  "/statuses/magic_followers.json"         // 获取用户优质粉丝列表
 );
 
-
-
-
-
 class MySaeTClient extends SaeTClient
 {
     function _load_cmd( $cmd, &$p )
@@ -74,7 +70,34 @@ class MySaeTClient extends SaeTClient
         $rst = $this->oauth->get($url , $p );
         return $rst;
     }
+}
 
+function getjsonrsp( $rst, $okmsg, $info = NULL ) {
+    $js = "";
+    if ( $rst ) {
+        if ( !$rst[ 'error_code' ] ) {
+            $js = json( array( "rst" => "ok", "info" => $info,  "msg" => $okmsg, "data" => $rst) );
+        }
+        else {
+            $js = json( array( "rst" => "load", "info" => $info,  "msg" => $rst[ 'error' ]) );
+        }
+    }
+    else {
+        $js = json( array( "rst" => "load", "info" => $info,  "msg" => "微薄接口调用失败") );
+    }
+    return $js;
+}
+function response( $json ) {
+    $cb = $_REQUEST[ 'cb' ];
+
+    switch ( $_REQUEST[ 'resptype' ] ) {
+        case 'json' :
+            echo $json;
+            break;
+        default:
+            echo "<script>window.parent.$cb($json);</script>";
+            break;
+    }
 }
 
 $c = new MySaeTClient( WB_AKEY, WB_SKEY,
@@ -103,7 +126,6 @@ if ( $verb == "GET" ) {
                 || resmsg( "load", $rst[ 'error' ] );
         }
         else {
-            
             resmsg( "load", "微薄接口调用失败" );
         }
     }
@@ -115,33 +137,39 @@ if ( $verb == "GET" ) {
 else if ( $verb == "POST" ) {
     switch ( $act ) {
         case "upload" :
-            // this api is called through normal <form>
             if ( $_FILES[ "pic" ] ) {
                 $rst = $c->upload( $_POST[ 'status' ], $_FILES[ "pic"][ "tmp_name" ] );
             }
             else {
                 $rst = $c->update( $_POST[ 'status' ] );
             }
+            $js = getjsonrsp( $rst, "发表成功" );
+            response( $js );
+            break;
 
-            $js = "";
-            if ( $rst ) {
-                if ( !$rst[ 'error_code' ] ) {
-                    $js = json( array( "rst" => "ok", "data" => $rst) );
-                }
-                else {
-                    $js = json( array( "rst" => "load", "msg" => $rst[ 'error' ]) );
-                }
-            }
-            else {
-                $js = json( array( "rst" => "load", "msg" => "微薄接口调用失败") );
-            }
-            echo "<script>window.parent.ui.t.update.upload_cb($js);</script>";
+        case "repost" :
+            $id = $_POST[ 'id' ];
+            $rst = $c->repost( $id, $_POST[ 'status' ] );
+            $js = getjsonrsp( $rst, "转发成功", array( "id" => $id ) );
+            response( $js );
+            break;
+
+        case "comment" :
+            $id = $_POST[ 'id' ];
+            $rst = $c->send_comment( $id, $_POST[ 'comment' ] );
+            $js = getjsonrsp( $rst, "评论成功", array( "id" => $id ) );
+            response( $js );
+            break;
+
+        case "fav":
+            $id = $_POST[ 'id' ];
+            $rst = $c->add_to_favorites( $id );
+            $js = getjsonrsp( $rst, "收藏成功", array( "id" => $id ) );
+            response( $js );
             break;
 
         case "pub" :
             $msg = $_GET[ 'msg' ];
-            // $msg = trim( $msg );
-
             $data = file_get_contents("php://input");
             !$data && resmsg( "nodata", "nodata" );
 
