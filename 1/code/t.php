@@ -17,6 +17,7 @@ $cmds = array(
     "statuses/mentions"               =>  "/statuses/mentions.json"              , // 获取@当前用户的微博列表
     "statuses/comments_timeline"      =>  "/statuses/comments_timeline.json"     , // 获取当前用户发送及收到的评论列表
     "statuses/comments_by_me"         =>  "/statuses/comments_by_me.json"        , // 获取当前用户发出的评论
+    "statuses/comments_to_me"         =>  "/statuses/comments_to_me.json"        , // 获取当前用户收到的评论
     "statuses/comments"               =>  "/statuses/comments.json"              , // 获取指定微博的评论列表
     "statuses/counts"                 =>  "/statuses/counts.json"                , // 批量获取一组微博的评论数及转发数
     "statuses/unread"                 =>  "/statuses/unread.json"                , // 获取当前用户未读消息数

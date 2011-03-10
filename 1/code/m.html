@@ -31,7 +31,16 @@
                         <div id="applinks">
                             <a href="#">关于</a>
                             <a href="#">关于</a>
-                            <a href="#">关于</a>
+                            <!-- <a href="#">关于</a> -->
+                            <a id="cssrealod" href="#">css</a>
+                            <script>
+                                $( function(){
+                                    $( "#cssrealod" ).click( function( ev ){
+                                        evstop( ev );
+                                        $('<link rel=stylesheet type=text/css href="css/vweb.css?' + Math.random() + '" />').appendTo($('head'));
+                                    } );
+                                } );
+                            </script>
                         </div>
                     </div>
                 </td>
@@ -115,6 +124,9 @@
                             <a href="4">音</a>
                         </span>
                     </form>
+                    <a class="f_at" href="#">@</a>
+                    <a class="f_comment" href="#">评论</a>
+                    <a class="f_message" href="#">私信</a>
                     <div class="t_group g_search left hidden">
                         <form class="f_args">
                             <p> <input class="search-keyword" type="text" name="s" value="search"> </p>
@@ -300,7 +312,7 @@
 <div id="${id}" class="t_msg thumb ${status}">
     <div class="handle ui-corner-all hidden"></div>
     <div class="avatar ui-corner-all">
-        <a class="user" id="${user.id}" href="#"><img src="${user.avatar_30}" /></a>
+        <a class="user" id="${user.id}" href="#"><img src="${user.avatar_50}" /></a>
     </div>
     <div class="cont msg">
         <span class="username" id="${user.id}">${user.name}:</span>

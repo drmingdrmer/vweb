@@ -87,6 +87,12 @@ function init_sub ( self ) {
     } );
 }
 function $td ( data ) {
+    function _stdAvatar( e ) {
+        if ( e.profile_image_url ) {
+            e.avatar_50 = e.profile_image_url;
+            e.avatar_30 = e.profile_image_url.replace( /\/50\//, '/30/' );
+        }
+    }
     var self = {
         _d : data,
         get: function () { return this._d; },
@@ -111,12 +117,11 @@ function $td ( data ) {
                 } );
             return this;
         },
-        stdAvatar: function () {
+        stdAvatar: function ( userkey ) {
             $.each( this._d, function( i, v ) {
-                if ( v.user.profile_image_url ) {
-                    v.user.avatar_50 = v.user.profile_image_url;
-                    v.user.avatar_30 = v.user.profile_image_url.replace( /\/50\//, '/30/' );
-                }
+                $.each( [ 'user', 'sender', 'recipient' ], function( ii, k ){
+                    v[ k ] && _stdAvatar( v[ k ] );
+                } );
             } );
             return this;
         },
@@ -130,6 +135,12 @@ function $td ( data ) {
             } );
             return this;
         },
+        defaultUser: function ( which ) {
+            $.each( this._d, function( i, v ) {
+                v[ which ] && !v.user && ( v.user = v[ which ] );
+            } );
+            return this;
+        }, 
         historyText: function () {
             $.each( this._d, function( i, v ){
                 v.text_forhis = v.text.replace( /([\u0100-\uffff])/g, '\u00ff$1' )
@@ -503,7 +514,11 @@ $.extend( ui.t.acc, {
             var first = data[ 0 ];
             first.hisid = ui.t.acc.cmdtostr( cmdname, args );
 
-            hisdata = $td( [ first ] ).stdAvatar().historyText().historyTime().get();
+            log( data );
+
+            hisdata = $td( [ first ] ).stdAvatar().defaultUser('sender').historyText().historyTime().get();
+
+            log( hisdata );
 
             ui.t.paging.addhis( hisdata[ 0 ] );
             ui.fav.edit.addhis( hisdata[ 0 ] );
@@ -821,7 +836,7 @@ $.extend( ui.t.list, {
         var self = this;
 
         data = $td( data ).splitRetweet().filter( ui.fav.edit.ids() )
-        .stdAvatar().htmlLinks()
+        .stdAvatar().defaultUser( 'sender' ).htmlLinks()
         .get();
 
         log( data );
@@ -882,6 +897,8 @@ $.extend( ui.t.my, {
             self._elt.removeClass( 'hideall' );
         } );
 
+
+
         $( "body" ).click( function( ev ){
             var tagname = ev.target.tagName;
             if ( tagname != 'INPUT' && tagname != 'BUTTON' ) {
@@ -901,14 +918,22 @@ $.extend( ui.t.my.friend, {
 
         var simpLoader = ui.t.acc.create_loader(
             'statuses/friends_timeline',
-            {
-                args: function() { return self.formSimp.serialize(); },
-                cb: [ ui.t.list, 'show' ]
-            }
+            { args: function() { return self.formSimp.serialize(); },
+              cb: [ ui.t.list, 'show' ] }
         );
+
+        // option arg of all these 3 loader: since_id, max_id, count, page
+        var atLoader = ui.t.acc.create_loader( 'statuses/mentions', { cb: [ ui.t.list, 'show' ] });
+        var cmtLoader = ui.t.acc.create_loader( 'statuses/comments_to_me', { cb: [ ui.t.list, 'show' ] });
+        var msgLoader = ui.t.acc.create_loader( 'direct_messages', { cb: [ ui.t.list, 'show' ] });
 
         self._elt.find( ".f_idx" ).click( simpLoader );
         self.formSimp.find( "input" ).button().click( simpLoader );
+
+
+        $( ".f_at", self._elt ).click( atLoader );
+        $( ".f_comment", self._elt ).click( cmtLoader );
+        $( ".f_message", self._elt ).click( msgLoader );
 
         init_sub( self );
 
