@@ -82,8 +82,9 @@ function evstop ( ev ) {
 }
 function init_sub ( self ) {
     $.each( self, function( k, v ){
-        self[ k ]._elt = $( "#" + k );
-        self[ k ].init && self[ k ].init();
+        var u = self[ k ];
+        u._elt = $( "#" + k );
+        u.init && u.init( u._elt );
     } );
 }
 function $td ( data ) {
@@ -140,7 +141,7 @@ function $td ( data ) {
                 v[ which ] && !v.user && ( v.user = v[ which ] );
             } );
             return this;
-        }, 
+        },
         historyText: function () {
             $.each( this._d, function( i, v ){
                 v.text_forhis = v.text.replace( /([\u0100-\uffff])/g, '\u00ff$1' )
@@ -462,34 +463,24 @@ $.extend( ui.fav.edit, {
 
 $.extend( ui.t.acc, {
     init : function() { },
-    create_loader : function ( cmdname, opt ) {
-        var realload = this.load;
-        return function ( ev ) {
-            ev && evstop( ev );
-            realload.apply( $(this), [ cmdname, opt ] );
-        }
-    },
 
-    cmdtostr: function ( cmdname, opt ) {
+    cmdtostr: function ( cmdname, opt, idfirst ) {
         var args = [];
+        var o = {};
 
-        if ( $.isPlainObject( opt ) ) {
-            $.each( opt, function( k, v ){ args.push( k + '_' + v ); } );
-        }
-        else {
-            args = opt.split( '&' );
-            $.each( args, function( i, v ){ args[ i ] = args[ i ].replace( /=/, '_' ); } );
-        }
+        $.isPlainObject( opt ) && ( $.extend( o, opt ) ) || ( o = $.unparam( opt ) );
+        o.max_id || ( o.max_id = idfirst );
+        $.each( o, function( k, v ){ args.push( k + '_' + v ); } );
         args.sort();
 
-        var s = cmdname.replace( /\//g, '_' ) + '____' + args.join( '____' );
+        var s = cmdname.replace( /\//, '__' ) + '____' + args.join( '____' ) ;
         log( 'cmd str=' + s );
         return s;
     },
 
     strtocmd: function ( s ) {
         var args = s.split( /____/ );
-        var cmdname = args.shift().replace( /_/, '/' );
+        var cmdname = args.shift().replace( /__/, '/' );
         var opt = {};
         $.each( args, function( i, v ){
             var q = v.split( '_' );
@@ -499,9 +490,18 @@ $.extend( ui.t.acc, {
         return [ cmdname, opt ];
     },
 
+    create_loader : function ( cmdname, opt ) {
+        var realload = this.load;
+        return function ( ev ) {
+            ev && evstop( ev );
+            realload.apply( $(this), [ cmdname, opt ] );
+        }
+    },
+
     load : function( cmdname, opt ) {
         // 'this' is set by create_loader and which is the DOM fired the event
 
+        var trigger = this;
         var args = opt.args && opt.args.apply( this, [] ) || {};
 
         log( "args:" );
@@ -511,22 +511,34 @@ $.extend( ui.t.acc, {
 
         wb.cmd( cmdname, args, function( data ) {
             var cb = opt.cb;
-            var first = data[ 0 ];
-            first.hisid = ui.t.acc.cmdtostr( cmdname, args );
-
-            log( data );
-
-            hisdata = $td( [ first ] ).stdAvatar().defaultUser('sender').historyText().historyTime().get();
-
-            log( hisdata );
-
-            ui.t.paging.addhis( hisdata[ 0 ] );
-            ui.fav.edit.addhis( hisdata[ 0 ] );
+            var t = trigger;
+            var cmd = { name : cmdname, args : args };
 
             ui.appmsg.msg( "载入成功" );
-            cb && cb[0][ cb[1] ]( data );
+
+            // TODO do not addhis after paging down/up
+            ui.t.acc.addhis( data[ 0 ], cmd );
+
+            cb && $.each( cb, function( i, v ){
+                eval( v + "(data,t,cmd)" );
+                // var f = eval( v );
+                // f.apply( [ data ] );
+            } );
         } );
     },
+
+    addhis: function ( d, cmd ) {
+        if ( ! d ) { return; }
+
+        d.hisid = ui.t.acc.cmdtostr( cmd.name, cmd.args, d.id );
+        log( d );
+
+        hisdata = $td( [ d ] ).stdAvatar().defaultUser('sender').historyText().historyTime().get()[ 0 ];
+        log( hisdata );
+
+        ui.t.paging.addhis( hisdata );
+        ui.fav.edit.addhis( hisdata );
+    }, 
 
     pub : function () {
 
@@ -771,19 +783,19 @@ $.extend( ui.t.list, {
         var uldr = ui.t.acc.create_loader(
             'statuses/user_timeline', {
                 args: function(){ return { user_id: this.id() }; },
-                cb: [ ui.t.list, 'show' ]
+                cb: [ 'ui.t.list.show' ]
             } );
 
         var atldr = ui.t.acc.create_loader(
             'statuses/user_timeline', {
                 args: function(){ return { screen_name: this.attr( 'screen_name' ) }; },
-                cb: [ ui.t.list, 'show' ]
+                cb: [ 'ui.t.list.show' ]
             } );
 
         var atldr = ui.t.acc.create_loader(
             'statuses/user_timeline', {
                 args: function(){ return { screen_name: this.attr( 'screen_name' ) }; },
-                cb: [ ui.t.list, 'show' ]
+                cb: [ 'ui.t.list.show' ]
             } );
 
         this._elt
@@ -897,6 +909,17 @@ $.extend( ui.t.my, {
             self._elt.removeClass( 'hideall' );
         } );
 
+        var statLoader = ui.t.acc.create_loader( 'statuses/unread', {
+            args: function () {
+                return {
+                    'since_id': ui.t.my.friend.since_id,
+                    'with_new_status': 1
+                }
+            },
+            cb: [ 'ui.t.my.setStat' ] } );
+
+        statLoader();
+        self.whatID = window.setInterval( statLoader, 60 * 1000 );
 
 
         $( "body" ).click( function( ev ){
@@ -907,38 +930,71 @@ $.extend( ui.t.my, {
         } );
 
         init_sub( this );
-    }
+    },
+
+    setStat: function( d, tgr ){
+        var e = this._elt
+        d.new_status && $( '#friend .f_idx .stat', e ).text( "(" + d.new_status + ")" );
+        d.comments && $( '#friend .f_comment .stat', e ).text( "(" + d.comments + ")" );
+        d.mentions && $( '#friend .f_at .stat', e ).text( "(" + d.mentions + ")" );
+        d.dm && $( '#friend .f_message .stat', e ).text( "(" + d.dm + ")" );
+    },
+
 } );
 
 $.extend( ui.t.my.friend, {
-    init : function(){
+    init : function( e ){
         var self = this;
-        self.formSimp = self._elt.find( "form.g_simp" );
-        self.formSearch = self._elt.find( "form.g_search" );
+        self.formSimp = e.find( "form.g_simp" );
+        self.formSearch = e.find( "form.g_search" );
 
         var simpLoader = ui.t.acc.create_loader(
             'statuses/friends_timeline',
             { args: function() { return self.formSimp.serialize(); },
-              cb: [ ui.t.list, 'show' ] }
+              cb: [ 'ui.t.list.show', 'ui.t.my.friend.addLast', 'ui.t.my.friend.unsetStat'] }
         );
 
         // option arg of all these 3 loader: since_id, max_id, count, page
-        var atLoader = ui.t.acc.create_loader( 'statuses/mentions', { cb: [ ui.t.list, 'show' ] });
-        var cmtLoader = ui.t.acc.create_loader( 'statuses/comments_to_me', { cb: [ ui.t.list, 'show' ] });
-        var msgLoader = ui.t.acc.create_loader( 'direct_messages', { cb: [ ui.t.list, 'show' ] });
+        var atLoader = ui.t.acc.create_loader( 'statuses/mentions', { cb: [ 'ui.t.list.show', 'ui.t.my.friend.unsetStat' ] });
+        var cmtLoader = ui.t.acc.create_loader( 'statuses/comments_to_me', { cb: [ 'ui.t.list.show', 'ui.t.my.friend.unsetStat' ] });
+        var msgLoader = ui.t.acc.create_loader( 'direct_messages', { cb: [ 'ui.t.my.friend.unsetStat' ] });
 
-        self._elt.find( ".f_idx" ).click( simpLoader );
+        $( ".f_idx", e ).click( simpLoader );
         self.formSimp.find( "input" ).button().click( simpLoader );
 
 
-        $( ".f_at", self._elt ).click( atLoader );
-        $( ".f_comment", self._elt ).click( cmtLoader );
-        $( ".f_message", self._elt ).click( msgLoader );
+        $( ".f_at", e ).click( atLoader );
+        $( ".f_comment", e ).click( cmtLoader );
+
+        // don't stop event propagation. it links to another page.
+        $( ".f_message", e ).click(
+            function( ev ){ ui.t.my.friend.unsetStat( null, $( this ) ); }
+        );
 
         init_sub( self );
 
         // TODO default action after page loaded
         window.setTimeout(function() { self._elt.find( ".f_idx" ).trigger( 'click' ); }, 0);
+    },
+
+    addLast: function ( d ) {
+        d = d[ 0 ];
+        log( "try to add last" );
+        if ( !this.since_id || d && (d.id+0) > (this.since_id+0) ) {
+            this.since_id = d.id;
+            log( 'last added' );
+            log( d );
+        }
+    },
+
+    unsetStat: function ( data, triggerElt ) {
+        $( '.stat', triggerElt ).empty();
+        if ( triggerElt.attr( "_reset_type" ) ) {
+            ui.t.acc.create_loader(
+                'statuses/reset_count',
+                { args: function() { return { type: triggerElt.attr( "_reset_type" ) }; } }
+                )();
+        }
     }
 
 } );
@@ -952,7 +1008,7 @@ $.extend( ui.t.my.globalsearch, {
             'statuses/search',
             {
                 args: function() { return self.formParam.serialize(); },
-                cb: [ ui.t.list, 'show' ]
+                cb: [ 'ui.t.list.show' ]
             }
         );
 
@@ -964,6 +1020,28 @@ var filter = { };
 
 ( function( $ ) {
 
+    $.unparam = function( s ){
+        var o = {};
+        var args = s.split( "&" );
+        $.each( args, function( i, e ){
+            var kv = e.split( "=" );
+            var k = decodeURIComponent( k );
+            var v = decodeURIComponent( v );
+            o[ k ] = v;
+        } );
+
+        return o;
+    }
+
+
+    $.unescape = function(html) {
+        var htmlNode = document.createElement('div');
+        htmlNode.innerHTML = html;
+        if (htmlNode.innerText) {
+            return htmlNode.innerText; // IE
+        }
+        return htmlNode.textContent; // FF
+    }
 
     $.fn.h = function() { return this.outerHeight( true ); }
     $.fn.p = $.fn.parents;

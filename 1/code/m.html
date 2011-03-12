@@ -113,7 +113,7 @@
             <div id="my" class="hideall but-friend cont_dark2">
                 <fieldset id="friend">
                     <legend class="">
-                        <a href="#" class="f_idx">我的首页</a>
+                        <a href="#" class="f_idx">我的首页<span class="stat"></span></a>
                     </legend>
                     <form class="f_args t_group g_simp left" >
                         <span id="fr_feature" class="t_opt grad_dark1 t_btn_set" name="feature" _type="radio">
@@ -124,9 +124,10 @@
                             <a href="4">音</a>
                         </span>
                     </form>
-                    <a class="f_at" href="#">@</a>
-                    <a class="f_comment" href="#">评论</a>
-                    <a class="f_message" href="#">私信</a>
+                    <!-- 1. 评论数，2. @me数，3. 私信数，4. 关注数 -->
+                    <a class="f_at" _reset_type="2" href="#">@我的<span class="stat"></span></a>
+                    <a class="f_comment" _reset_type="1" href="#">评论<span class="stat"></span></a>
+                    <a class="f_message" _reset_type="3" target="_blank" href="http://t.sina.com.cn/messages?source=toptray">私信<span class="stat"></span></a>
                     <div class="t_group g_search left hidden">
                         <form class="f_args">
                             <p> <input class="search-keyword" type="text" name="s" value="search"> </p>

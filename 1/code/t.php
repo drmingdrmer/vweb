@@ -20,6 +20,7 @@ $cmds = array(
     "statuses/comments_to_me"         =>  "/statuses/comments_to_me.json"        , // 获取当前用户收到的评论
     "statuses/comments"               =>  "/statuses/comments.json"              , // 获取指定微博的评论列表
     "statuses/counts"                 =>  "/statuses/counts.json"                , // 批量获取一组微博的评论数及转发数
+    "statuses/reset_count"            =>  "statuses/reset_count"                 , 
     "statuses/unread"                 =>  "/statuses/unread.json"                , // 获取当前用户未读消息数
     "statuses/show/#{id}"             =>  "/statuses/show/#{id}.json"            , // 根据ID获取单条微博信息内容
     "#{userid}/statuses/#{id}"             =>  "/#{userid}/statuses/#{id}"            , // 根据微博ID和用户ID跳转到单条微博页面(验证不成功)
@@ -138,7 +139,7 @@ if ( $verb == "GET" ) {
 else if ( $verb == "POST" ) {
     switch ( $act ) {
         case "upload" :
-            if ( $_FILES[ "pic" ] ) {
+            if ( $_FILES[ "pic" ][ 'tmp_name' ] ) {
                 $rst = $c->upload( $_POST[ 'status' ], $_FILES[ "pic"][ "tmp_name" ] );
             }
             else {
