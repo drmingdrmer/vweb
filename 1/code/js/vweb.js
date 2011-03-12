@@ -470,7 +470,7 @@ $.extend( ui.t.acc, {
 
         $.isPlainObject( opt ) && ( $.extend( o, opt ) ) || ( o = $.unparam( opt ) );
         o.max_id || ( o.max_id = idfirst );
-        $.each( o, function( k, v ){ args.push( k + '_' + v ); } );
+        $.each( o, function( k, v ){ args.push( k + '__' + v ); } );
         args.sort();
 
         var s = cmdname.replace( /\//, '__' ) + '____' + args.join( '____' ) ;
@@ -483,7 +483,7 @@ $.extend( ui.t.acc, {
         var cmdname = args.shift().replace( /__/, '/' );
         var opt = {};
         $.each( args, function( i, v ){
-            var q = v.split( '_' );
+            var q = v.split( '__' );
             opt[ q[ 0 ] ] = q[ 1 ];
         } );
 
