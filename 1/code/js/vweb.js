@@ -62,16 +62,23 @@ var wb = {
 function log (mes) {
     console.log( mes );
 }
+
+
+function json_handler ( handlers, json, st, xhr ) {
+    ui.appmsg[ json.rst == 'ok' ? 'msg' : 'err' ]( json.msg );
+
+    if ( handlers[ json.rst ] ) {
+        return handlers[ json.rst ]( json, st, xhr );
+    }
+    else if ( json.rst != "ok" && handlers[ "any" ] ) {
+        return handlers.any( json, st, xhr );
+    }
+}
+
 function json_succ( handlers ) {
 
     function hdlr ( json, st, xhr ) {
-        ui.appmsg.msg( json.msg );
-        if ( handlers[ json.rst ] ) {
-            return handlers[ json.rst ]( json, st, xhr );
-        }
-        else if ( json.rst != "ok" && handlers[ "any" ] ) {
-            return handlers.any( json, st, xhr );
-        }
+        return json_handler( handlers, json, st, xhr );
     }
 
     return hdlr;
@@ -250,10 +257,12 @@ $.extend( ui, {
         var bodyHeight = $( "body" ).height();
         var tabsHeight = $( "#tabs" ).h();
         var edit = $( "#edit" );
+        var subtabHeight = bodyHeight - tabsHeight;
 
-        edit.height( bodyHeight - $( "#hd" ).h() - $( "#menu" ).h() );
-        $( "#t>#list" ).height( bodyHeight - tabsHeight - $( "#t>#func" ).h() - $( "#t>#paging" ).h() );
-        $( "#tree" ).height( bodyHeight - tabsHeight - $( "#vdaccpane" ).h() );
+        edit.height( bodyHeight - $( "#hd,#menu" ).h() );
+
+        $( "#t>#list" ).height( subtabHeight - $( "#t>#update,#t>#func,#t>#paging" ).h() );
+        $( "#tree" ).height( subtabHeight - $( "#vdaccpane" ).h() );
 
         $( "#edit>#cont" ).width( edit.width() - 30 ).height( edit.height() - 30 );
 
@@ -576,7 +585,7 @@ $.extend( ui.t.update, {
 
     },
     upload_cb: function (rst) {
-        log( rst );
+        json_handler( {}, rst );
     }
 
 } );
@@ -754,28 +763,18 @@ $.extend( ui.t.list, {
         this.setup_func();
     },
 
-    handle_rst: function ( rst, onsuccess ) {
-        if ( rst.rst == 'ok' ) {
-            ui.appmsg.msg( rst.msg );
-            onsuccess && onsuccess( rst );
-        }
-        else {
-            ui.appmsg.err( rst.msg );
-        }
-    },
-
     repost_cb: function ( rst ) {
-        var self = this;
-        this.handle_rst( rst, function(){
-            self._elt.find( "#" + rst.info.id + " .g_repost" ).remove();
-        } );
+        var e = this._elt;
+        json_handler( { 'ok': function(){
+            $( "#" + rst.info.id + " .g_repost", e ).remove();
+        } }, rst );
     },
 
     comment_cb: function ( rst ) {
-        var self = this;
-        this.handle_rst( rst, function(){
-            self._elt.find( "#" + rst.info.id + " .g_comment" ).remove();
-        } );
+        var e = this._elt;
+        json_handler( { 'ok': function(){
+            $( "#" + rst.info.id + " .g_comment", e ).remove();
+        } }, rst );
     },
 
     setup_func : function () {
@@ -801,9 +800,11 @@ $.extend( ui.t.list, {
         this._elt
         .delegate( ".t_msg .avatar a.user", "click", uldr )
         .delegate( ".t_msg .cont.msg a.at", "click", atldr )
+
         .delegate( ".t_msg .f_retweet", "click", function( ev ){
             evstop( ev );
             var e = $( this ).p( ".t_msg" );
+            $( ".g_repost", e ).remove();
             $( "#tmpl_repost" ).tmpl( [ {
                 id: e.id(),
                 text: e.hasClass( "retweeter" ) ? $( ".cont.msg .msg", e ).simpText() : ''
@@ -813,9 +814,11 @@ $.extend( ui.t.list, {
             evstop( ev );
             $( this ).p( ".g_repost" ).remove();
         } )
+
         .delegate( ".t_msg .f_comment", "click", function ( ev ) {
             evstop( ev );
             var e = $( this ).p( ".t_msg" );
+            $( ".g_comment", e ).remove();
             $( "#tmpl_comment" ).tmpl( [ {
                 id: e.id(),
                 text: ''
@@ -825,6 +828,7 @@ $.extend( ui.t.list, {
             evstop( ev );
             $( this ).p( ".g_comment" ).remove();
         } )
+
         .delegate( ".t_msg .f_fav", "click", function( ev ){
             evstop( ev );
             $.ajax( {
@@ -934,7 +938,7 @@ $.extend( ui.t.my, {
 
     setStat: function( d, tgr ){
         var e = this._elt
-        d.new_status && $( '#friend .f_idx .stat', e ).text( "(" + d.new_status + ")" );
+        d.new_status && $( '#friend .f_idx .stat', e ).text( "(新)" );
         d.comments && $( '#friend .f_comment .stat', e ).text( "(" + d.comments + ")" );
         d.mentions && $( '#friend .f_at .stat', e ).text( "(" + d.mentions + ")" );
         d.dm && $( '#friend .f_message .stat', e ).text( "(" + d.dm + ")" );
@@ -979,11 +983,8 @@ $.extend( ui.t.my.friend, {
 
     addLast: function ( d ) {
         d = d[ 0 ];
-        log( "try to add last" );
         if ( !this.since_id || d && (d.id+0) > (this.since_id+0) ) {
             this.since_id = d.id;
-            log( 'last added' );
-            log( d );
         }
     },
 
@@ -1043,7 +1044,13 @@ var filter = { };
         return htmlNode.textContent; // FF
     }
 
-    $.fn.h = function() { return this.outerHeight( true ); }
+    $.fn.h = function() {
+        var h = 0;
+        this.each( function( i, v ){
+            h += $(v).outerHeight( true );
+        } );
+        return h;
+    }
     $.fn.p = $.fn.parents;
 
     $.fn.id = function() { return this.attr( 'id' ); }
