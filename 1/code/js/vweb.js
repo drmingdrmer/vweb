@@ -135,11 +135,9 @@ function $TweetData ( data ) {
         },
         htmlLinks: function () {
             $.each( this._d, function( i, v ) {
-                v.html = v.text.replace( /http:\/\/(sinaurl|t)\.cn\/[a-zA-Z0-9_]+/g, function(a){
-                    return "<a target='_blank' href='" + a + "'>" + a + "</a>";
-                } ).replace( /@[_a-zA-Z0-9\u4e00-\u9fa5]+/g, function(a){
-                    return "<a class='at' screen_name='" + a.substr( 1 ) + "' href=''>" + a + "</a>";
-                } );
+                v.html = v.text.replace( /(http:\/\/(?:sinaurl|t)\.cn\/[a-zA-Z0-9_]+)/g, "<a target='_blank' href='$1'>$1</a>" )
+                .replace( /@([_a-zA-Z0-9\u4e00-\u9fa5\-]+)/g, "<a class='at' screen_name='$1' href=''>@$1</a>" )
+                ;
             } );
             return this;
         },
