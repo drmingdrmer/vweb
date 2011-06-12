@@ -163,6 +163,13 @@ else if ( $verb == "POST" ) {
             response( $js );
             break;
 
+        case "destroy" :
+            $id = $_POST[ 'id' ];
+            $rst = $c->destroy( $id );
+            $js = getjsonrsp( $rst, "删除成功", array( "id" => $id ) );
+            response( $js );
+            break;
+
         case "fav":
             $id = $_POST[ 'id' ];
             $rst = $c->add_to_favorites( $id );

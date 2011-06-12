@@ -94,7 +94,7 @@ function init_sub ( self ) {
         u.init && u.init( u._elt );
     } );
 }
-function $td ( data ) {
+function $TweetData ( data ) {
     function _stdAvatar( e ) {
         if ( e.profile_image_url ) {
             e.avatar_50 = e.profile_image_url;
@@ -117,7 +117,7 @@ function $td ( data ) {
             this._d = d;
             return this;
         },
-        filter: function (ids) {
+        exclude: function (ids) {
             this._d = ids.length == 0
                 ? this._d
                 : $.grep( this._d, function( v, i ) {
@@ -135,7 +135,7 @@ function $td ( data ) {
         },
         htmlLinks: function () {
             $.each( this._d, function( i, v ) {
-                v.html = v.text.replace( /http:\/\/sinaurl.cn\/[a-zA-Z0-9_]+/g, function(a){
+                v.html = v.text.replace( /http:\/\/(sinaurl|t)\.cn\/[a-zA-Z0-9_]+/g, function(a){
                     return "<a target='_blank' href='" + a + "'>" + a + "</a>";
                 } ).replace( /@[_a-zA-Z0-9\u4e00-\u9fa5]+/g, function(a){
                     return "<a class='at' screen_name='" + a.substr( 1 ) + "' href=''>" + a + "</a>";
@@ -542,7 +542,7 @@ $.extend( ui.t.acc, {
         d.hisid = ui.t.acc.cmdtostr( cmd.name, cmd.args, d.id );
         log( d );
 
-        hisdata = $td( [ d ] ).stdAvatar().defaultUser('sender').historyText().historyTime().get()[ 0 ];
+        hisdata = $TweetData( [ d ] ).stdAvatar().defaultUser('sender').historyText().historyTime().get()[ 0 ];
         log( hisdata );
 
         ui.t.paging.addhis( hisdata );
@@ -797,9 +797,25 @@ $.extend( ui.t.list, {
                 cb: [ 'ui.t.list.show' ]
             } );
 
+
+
         this._elt
         .delegate( ".t_msg .avatar a.user", "click", uldr )
         .delegate( ".t_msg .cont.msg a.at", "click", atldr )
+
+
+        .delegate( ".t_msg .f_destroy", "click", function( ev ){
+            evstop( ev );
+            $.ajax( {
+                type : "POST", url : "/t.php?act=destroy&resptype=json",
+                data : { id: $( this ).p( ".t_msg" ).id() },
+                dataType : 'json',
+                success : json_succ( {
+                    "ok" : function( json ){}
+                } )
+            } );
+        } )
+
 
         .delegate( ".t_msg .f_retweet", "click", function( ev ){
             evstop( ev );
@@ -851,7 +867,7 @@ $.extend( ui.t.list, {
     show : function ( data ) {
         var self = this;
 
-        data = $td( data ).splitRetweet().filter( ui.fav.edit.ids() )
+        data = $TweetData( data ).splitRetweet().exclude( ui.fav.edit.ids() )
         .stdAvatar().defaultUser( 'sender' ).htmlLinks()
         .get();
 
