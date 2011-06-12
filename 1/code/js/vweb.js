@@ -135,8 +135,12 @@ function $TweetData ( data ) {
         },
         htmlLinks: function () {
             $.each( this._d, function( i, v ) {
-                v.html = v.text.replace( /(http:\/\/(?:sinaurl|t)\.cn\/[a-zA-Z0-9_]+)/g, "<a target='_blank' href='$1'>$1</a>" )
-                .replace( /@([_a-zA-Z0-9\u4e00-\u9fa5\-]+)/g, "<a class='at' screen_name='$1' href=''>@$1</a>" )
+                v.html = v.text.replace(
+                    /(http:\/\/(?:sinaurl|t)\.cn\/[a-zA-Z0-9_]+)/g,
+                    "<a target='_blank' class='raw' href='$1'>http://*</a>" )
+                .replace(
+                    /@([_a-zA-Z0-9\u4e00-\u9fa5\-]+)/g,
+                    "<a class='at' screen_name='$1' href=''>@$1</a>" )
                 ;
             } );
             return this;
