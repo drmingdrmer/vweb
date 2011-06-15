@@ -316,21 +316,25 @@
 <script id="tmpl_msg" type="text/x-jquery-tmpl">
 <div id="${id}" class="t_msg thumb ${status}">
     <div class="handle ui-corner-all hidden"></div>
-    <div class="avatar ui-corner-all">
+    <!-- <div class="avatar ui-corner-all"> -->
+    <div class="avatar">
         <a class="user" id="${user.id}" href="#"><img src="${user.avatar_50}" /></a>
     </div>
     <div class="cont msg">
-        <span class="username" id="${user.id}">${user.name}:</span>
-        <span class="msg">
-            {{html html}}
-        </span>
+        <p class="username" id="${user.id}"><a class="user" id="${user.id}" href="#">${user.name}</a> ({{if user.verified}} V{{/if}}
+            ${user.friends_count} / ${user.followers_count} ):
+        </p>
+        <p class="username_sep">&nbsp;</p>
+        <p class="msg">{{html html}}</p>
+        <!-- <span class="username" id="${user.id}"><a class="user" id="${user.id}" href="#">${user.name}</a>:&nbsp;</span> -->
+        <!-- <span class="msg">{{html html}}</span> -->
         {{if thumbnail_pic}} <img class="msgimg thumb" src="${thumbnail_pic}" /> {{/if}}
         {{if bmiddle_pic}} <img class="msgimg midpic" src="${bmiddle_pic}"/> {{/if}}
         <div class="msg_func">
-            <a class="f_destroy"  href="#">删</a>
-            <a class="f_retweet" href="#">转发</a>
-            <a class="f_fav"     href="#">收藏</a>
-            <a class="f_comment" href="#">评论</a>
+            {{if user.isme}}<a class="f_destroy" href="#">删除</a>{{/if}}<a
+                class="f_retweet" href="#">转发</a><a
+                class="f_fav" href="#">收藏</a><a
+                class="f_comment" href="#">评论</a>
         </div>
     </div>
 </div>
@@ -402,7 +406,9 @@
 </script>
 
     </body>
-    <script language="javascript" type="text/javascript">
-        $( function() { ui.init(); } );
-    </script>
+    <!--
+       - <script language="javascript" type="text/javascript">
+       -     $( function() { ui.init(); } );
+       - </script>
+       -->
 </html>

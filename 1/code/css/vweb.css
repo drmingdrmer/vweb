@@ -553,23 +553,64 @@ body { background: #ddd; }
     left: 12px;
     background-color: #777;
     overflow: hidden;
+
+
+    box-shadow: 1px 1px 5px #000;
+    -webkit-box-shadow: 1px 1px 7px 2px rgba( 0, 0, 0, 0.4 );
 }
 .t_msg .username {
-    /* font-weight: bold; */
+    color: #888;
+    line-height: 100%;
 }
+.t_msg .username a{
+    font-weight: bold;
+    font-size: 13px;
+    color: #272;
+}
+
+.t_msg .username_sep { line-height: 4px; }
+
 .t_msg .cont {
     padding: 0 4px 4px 4px;
     margin: 0 12px 0 68px; }
+
+.t_msg .cont .msg {
+    /* text-indent: 20px; */
+    /* padding: 0 0 0 20px; */
+}
+.t_msg .cont .msg a.at{
+    color: #272;
+}
 
 .t_msg .cont .msg_func {
     text-align: right;
 }
 
+.t_msg .cont .msg_func a {
+    border-right: 1px solid #888;
+    padding: 0 10px;
+}
+.t_msg .cont .msg_func a:last-child {
+    border-right: 0px solid #888;
+    padding: 0 0 0 10px;
+}
+
 #list .t_msg.retweet {
-    color: #333; background-color: #eee;
+    color: #333;
+    /* background-color: #eee; */
+    /* box-shadow: inset 1px 1px 5px #000; */
+    /* -webkit-box-shadow: inset 1px 1px 7px 2px rgba( 0, 0, 0, 0.4 ); */
+    -moz-border-radius: 4px;
+    -webkit-border-radius: 4px;
+    border-radius: 4px;
+    border:1px solid #bbb;
+    background-color: #eee;
+
     min-height: 0;
     padding: 12px;
-    margin: 10px 12px 0 68px; }
+    /* margin: 10px 12px 0 68px; */
+    margin: 10px 68px 0 68px;
+}
 #list .t_msg.retweet .avatar { display: none; }
 #list .t_msg.retweet .cont { margin: 0 0 0 0px; }
 

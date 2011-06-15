@@ -29,35 +29,33 @@ var ui = {
     }
 };
 
-var wb = {
 
-    cmd : function ( cmd, args, cb ) {
+function weibo_cmd( cmd, args, cb ) {
 
-        if ( $.isPlainObject( args ) ) {
-            args = $.param( args );
-        }
-
-        log( cmd, args );
-
-        $.ajax( {
-            type : "GET",
-            url : "t.php?act=" + cmd + "&" + args,
-            dataType : "json",
-            success : function( rst, st, xhr ) {
-                if ( rst.rst == "ok" ) {
-                    cb && cb( rst.data );
-                }
-                else {
-                    ui.appmsg.msg( rst.rst + " " + rst.msg );
-                }
-            },
-            error : function( xhr, st, err ) {
-                ui.appmsg.msg( st );
-            }
-        } );
-
+    if ( $.isPlainObject( args ) ) {
+        args = $.param( args );
     }
-};
+
+    log( cmd, args );
+
+    $.ajax( {
+        type : "GET",
+        url : "t.php?act=" + cmd + "&" + args,
+        dataType : "json",
+        success : function( rst, st, xhr ) {
+            if ( rst.rst == "ok" ) {
+                cb && cb( rst.data );
+            }
+            else {
+                ui.appmsg.msg( rst.rst + " " + rst.msg );
+            }
+        },
+        error : function( xhr, st, err ) {
+            ui.appmsg.msg( st );
+        }
+    } );
+
+}
 
 function log (mes) {
     console.log( mes );
@@ -85,7 +83,7 @@ function json_succ( handlers ) {
 }
 function evstop ( ev ) {
     ev.stopPropagation();          /* pop up                  */
-    ev.preventDefault()            /* other event on this DOM */
+    ev.preventDefault();           /* other event on this DOM */
 }
 function init_sub ( self ) {
     $.each( self, function( k, v ){
@@ -137,10 +135,13 @@ function $TweetData ( data ) {
             $.each( this._d, function( i, v ) {
                 v.html = v.text.replace(
                     /(http:\/\/(?:sinaurl|t)\.cn\/[a-zA-Z0-9_]+)/g,
-                    "<a target='_blank' class='raw' href='$1'>http://*</a>" )
+                    "<a target='_blank' class='raw' href='$1'>$1</a>" )
                 .replace(
                     /@([_a-zA-Z0-9\u4e00-\u9fa5\-]+)/g,
                     "<a class='at' screen_name='$1' href=''>@$1</a>" )
+                .replace(
+                    /#([^#]+)#/g,
+                    "<a class='topic' href=''>@$1</a>" )
                 ;
             } );
             return this;
@@ -148,6 +149,12 @@ function $TweetData ( data ) {
         defaultUser: function ( which ) {
             $.each( this._d, function( i, v ) {
                 v[ which ] && !v.user && ( v.user = v[ which ] );
+            } );
+            return this;
+        },
+        setMe: function( id ){
+            $.each( this._d, function( i, v ){
+                v.user.isme = ( id == v.user.id );
             } );
             return this;
         },
@@ -331,7 +338,7 @@ $.extend( ui.fav.hd, {
             evstop( ev );
             ui.t.acc.pub();
         } );
-    },
+    }
 
 } );
 
@@ -473,9 +480,18 @@ $.extend( ui.fav.edit, {
 } );
 
 $.extend( ui.t.acc, {
-    init : function() { },
+    init : function() {
+        this.user = undefined;
+        this.load( 'account/verify_credentials', { cb: [ 'ui.t.acc.save_user_info' ] } );
+    },
 
-    cmdtostr: function ( cmdname, opt, idfirst ) {
+    save_user_info: function( data, trigger, cmd ) {
+        log( "user info saved" );
+        log( data );
+        this.user = data;
+    },
+
+    cmd_serialize: function ( cmdname, opt, idfirst ) {
         var args = [];
         var o = {};
 
@@ -484,15 +500,16 @@ $.extend( ui.t.acc, {
         $.each( o, function( k, v ){ args.push( k + '__' + v ); } );
         args.sort();
 
-        var s = cmdname.replace( /\//, '__' ) + '____' + args.join( '____' ) ;
+        var s = cmdname.replace( /\//g, '__' ) + '____' + args.join( '____' ) ;
         log( 'cmd str=' + s );
         return s;
     },
 
-    strtocmd: function ( s ) {
+    cmd_unserialize: function ( s ) {
         var args = s.split( /____/ );
-        var cmdname = args.shift().replace( /__/, '/' );
+        var cmdname = args.shift().replace( /__/g, '/' );
         var opt = {};
+
         $.each( args, function( i, v ){
             var q = v.split( '__' );
             opt[ q[ 0 ] ] = q[ 1 ];
@@ -520,7 +537,7 @@ $.extend( ui.t.acc, {
 
         ui.appmsg.msg( "载入中..." );
 
-        wb.cmd( cmdname, args, function( data ) {
+        weibo_cmd( cmdname, args, function( data ) {
             var cb = opt.cb;
             var t = trigger;
             var cmd = { name : cmdname, args : args };
@@ -532,8 +549,6 @@ $.extend( ui.t.acc, {
 
             cb && $.each( cb, function( i, v ){
                 eval( v + "(data,t,cmd)" );
-                // var f = eval( v );
-                // f.apply( [ data ] );
             } );
         } );
     },
@@ -541,7 +556,7 @@ $.extend( ui.t.acc, {
     addhis: function ( d, cmd ) {
         if ( ! d ) { return; }
 
-        d.hisid = ui.t.acc.cmdtostr( cmd.name, cmd.args, d.id );
+        d.hisid = ui.t.acc.cmd_serialize( cmd.name, cmd.args, d.id );
         log( d );
 
         hisdata = $TweetData( [ d ] ).stdAvatar().defaultUser('sender').historyText().historyTime().get()[ 0 ];
@@ -802,7 +817,7 @@ $.extend( ui.t.list, {
 
 
         this._elt
-        .delegate( ".t_msg .avatar a.user", "click", uldr )
+        .delegate( ".t_msg .avatar a.user, .t_msg .username a.user", "click", uldr )
         .delegate( ".t_msg .cont.msg a.at", "click", atldr )
 
 
@@ -870,7 +885,7 @@ $.extend( ui.t.list, {
         var self = this;
 
         data = $TweetData( data ).splitRetweet().exclude( ui.fav.edit.ids() )
-        .stdAvatar().defaultUser( 'sender' ).htmlLinks()
+        .stdAvatar().defaultUser( 'sender' ).setMe( ui.t.acc.user.id ).htmlLinks()
         .get();
 
         log( data );
@@ -889,7 +904,7 @@ $.extend( ui.t.list, {
             revert : "invalid",
             zIndex : 2000,
             stop : function ( ev, ui ) {
-            },
+            }
         } );
 
     }
@@ -1123,6 +1138,10 @@ var filter = { };
         }
     }
 } )( jQuery );
+
+
+$( function() { ui.init(); } );
+
 
 /* ( function( $ ){
  *
