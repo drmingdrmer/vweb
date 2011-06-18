@@ -74,31 +74,32 @@ class MySaeTClient extends SaeTClient
     }
 }
 
-function getjsonrsp( $rst, $okmsg, $info = NULL ) {
-    $js = "";
+function gen_app_rst( $rst, $okmsg, $info = NULL ) {
     if ( $rst ) {
         if ( ! $rst[ 'error_code' ] ) {
-            $js = json( array( "rst" => "ok", "info" => $info,  "msg" => $okmsg, "data" => $rst) );
+            $ret = array( "rst" => "ok", "info" => $info,
+                "msg" => $okmsg, "data" => $rst);
         }
         else {
-            $js = json( array( "rst" => "load", "info" => $info,  "msg" => $rst[ 'error' ]) );
+            $ret = array( "rst" => "load", "info" => $info,
+                "msg" => $rst[ 'error' ]);
         }
     }
     else {
-        $js = json( array( "rst" => "load", "info" => $info,  "msg" => "微薄接口调用失败") );
+        $ret = array( "rst" => "load", "info" => $info,
+            "msg" => "微薄接口调用失败");
     }
-    return $js;
+    return $ret;
 }
-function response( $json ) {
+function output_exit( $arr ) {
     $cb = $_REQUEST[ 'cb' ];
 
     switch ( $_REQUEST[ 'resptype' ] ) {
         case 'json' :
-            echo $json;
-            break;
+            return res_json( $arr );
+        case 'jscb':
         default:
-            echo "<script>window.parent.$cb($json);</script>";
-            break;
+            return res_cb( $arr, $cb );
     }
 }
 
@@ -106,13 +107,13 @@ $c = new MySaeTClient( WB_AKEY, WB_SKEY,
     $_SESSION['last_key']['oauth_token'],
     $_SESSION['last_key']['oauth_token_secret']  );
 
-// $_SESSION[ 'last_key' ][ 'user_id' ]
-
 
 $verb = $_SERVER[ 'REQUEST_METHOD' ];
 $act = $_REQUEST[ 'act' ];
 
+
 !$act && resmsg( 'noact', 'noact' );
+
 
 if ( $verb == "GET" ) {
 
@@ -122,14 +123,7 @@ if ( $verb == "GET" ) {
         unset( $p[ 'act' ] );
 
         $rst = $c->_load_cmd( $act, $p );
-        if ( $rst ) {
-            !$rst[ 'error_code' ]
-                && resjson( array( "rst" => "ok", "data" => $rst) )
-                || resmsg( "load", $rst[ 'error' ] );
-        }
-        else {
-            resmsg( "load", "微薄接口调用失败" );
-        }
+        res_json( gen_app_rst( $rst, "not set yet" ) );
     }
     else {
         resmsg( "unknown_act", $act );
@@ -145,37 +139,27 @@ else if ( $verb == "POST" ) {
             else {
                 $rst = $c->update( $_POST[ 'status' ] );
             }
-            $js = getjsonrsp( $rst, "发表成功" );
-            response( $js );
-            break;
+            output_exit( gen_app_rst( $rst, "发表成功" ) );
 
         case "repost" :
             $id = $_REQUEST[ 'id' ];
             $rst = $c->repost( $id, $_POST[ 'status' ] );
-            $js = getjsonrsp( $rst, "转发成功", array( "id" => $id ) );
-            response( $js );
-            break;
+            output_exit( gen_app_rst( $rst, "转发成功", array( "id" => $id ) ) );
 
         case "comment" :
             $id = $_REQUEST[ 'id' ];
             $rst = $c->send_comment( $id, $_POST[ 'comment' ] );
-            $js = getjsonrsp( $rst, "评论成功", array( "id" => $id ) );
-            response( $js );
-            break;
+            output_exit( gen_app_rst( $rst, "评论成功", array( "id" => $id ) ) );
 
         case "destroy" :
             $id = $_REQUEST[ 'id' ];
             $rst = $c->destroy( $id );
-            $js = getjsonrsp( $rst, "删除成功", array( "id" => $id ) );
-            response( $js );
-            break;
+            output_exit( gen_app_rst( $rst, "删除成功", array( "id" => $id ) ) );
 
         case "fav":
             $id = $_REQUEST[ 'id' ];
             $rst = $c->add_to_favorites( $id );
-            $js = getjsonrsp( $rst, "收藏成功", array( "id" => $id ) );
-            response( $js );
-            break;
+            output_exit( gen_app_rst( $rst, "收藏成功", array( "id" => $id ) ) );
 
         case "pub" :
             $msg = $_GET[ 'msg' ];

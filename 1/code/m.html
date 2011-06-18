@@ -99,13 +99,12 @@
        -->
     <div id="t" class="t-panel">
         <div id="update" class="compact cont_dark2">
-            <form class="t_group g_update" action="/t.php" method="POST"
+            <form action="/t.php?act=upload&cb=ui.t.update.upload_cb" method="POST"
+                class="t_group g_update"
                 target="update_target" enctype="multipart/form-data">
-                <input type="hidden" name="act" value="upload"/>
-                <input type="hidden" name="cb" value="ui.t.update.upload_cb"/>
                 <textarea class="f_status" name="status"></textarea>
                 <input class="f_pic" type="file" name="pic" value=""/>
-                <input class="f_submit" type="submit" name="submit" value="发布"/>
+                <input class="f_submit" type="submit" name="submit" value="发微博"/>
             </form>
             <iframe name="update_target" class="hidden"></iframe>
         </div>
