@@ -600,7 +600,13 @@ $.extend( ui.t.update, {
 
     },
     upload_cb: function (rst) {
-        handle_json( {}, rst );
+        handle_json( {
+            ok: function ( json, st, xhr ) {
+                var e = ui.t.update._elt;
+                $( '.f_status', e ).val('');
+                $( '.f_pic', e ).val( '' );
+            }
+        }, rst );
     }
 
 } );
@@ -625,7 +631,7 @@ $.extend( ui.vdacc, {
         var self = this;
 
         self.vdform.jsonRequest( create_handler( {
-            "ok" : function () {
+            ok : function () {
 
                 // self.vddialog.dialog( "close" );
 

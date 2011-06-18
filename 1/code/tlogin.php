@@ -4,11 +4,18 @@ session_start();
 
 include_once( 'config.php' );
 include_once( 'saet.ex.class.php' );
+// include_once( 'ss.php' );
+
+$defaultPage = 'album.html';
+
+$redirectPage = $_GET[ 'r' ] ? $_GET[ 'r' ] : $defaultPage;
+
 
 if( isset($_SESSION['last_key']) ) {
-    header("Location: m.html");
+    header("Location: $redirectPage");
     exit();
 }
+
 
 $verifier = $_REQUEST['oauth_verifier'];
 if ( $verifier ) {
@@ -16,14 +23,9 @@ if ( $verifier ) {
         $_SESSION['keys']['oauth_token'],
         $_SESSION['keys']['oauth_token_secret'] );
 
-    $last_key = $o->getAccessToken( $verifier ) ;
+    $_SESSION['last_key'] = $o->getAccessToken( $verifier ) ;
 
-    $_SESSION['last_key'] = $last_key;
-
-    // var_dump( $verifier );
-    // var_dump( $_SESSION );
-
-    header("Location: m.html");
+    header("Location: $redirectPage");
 }
 else {
     $o = new SaeTOAuth( WB_AKEY , WB_SKEY  );
@@ -31,7 +33,7 @@ else {
     $proto = is_https() ? 'https://' : 'http://';
     $keys = $o->getRequestToken();
     $aurl = $o->getAuthorizeURL( $keys['oauth_token'], false,
-        $proto . $_SERVER['HTTP_HOST'] . '/tlogin.php');
+        $proto . $_SERVER['HTTP_HOST'] . "/tlogin.php?r=$redirectPage");
 
     $_SESSION['keys'] = $keys;
 

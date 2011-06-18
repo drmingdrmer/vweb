@@ -2,8 +2,8 @@
 
 session_start();
 include_once( 'config.php' );
-// include_once( 'saet.ex.class.php' );
-include_once( 'ss.php' );
+include_once( 'saet.ex.class.php' );
+// include_once( 'ss.php' );
 include_once( 'util.php' );
 include_once( 'img.php' );
 
