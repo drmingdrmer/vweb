@@ -77,7 +77,7 @@ class MySaeTClient extends SaeTClient
 function getjsonrsp( $rst, $okmsg, $info = NULL ) {
     $js = "";
     if ( $rst ) {
-        if ( !$rst[ 'error_code' ] ) {
+        if ( ! $rst[ 'error_code' ] ) {
             $js = json( array( "rst" => "ok", "info" => $info,  "msg" => $okmsg, "data" => $rst) );
         }
         else {
@@ -150,28 +150,28 @@ else if ( $verb == "POST" ) {
             break;
 
         case "repost" :
-            $id = $_POST[ 'id' ];
+            $id = $_REQUEST[ 'id' ];
             $rst = $c->repost( $id, $_POST[ 'status' ] );
             $js = getjsonrsp( $rst, "转发成功", array( "id" => $id ) );
             response( $js );
             break;
 
         case "comment" :
-            $id = $_POST[ 'id' ];
+            $id = $_REQUEST[ 'id' ];
             $rst = $c->send_comment( $id, $_POST[ 'comment' ] );
             $js = getjsonrsp( $rst, "评论成功", array( "id" => $id ) );
             response( $js );
             break;
 
         case "destroy" :
-            $id = $_POST[ 'id' ];
+            $id = $_REQUEST[ 'id' ];
             $rst = $c->destroy( $id );
             $js = getjsonrsp( $rst, "删除成功", array( "id" => $id ) );
             response( $js );
             break;
 
         case "fav":
-            $id = $_POST[ 'id' ];
+            $id = $_REQUEST[ 'id' ];
             $rst = $c->add_to_favorites( $id );
             $js = getjsonrsp( $rst, "收藏成功", array( "id" => $id ) );
             response( $js );

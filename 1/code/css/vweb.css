@@ -587,6 +587,7 @@ body { background: #ddd; }
 }
 
 .t_msg .cont .msg_func a {
+    color: #999;
     border-right: 1px solid #888;
     padding: 0 10px;
 }
@@ -641,6 +642,24 @@ body { background: #ddd; }
     width: 30px; height: 30px;
     margin: 0;
     display: block; }
+
+.t_msg.in_repost {
+    background: #ddd;
+}
+
+.g_repost {
+    margin: 10px 12px 10px 12px;
+}
+.g_repost form .f_text {
+    width: 100%;
+    height: 100px;
+}
+
+.g_repost form .g_func {
+    text-align: right;
+}
+
+
 
 #appmsg {
     z-index: 1000;

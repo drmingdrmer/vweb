@@ -783,6 +783,7 @@ $.extend( ui.t.list, {
     repost_cb: function ( rst ) {
         var e = this._elt;
         json_handler( { 'ok': function(){
+            $( "#" + rst.info.id, e ).removeClass( 'in_repost' );
             $( "#" + rst.info.id + " .g_repost", e ).remove();
         } }, rst );
     },
@@ -837,14 +838,21 @@ $.extend( ui.t.list, {
         .delegate( ".t_msg .f_retweet", "click", function( ev ){
             evstop( ev );
             var e = $( this ).p( ".t_msg" );
+            e.addClass( 'in_repost' );
             $( ".g_repost", e ).remove();
-            $( "#tmpl_repost" ).tmpl( [ {
+            var rp = $( "#tmpl_repost" ).tmpl( [ {
                 id: e.id(),
-                text: e.hasClass( "retweeter" ) ? $( ".cont.msg .msg", e ).simpText() : ''
+                text: e.hasClass( "retweeter" )
+                    ? '//@' + $( ".username .user", e ).simpText() + ':' + $( ".cont.msg .msg", e ).simpText()
+                    : ''
             } ] ).prependTo( e );
+            $( '.f_text', rp ).focus();
+
+
         } )
         .delegate( ".t_msg .g_repost .f_cancel", "click", function( ev ){
             evstop( ev );
+            $( this ).p( ".t_msg" ).removeClass( 'in_repost' );
             $( this ).p( ".g_repost" ).remove();
         } )
 
