@@ -32,15 +32,6 @@
                             <a href="#">关于</a>
                             <a href="#">关于</a>
                             <!-- <a href="#">关于</a> -->
-                            <a id="cssrealod" href="#">css</a>
-                            <script>
-                                $( function(){
-                                    $( "#cssrealod" ).click( function( ev ){
-                                        evstop( ev );
-                                        $('<link rel=stylesheet type=text/css href="css/vweb.css?' + Math.random() + '" />').appendTo($('head'));
-                                    } );
-                                } );
-                            </script>
                         </div>
                     </div>
                 </td>
@@ -55,7 +46,6 @@
                         <button id="pub" class="ui-button ui-button-text-icon-primary ">
                             <span class="ui-icon vweb_icon icon_pub"></span>
                             <span class="ui-button-text">发布</span>
-                            <!-- <a href="javascript:ui.acc.pub();">发布</a> -->
                         </button>
                     </div>
                 </td>
@@ -80,7 +70,7 @@
            - </div>
            -->
         <div id="edit" class="">
-            <div id="cont">
+            <div id="cont" class="album">
                 <div id="page"></div>
             </div>
         </div>
@@ -325,10 +315,8 @@
         </p>
         <p class="username_sep">&nbsp;</p>
         <p class="msg">{{html html}}</p>
-        <!-- <span class="username" id="${user.id}"><a class="user" id="${user.id}" href="#">${user.name}</a>:&nbsp;</span> -->
-        <!-- <span class="msg">{{html html}}</span> -->
-        {{if thumbnail_pic}} <img class="msgimg thumb" src="${thumbnail_pic}" /> {{/if}}
-        {{if bmiddle_pic}} <img class="msgimg midpic" src="${bmiddle_pic}"/> {{/if}}
+        {{if thumbnail_pic}} <div class="imgwrap thumb"><img class="msgimg thumb" src="${thumbnail_pic}" /></div> {{/if}}
+        {{if bmiddle_pic}} <div class="imgwrap midpic"><img class="msgimg midpic" src="${bmiddle_pic}"/></div> {{/if}}
         <div class="msg_func">
             {{if user.isme}}<a class="f_destroy" href="#">删除</a>{{/if}}<a
                 class="f_retweet" href="#">转发</a><a

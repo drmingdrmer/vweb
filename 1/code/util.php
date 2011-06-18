@@ -14,12 +14,13 @@ function res_json( $v ) {
     exit();
 }
 function res_cb( $v, $cb ) {
+    $v = json( $v );
     echo "<script>window.parent.$cb($v);</script>";
     exit();
 }
 
 function resmsg( $rst, $msg ) {
-    resjson( array( "rst" => $rst, "msg" => $msg ) );
+    res_json( array( "rst" => $rst, "msg" => $msg ) );
 }
 function def( &$arr, $key, $val ) {
     if ( !isset( $arr[ $key ] ) ) {

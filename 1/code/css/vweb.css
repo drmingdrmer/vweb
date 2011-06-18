@@ -194,9 +194,13 @@ body { background: #ddd; }
             padding: 0; }
         #cont.album .t_msg .avatar { display: none; }
         #cont.album .t_msg .cont { margin: 0; }
-        #cont.album .t_msg .cont img.thumb { float: none; }
-        #cont.album .t_msg .cont .user { display: none; }
+        #cont.album .t_msg .cont .username { display: none; }
+        #cont.album .t_msg .cont .username_sep { display: none; }
         #cont.album .t_msg .cont .msg { display: none; }
+        #cont.album .t_msg .cont .imgwrap { margin: 0; background: #000; }
+        #cont.album .t_msg .cont .imgwrap.thumb { width:120px; height:120px; text-align:center; }
+        #cont.album .t_msg .cont .msgimg { display: inline; float: none; }
+        #cont.album .t_msg .cont .msg_func { display: none; }
             #page {
                 border: 1px solid #ddd;
                 width: 560px;
@@ -571,8 +575,8 @@ body { background: #ddd; }
 .t_msg .username_sep { line-height: 4px; }
 
 .t_msg .cont {
-    padding: 0 4px 4px 4px;
-    margin: 0 12px 0 68px; }
+    /* padding: 0 4px 4px 4px; */
+    margin: 0 12px 0 72px; }
 
 .t_msg .cont .msg {
     /* text-indent: 20px; */
@@ -609,24 +613,18 @@ body { background: #ddd; }
 
     min-height: 0;
     padding: 12px;
-    /* margin: 10px 12px 0 68px; */
-    margin: 10px 68px 0 68px;
+    /* margin: 10px 12px 0 72px; */
+    margin: 10px 72px 0 72px;
 }
 #list .t_msg.retweet .avatar { display: none; }
 #list .t_msg.retweet .cont { margin: 0 0 0 0px; }
 
-.t_msg .msgimg { margin: 8px 0 0 0; }
-/* .t_msg img.msgimg .cont * { display: none; } */
-.t_msg .thumb { display: block; }
-.t_msg .midpic { display: block; }
+.t_msg .imgwrap { display: table-cell; margin: 8px 0 0 0; vertical-align: middle; }
+.t_msg .imgwrap.thumb { display: table-cell; }
+.t_msg .imgwrap.midpic { display: block; }
 
-.t_msg.midpic .thumb { display:none; }
-/*
- * .t_msg.midpic .cont .username,
- * .t_msg.midpic .cont .msg { display: none; }
- */
-
-.t_msg.thumb .midpic { display: none; }
+.t_msg.midpic .imgwrap.thumb { display:none; }
+.t_msg.thumb .imgwrap.midpic { display: none; }
 
 #history .t_msg {
     color: #ddd;
@@ -638,7 +636,7 @@ body { background: #ddd; }
     top: 4px; right: 8px;
 }
 
-#history .t_msg .thumb {
+#history .t_msg .msgimg.thumb {
     width: 30px; height: 30px;
     margin: 0;
     display: block; }

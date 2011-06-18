@@ -1,9 +1,9 @@
 // Works with jquery-1.4.4, jquery-ui-1.8.9
 
-var cfg = {
-    key: '2060512444',
-    xdpath: 'http://vweb.sinaapp.com/xd.html'
-};
+// var cfg = {
+//     key: '2060512444',
+//     xdpath: 'http://vweb.sinaapp.com/xd.html'
+// };
 
 var ui = {
     appmsg : {},
@@ -61,8 +61,7 @@ function log (mes) {
     console.log( mes );
 }
 
-
-function json_handler ( handlers, json, st, xhr ) {
+function handle_json ( handlers, json, st, xhr ) {
     ui.appmsg[ json.rst == 'ok' ? 'msg' : 'err' ]( json.msg );
 
     if ( handlers[ json.rst ] ) {
@@ -73,17 +72,17 @@ function json_handler ( handlers, json, st, xhr ) {
     }
 }
 
-function json_succ( handlers ) {
+function create_handler( handlers ) {
 
     function hdlr ( json, st, xhr ) {
-        return json_handler( handlers, json, st, xhr );
+        return handle_json( handlers, json, st, xhr );
     }
 
     return hdlr;
 }
 function evstop ( ev ) {
-    ev.stopPropagation();          /* pop up                  */
-    ev.preventDefault();           /* other event on this DOM */
+    ev.stopPropagation && ev.stopPropagation();          /* pop up                  */
+    ev.preventDefault && ev.preventDefault();           /* other event on this DOM */
 }
 function init_sub ( self ) {
     $.each( self, function( k, v ){
@@ -202,9 +201,8 @@ Function.prototype.delethis = function( self, args ) {
     }
 }
 
-
-
 $.extend( ui, {
+
     init : function () {
 
         var self = this;
@@ -602,7 +600,7 @@ $.extend( ui.t.update, {
 
     },
     upload_cb: function (rst) {
-        json_handler( {}, rst );
+        handle_json( {}, rst );
     }
 
 } );
@@ -626,7 +624,7 @@ $.extend( ui.vdacc, {
     do_login : function() {
         var self = this;
 
-        self.vdform.jsonRequest( json_succ( {
+        self.vdform.jsonRequest( create_handler( {
             "ok" : function () {
 
                 // self.vddialog.dialog( "close" );
@@ -669,7 +667,7 @@ $.extend( ui.vdacc, {
         $.ajax( {
             type : "GET", url : url,
             dataType : 'json',
-            success : json_succ( {
+            success : create_handler( {
                 "ok" : function( json ){ ui.tree.update( json.data ); },
                 "invalid_token" : function () {
                     self.afterLogin.push( function(){
@@ -694,7 +692,7 @@ $.extend( ui.vdacc, {
             type : "PUT", url : url,
             data : html,
             dataType : 'json',
-            success : json_succ( {
+            success : create_handler( {
                 "ok" : cb,
                 "invalid_token" : function () {
                     self.afterLogin.push( function(){
@@ -715,7 +713,7 @@ $.extend( ui.vdacc, {
         $.ajax( {
             type : "GET", url : url,
             dataType : 'json',
-            success : json_succ( {
+            success : create_handler( {
                 "ok" : function( json, st, xhr ){
                     ui.fav.edit.html( json.html );
                     // what.path ?
@@ -782,7 +780,7 @@ $.extend( ui.t.list, {
 
     repost_cb: function ( rst ) {
         var e = this._elt;
-        json_handler( { 'ok': function(){
+        handle_json( { 'ok': function(){
             $( "#" + rst.info.id, e ).removeClass( 'in_repost' );
             $( "#" + rst.info.id + " .g_repost", e ).remove();
         } }, rst );
@@ -790,7 +788,7 @@ $.extend( ui.t.list, {
 
     comment_cb: function ( rst ) {
         var e = this._elt;
-        json_handler( { 'ok': function(){
+        handle_json( { 'ok': function(){
             $( "#" + rst.info.id + " .g_comment", e ).remove();
         } }, rst );
     },
@@ -828,7 +826,7 @@ $.extend( ui.t.list, {
                 type : "POST", url : "/t.php?act=destroy&resptype=json",
                 data : { id: $( this ).p( ".t_msg" ).id() },
                 dataType : 'json',
-                success : json_succ( {
+                success : create_handler( {
                     "ok" : function( json ){}
                 } )
             } );
@@ -876,7 +874,7 @@ $.extend( ui.t.list, {
                 type : "POST", url : "/t.php?act=fav&resptype=json",
                 data : { id: $( this ).p( ".t_msg" ).id() },
                 dataType : 'json',
-                success : json_succ( {
+                success : create_handler( {
                     "ok" : function( json ){}
                 } )
             } );
@@ -1092,6 +1090,7 @@ var filter = { };
         } );
         return h;
     }
+
     $.fn.p = $.fn.parents;
 
     $.fn.id = function() { return this.attr( 'id' ); }

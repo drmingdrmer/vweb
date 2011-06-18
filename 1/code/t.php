@@ -175,7 +175,8 @@ else if ( $verb == "POST" ) {
             $s = new SaeStorage();
             $url = $s->write( 'pub' , "tmp.jpg" , file_get_contents( $fn ) );
 
-            resmsg( "ok", "no pub" );
+            resmsg( "ok", "no pub: $url" );
+            break;
 
             /*
              * $url && resjson( array( "rst" => "ok", "url" => $url ) )
