@@ -756,3 +756,7 @@ body { background: #ddd; }
 .t_opt .ui-button-text {
     padding: 1px 6px;
 }
+
+
+
+body.album #btnhis { display:none; }
