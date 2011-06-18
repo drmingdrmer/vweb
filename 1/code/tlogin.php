@@ -6,7 +6,7 @@ include_once( 'config.php' );
 include_once( 'saet.ex.class.php' );
 // include_once( 'ss.php' );
 
-$defaultPage = 'album.html';
+$defaultPage = 'm.html';
 
 $redirectPage = $_GET[ 'r' ] ? $_GET[ 'r' ] : $defaultPage;
 
