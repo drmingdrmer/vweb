@@ -121,6 +121,7 @@ if ( $verb == "GET" ) {
 
     if ( $cmds[ $act ] ) {
         unset( $p[ 'act' ] );
+        unset( $p[ 'resptype' ] );
 
         $rst = $c->_load_cmd( $act, $p );
         res_json( gen_app_rst( $rst, "not set yet" ) );

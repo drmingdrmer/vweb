@@ -29,29 +29,26 @@ var ui = {
     }
 };
 
+function weibo_cmd( verb, cmd, args, data, cbs ) {
 
-function weibo_cmd( cmd, args, cb ) {
-
-    if ( $.isPlainObject( args ) ) {
-        args = $.param( args );
-    }
+    args = $.isPlainObject( args ) ? $.param( args ) : args;
+    cbs = cbs || {};
 
     log( cmd, args );
 
     $.ajax( {
-        type : "GET",
-        url : "t.php?act=" + cmd + "&" + args,
+        type : verb,
+        url : "t.php?act=" + cmd + "&resptype=json&" + args,
+        data: data,
         dataType : "json",
-        success : function( rst, st, xhr ) {
-            if ( rst.rst == "ok" ) {
-                cb && cb( rst.data );
-            }
-            else {
-                ui.appmsg.msg( rst.rst + " " + rst.msg );
-            }
+        success : function( json, st, xhr ) {
+            log( json );
+            ui.appmsg.msg( json.rst + " " + json.msg );
+            cbs.success && cbs.success( json );
         },
         error : function( xhr, st, err ) {
             ui.appmsg.msg( st );
+            cbs.error && cbs.error( xhr, st, err );
         }
     } );
 
@@ -535,22 +532,28 @@ $.extend( ui.t.acc, {
         log( "args:" );
         log( args );
 
+        // TODO use ajax global event to set up messages
         ui.appmsg.msg( "载入中..." );
 
-        weibo_cmd( cmdname, args, function( data ) {
-            var cb = opt.cb;
-            var t = trigger;
-            var cmd = { name : cmdname, args : args };
+        weibo_cmd( 'GET', cmdname, args, undefined, {
+            success: function( json ) {
+                if ( json.rst == 'ok' ) {
+                    var t = trigger;
+                    var cmd = { name : cmdname, args : args };
 
-            ui.appmsg.msg( "载入成功" );
+                    ui.appmsg.msg( "载入成功" );
 
-            // TODO do not addhis after paging down/up
-            ui.t.acc.addhis( data[ 0 ], cmd );
+                    // TODO do not addhis after paging down/up
+                    ui.t.acc.addhis( json.data[ 0 ], cmd );
 
-            cb && $.each( cb, function( i, v ){
-                eval( v + "(data,t,cmd)" );
-            } );
-        } );
+                    opt.cb && $.each( opt.cb, function( i, v ){
+                        eval( v + "(json.data,t,cmd)" );
+                    } );
+                }
+                else { /* need something to be done? */  }
+            }
+        }
+        );
     },
 
     addhis: function ( d, cmd ) {
@@ -564,7 +567,7 @@ $.extend( ui.t.acc, {
 
         ui.t.paging.addhis( hisdata );
         ui.fav.edit.addhis( hisdata );
-    }, 
+    },
 
     pub : function () {
 
@@ -782,6 +785,7 @@ $.extend( ui.tree, {
 
 $.extend( ui.t.list, {
     init : function () {
+        this.last = {};
         ui.setup_img_switch( this._elt.empty() );
         this.setup_func();
     },
@@ -830,14 +834,8 @@ $.extend( ui.t.list, {
 
         .delegate( ".t_msg .f_destroy", "click", function( ev ){
             evstop( ev );
-            $.ajax( {
-                type : "POST", url : "/t.php?act=destroy&resptype=json",
-                data : { id: $( this ).p( ".t_msg" ).id() },
-                dataType : 'json',
-                success : create_handler( {
-                    "ok" : function( json ){}
-                } )
-            } );
+            weibo_cmd( 'POST', "destroy", '',
+                { id: $( this ).p( ".t_msg" ).id() }, { } );
         } )
 
 
@@ -853,8 +851,6 @@ $.extend( ui.t.list, {
                     : ''
             } ] ).prependTo( e );
             $( '.f_text', rp ).focus();
-
-
         } )
         .delegate( ".t_msg .g_repost .f_cancel", "click", function( ev ){
             evstop( ev );
@@ -878,29 +874,23 @@ $.extend( ui.t.list, {
 
         .delegate( ".t_msg .f_fav", "click", function( ev ){
             evstop( ev );
-            $.ajax( {
-                type : "POST", url : "/t.php?act=fav&resptype=json",
-                data : { id: $( this ).p( ".t_msg" ).id() },
-                dataType : 'json',
-                success : create_handler( {
-                    "ok" : function( json ){}
-                } )
-            } );
+            log( this );
+            weibo_cmd( 'POST', "fav", '',
+                { id: $( this ).p( ".t_msg" ).id() }, { } );
         } )
         ;
     },
 
     filter_existed : function ( data ) {
-
         return data
     },
 
     show : function ( data ) {
-        var self = this;
+        this.record( data );
 
         data = $TweetData( data ).splitRetweet().exclude( ui.fav.edit.ids() )
-        .stdAvatar().defaultUser( 'sender' ).setMe( ui.t.acc.user.id ).htmlLinks()
-        .get();
+        .stdAvatar().defaultUser( 'sender' ).setMe( ui.t.acc.user.id )
+        .htmlLinks().get();
 
         log( data );
 
@@ -908,6 +898,12 @@ $.extend( ui.t.list, {
         $( "#tmpl_msg[_mode=\"" + MODE + "\"]" ).tmpl( data ).appendTo( this._elt );
 
         this.setup_draggable();
+    },
+    record: function( data ) {
+        this.last = {
+            firstid: data[ 0 ].id,
+            oldestid: data[ data.length - 1 ].id
+        };
     },
     setup_draggable : function () {
 
@@ -1000,16 +996,27 @@ $.extend( ui.t.my.friend, {
         self.formSimp = e.find( "form.g_simp" );
         self.formSearch = e.find( "form.g_search" );
 
-        var simpLoader = ui.t.acc.create_loader(
-            'statuses/friends_timeline',
-            { args: function() { return self.formSimp.serialize(); },
-              cb: [ 'ui.t.list.show', 'ui.t.my.friend.addLast', 'ui.t.my.friend.unsetStat'] }
-        );
+        var simpLoader = ui.t.acc.create_loader( 'statuses/friends_timeline', {
+            args: function() { return self.formSimp.serialize(); },
+            cb: [ 'ui.t.list.show', 'ui.t.my.friend.addLast', 'ui.t.my.friend.clearStat']
+        } );
 
         // option arg of all these 3 loader: since_id, max_id, count, page
-        var atLoader = ui.t.acc.create_loader( 'statuses/mentions', { cb: [ 'ui.t.list.show', 'ui.t.my.friend.unsetStat' ] });
-        var cmtLoader = ui.t.acc.create_loader( 'statuses/comments_to_me', { cb: [ 'ui.t.list.show', 'ui.t.my.friend.unsetStat' ] });
-        var msgLoader = ui.t.acc.create_loader( 'direct_messages', { cb: [ 'ui.t.my.friend.unsetStat' ] });
+        var mineLoader = ui.t.acc.create_loader( 'statuses/user_timeline', {
+            args: function(){ return { user_id: ui.t.acc.user.id }; },
+            cb: [ 'ui.t.list.show' ]
+        } );
+        var atLoader = ui.t.acc.create_loader( 'statuses/mentions',
+            { cb: [ 'ui.t.list.show', 'ui.t.my.friend.clearStat' ] } );
+
+        var cmtLoader = ui.t.acc.create_loader( 'statuses/comments_to_me',
+            { cb: [ 'ui.t.list.show', 'ui.t.my.friend.clearStat' ] });
+
+        var msgLoader = ui.t.acc.create_loader( 'direct_messages',
+            { cb: [ 'ui.t.my.friend.clearStat' ] });
+
+
+        $( '.f_mine', e ).click( mineLoader );
 
         $( ".f_idx", e ).click( simpLoader );
         self.formSimp.find( "input" ).button().click( simpLoader );
@@ -1020,7 +1027,7 @@ $.extend( ui.t.my.friend, {
 
         // don't stop event propagation. it links to another page.
         $( ".f_message", e ).click(
-            function( ev ){ ui.t.my.friend.unsetStat( null, $( this ) ); }
+            function( ev ){ ui.t.my.friend.clearStat( null, $( this ) ); }
         );
 
         init_sub( self );
@@ -1036,7 +1043,7 @@ $.extend( ui.t.my.friend, {
         }
     },
 
-    unsetStat: function ( data, triggerElt ) {
+    clearStat: function ( data, triggerElt ) {
         $( '.stat', triggerElt ).empty();
         if ( triggerElt.attr( "_reset_type" ) ) {
             ui.t.acc.create_loader(
@@ -1067,93 +1074,90 @@ $.extend( ui.t.my.globalsearch, {
 
 var filter = { };
 
-( function( $ ) {
+$.unparam = function( s ){
+    var o = {};
+    var args = s.split( "&" );
+    $.each( args, function( i, e ){
+        var kv = e.split( "=" );
+        var k = decodeURIComponent( k );
+        var v = decodeURIComponent( v );
+        o[ k ] = v;
+    } );
 
-    $.unparam = function( s ){
-        var o = {};
-        var args = s.split( "&" );
-        $.each( args, function( i, e ){
-            var kv = e.split( "=" );
-            var k = decodeURIComponent( k );
-            var v = decodeURIComponent( v );
-            o[ k ] = v;
+    return o;
+}
+
+
+$.unescape = function(html) {
+    var htmlNode = document.createElement('div');
+    htmlNode.innerHTML = html;
+    if (htmlNode.innerText) {
+        return htmlNode.innerText; // IE
+    }
+    return htmlNode.textContent; // FF
+}
+
+$.fn.h = function() {
+    var h = 0;
+    this.each( function( i, v ){
+        h += $(v).outerHeight( true );
+    } );
+    return h;
+}
+
+$.fn.p = $.fn.parents;
+
+$.fn.id = function() { return this.attr( 'id' ); }
+$.fn.simpText = function(t) {
+    return $.trim( this.text( t ) ).replace( / +/g, ' ' );
+}
+
+$.fn.btn_opt = function (  ) {
+    var e = $( this );
+    var opt = {
+        icons : {},
+        text : e.attr( "_text" ) != "no"
+    };
+
+    e.attr( "_icon" ) && ( opt.icons.primary = "ui-icon-" + e.attr( "_icon" ) );
+    e.attr( "_icon2" ) && ( opt.icons.secondary = "ui-icon-" + e.attr( "_icon2" ) );
+
+    return opt;
+}
+$.fn.jsonRequest = function( succ ){
+
+    $( this ).each( function(){
+
+        var form = $( this );
+
+        $.ajax( {
+            url : form.attr( 'action' ),
+            type : form.attr( 'method' ),
+            data : form.serialize(),
+            dataType : 'json',
+            success : succ
         } );
 
-        return o;
+    } );
+}
+$.fn.fullPanel = function( opt ) {
+
+    opt = $.extend( {
+        autoOpen : false,
+        modal : true,
+        draggable : false,
+        resizable : false
+    }, opt );
+
+    $( this ).dialog( opt );
+
+    if ( $( this ).dialog( 'option', 'title' ) == '' ) {
+
+        $( this ).dialog( 'option', 'title',
+            $( this ).find( '#title' ).hide().text() );
+
     }
-
-
-    $.unescape = function(html) {
-        var htmlNode = document.createElement('div');
-        htmlNode.innerHTML = html;
-        if (htmlNode.innerText) {
-            return htmlNode.innerText; // IE
-        }
-        return htmlNode.textContent; // FF
-    }
-
-    $.fn.h = function() {
-        var h = 0;
-        this.each( function( i, v ){
-            h += $(v).outerHeight( true );
-        } );
-        return h;
-    }
-
-    $.fn.p = $.fn.parents;
-
-    $.fn.id = function() { return this.attr( 'id' ); }
-    $.fn.simpText = function(t) {
-        return $.trim( this.text( t ) ).replace( / +/g, ' ' );
-    }
-
-    $.fn.btn_opt = function (  ) {
-        var e = $( this );
-        var opt = {
-            icons : {},
-            text : e.attr( "_text" ) != "no"
-        };
-
-        e.attr( "_icon" ) && ( opt.icons.primary = "ui-icon-" + e.attr( "_icon" ) );
-        e.attr( "_icon2" ) && ( opt.icons.secondary = "ui-icon-" + e.attr( "_icon2" ) );
-
-        return opt;
-    }
-    $.fn.jsonRequest = function( succ ){
-
-        $( this ).each( function(){
-
-            var form = $( this );
-
-            $.ajax( {
-                url : form.attr( 'action' ),
-                type : form.attr( 'method' ),
-                data : form.serialize(),
-                dataType : 'json',
-                success : succ
-            } );
-
-        } );
-    }
-    $.fn.fullPanel = function( opt ) {
-
-        opt = $.extend( {
-            autoOpen : false,
-            modal : true,
-            draggable : false,
-            resizable : false
-        }, opt );
-
-        $( this ).dialog( opt );
-
-        if ( $( this ).dialog( 'option', 'title' ) == '' ) {
-
-            $( this ).dialog( 'option', 'title',
-                $( this ).find( '#title' ).hide().text() );
-
-        }
-    }
-} )( jQuery );
+}
 
 
 $( function() {
