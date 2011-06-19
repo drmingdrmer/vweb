@@ -230,7 +230,8 @@ body { background: #ddd; }
             bottom: 0px; right: 4px; }
 
     #t { width: 100%;
-        background: #aaa;
+        /* background: #aaa; */
+        position: relative;
         overflow: visible; zoom: 1; }
     #func {
         position: relative;
@@ -663,7 +664,7 @@ body { background: #ddd; }
     z-index: 1000;
     position: absolute;
     width: 100%;
-    left: 0; top: 0;
+    left: 0; top: 36;
     text-align: center;
 }
 #appmsg .msg {
@@ -759,4 +760,13 @@ body { background: #ddd; }
 
 
 
-body.album #btnhis { display:none; }
+body.album #paging #begindate,
+body.album #paging #btnhis,
+body.album #my #friend .g_other .f_comment,
+body.album #my #friend .g_other .f_message,
+body.album #update
+{ display:none; }
+
+body.album #paging { display: block; position: static; padding: 8px; float:right; width:auto; }
+body.album #my #friend .g_other { display: block; position: static; padding: 8px; float:left; }
+

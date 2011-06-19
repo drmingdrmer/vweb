@@ -113,18 +113,24 @@
                     <form class="f_args t_group g_simp left" >
                         <span id="fr_feature" class="t_opt grad_dark1 t_btn_set" name="feature" _type="radio">
                             <a href="0">全</a>
-                            <a href="1">原</a>
+                            <a class="nomode_album" href="1">原</a>
                             <a href="2">图</a>
-                            <a href="3">视</a>
-                            <a href="4">音</a>
+                            <a class="nomode_album" href="3">视</a>
+                            <a class="nomode_album" href="4">音</a>
                         </span>
                     </form>
 
                     <div class="t_group g_other">
                         <!-- 1. 评论数，2. @me数，3. 私信数，4. 关注数 -->
+                        <a class="f_mine" href="#">我的微博</a>
                         <a class="f_at" _reset_type="2" href="#">@我的<span class="stat"></span></a>
                         <a class="f_comment" _reset_type="1" href="#">评论<span class="stat"></span></a>
                         <a class="f_message" _reset_type="3" target="_blank" href="http://t.sina.com.cn/messages?source=toptray">私信<span class="stat"></span></a>
+                    </div>
+
+                    <div id="paging" class="mode_album">
+                        <a class="f_prev" href="#">上页</a>
+                        <a class="f_next" href="#">下页</a>
                     </div>
 
                     <div class="t_group g_search left hidden">
@@ -148,6 +154,7 @@
                             </p>
                         </form>
                     </div>
+
                 </fieldset>
                 <fieldset id="mine" class="t_ctrl highlight hidden">
                     <legend class="t_btn_set">
@@ -239,16 +246,17 @@
             </div>
             <button id="expand" class="t_btn" _text="no" _icon="arrow-4-diag">Expand</button>
             <!-- <button id="refresh" class="t_btn" _text="no" _icon="refresh">刷新</button> -->
+
         </div>
-        <div id="paging">
+        <div id="paging" class="nomode_album">
             <input id="begindate" type="text" name="begindate" value="11-02-27 15:34"/>
             <a href="#">上页</a>
             <a href="#">下页</a>
             <a id="btnhis" href="#">历史</a>
             <div id="history" class="hidden"></div>
         </div>
-        <div id="list">
-        </div>
+        <div id="appmsg"></div>
+        <div id="list"></div>
     </div>
     <div id="vd" class="hidden">
         <div id="vdaccpane">
@@ -306,12 +314,10 @@
 </td>
 </tr> </table>
 
-<div id="appmsg"></div>
 
-<script id="tmpl_msg" type="text/x-jquery-tmpl">
+<script id="tmpl_msg" _mode="" type="text/x-jquery-tmpl">
 <div id="${id}" class="t_msg thumb ${status}">
     <div class="handle ui-corner-all hidden"></div>
-    <!-- <div class="avatar ui-corner-all"> -->
     <div class="avatar">
         <a class="user" id="${user.id}" href="#"><img src="${user.avatar_50}" /></a>
     </div>
@@ -328,6 +334,27 @@
                 class="f_retweet" href="#">转发</a><a
                 class="f_fav" href="#">收藏</a><a
                 class="f_comment" href="#">评论</a>
+        </div>
+    </div>
+</div>
+</script>
+
+<script id="tmpl_msg" _mode="album" type="text/x-jquery-tmpl">
+<div id="${id}" class="t_msg thumb ${status}">
+    <div class="handle ui-corner-all hidden"></div>
+    <div class="avatar">
+        <a class="user" id="${user.id}" href="#"><img src="${user.avatar_50}" /></a>
+    </div>
+    <div class="cont msg">
+        <p class="username" id="${user.id}"><a class="user" id="${user.id}" href="#">${user.name}</a> ({{if user.verified}} V{{/if}}
+            ${user.friends_count} / ${user.followers_count} ):
+        </p>
+        <p class="username_sep">&nbsp;</p>
+        <p class="msg">{{html html}}</p>
+        {{if thumbnail_pic}} <div class="imgwrap thumb"><img class="msgimg thumb" src="${thumbnail_pic}" /></div> {{/if}}
+        {{if bmiddle_pic}} <div class="imgwrap midpic"><img class="msgimg midpic" src="${bmiddle_pic}"/></div> {{/if}}
+        <div class="msg_func">
+            {{if user.isme}}<a class="f_destroy" href="#">删除</a>{{/if}}
         </div>
     </div>
 </div>

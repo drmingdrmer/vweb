@@ -268,7 +268,9 @@ $.extend( ui, {
 
         edit.height( bodyHeight - $( "#hd,#menu" ).h() );
 
-        $( "#t>#list" ).height( subtabHeight - $( "#t>#update,#t>#func,#t>#paging" ).h() );
+        $( "#t>#list" ).height( subtabHeight
+            - $( "#t>#update,#t>#func,#t>#paging" ).filter( ':visible' ).h() );
+
         $( "#tree" ).height( subtabHeight - $( "#vdaccpane" ).h() );
 
         $( "#edit>#cont" ).width( edit.width() - 30 ).height( edit.height() - 30 );
@@ -903,7 +905,7 @@ $.extend( ui.t.list, {
         log( data );
 
         this._elt.empty();
-        $( "#tmpl_msg" ).tmpl( data ).appendTo( this._elt );
+        $( "#tmpl_msg[_mode=\"" + MODE + "\"]" ).tmpl( data ).appendTo( this._elt );
 
         this.setup_draggable();
     },
@@ -932,6 +934,7 @@ $.extend( ui.t.paging, {
             ui.fav.edit.removehis( e.attr( "id" ) );
             e.remove();
         } );
+        // TODO add func to next/prev page
     },
     loadhis: function () {
         ui.fav.edit.page.find( ".t_his" ).clone().appendTo( $( "#history" ).empty() );
@@ -1153,7 +1156,13 @@ var filter = { };
 } )( jQuery );
 
 
-$( function() { ui.init(); } );
+$( function() {
+    if ( MODE == 'album' ) {
+        $( '.nomode_album' ).remove();
+        // $( '.mode_' ).remove();
+    }
+    ui.init();
+} );
 
 
 /* ( function( $ ){
