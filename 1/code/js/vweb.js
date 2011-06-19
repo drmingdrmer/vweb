@@ -464,7 +464,10 @@ $.extend( ui.fav.edit, {
             d : rst
         };
     },
-    addhis: function ( rec ) {
+    addhis: function ( json, cmd ) {
+
+        var rec = ui.t.acc.gen_cmd_hisrecord( json, cmd );
+
         this.page.find( "#" + rec.hisid ).remove();
         $( "#tmpl_hisrec" ).tmpl( [ rec ] ).prependTo( this.page );
     },
@@ -527,7 +530,10 @@ $.extend( ui.t.acc, {
         // 'this' is set by create_loader and which is the DOM fired the event
 
         var trigger = this;
-        var args = opt.args && opt.args.apply( this, [] ) || {};
+        var args = {};
+        if ( opt.args ) {
+            args = opt.args.apply ? opt.args.apply( this, [] ) : opt.args;
+        }
 
         log( "args:" );
         log( args );
@@ -539,12 +545,12 @@ $.extend( ui.t.acc, {
             success: function( json ) {
                 if ( json.rst == 'ok' ) {
                     var t = trigger;
-                    var cmd = { name : cmdname, args : args };
+                    var cmd = { name: cmdname, args: args, cb:opt.cb };
 
                     ui.appmsg.msg( "载入成功" );
 
                     // TODO do not addhis after paging down/up
-                    ui.t.acc.addhis( json.data[ 0 ], cmd );
+                    ui.t.acc.addhis( json, cmd );
 
                     opt.cb && $.each( opt.cb, function( i, v ){
                         eval( v + "(json.data,t,cmd)" );
@@ -556,17 +562,27 @@ $.extend( ui.t.acc, {
         );
     },
 
-    addhis: function ( d, cmd ) {
-        if ( ! d ) { return; }
+    addhis: function ( json, cmd ) {
+        if ( json.rst != 'ok' || ! json.data[ 0 ] ) {
+            return;
+        }
+
+        ui.t.paging.addhis( json, cmd );
+        ui.fav.edit.addhis( json, cmd );
+    },
+
+    gen_cmd_hisrecord: function( json, cmd ){
+        var d = json.data[ 0 ];
 
         d.hisid = ui.t.acc.cmd_serialize( cmd.name, cmd.args, d.id );
         log( d );
 
-        hisdata = $TweetData( [ d ] ).stdAvatar().defaultUser('sender').historyText().historyTime().get()[ 0 ];
+        var hisdata = $TweetData( [ d ] ).stdAvatar().defaultUser('sender')
+        .historyText().historyTime().get()[ 0 ];
+
         log( hisdata );
 
-        ui.t.paging.addhis( hisdata );
-        ui.fav.edit.addhis( hisdata );
+        return hisdata;
     },
 
     pub : function () {
@@ -886,7 +902,6 @@ $.extend( ui.t.list, {
     },
 
     show : function ( data ) {
-        this.record( data );
 
         data = $TweetData( data ).splitRetweet().exclude( ui.fav.edit.ids() )
         .stdAvatar().defaultUser( 'sender' ).setMe( ui.t.acc.user.id )
@@ -898,12 +913,6 @@ $.extend( ui.t.list, {
         $( "#tmpl_msg[_mode=\"" + MODE + "\"]" ).tmpl( data ).appendTo( this._elt );
 
         this.setup_draggable();
-    },
-    record: function( data ) {
-        this.last = {
-            firstid: data[ 0 ].id,
-            oldestid: data[ data.length - 1 ].id
-        };
     },
     setup_draggable : function () {
 
@@ -922,22 +931,59 @@ $.extend( ui.t.list, {
 
 $.extend( ui.t.paging, {
     init: function() {
+        var self = this;
+
         this._elt.find( "#btnhis" ).click( function(){
             $( "#history" ).toggle();
         } );
+
+        $( '.f_prev', this._elt ).click( function(  ){
+            if ( ! self.last ) { return; }
+            var l = self.last;
+            // var since_id = l.json.data[ 0 ].id;
+            // var args = $.extend( {}, l.cmd.args, { since_id: since_id } );
+            // delete args.max_id;
+
+            var args = $.extend( {}, l.cmd.args );
+            args.page = args.page ? args.page - 1 : 1;
+            args.page = args.page <= 0 ? 1 : args.page;
+
+            ui.t.acc.load( l.cmd.name, { args: args, cb: l.cmd.cb } );
+
+        } );
+        $( '.f_next', this._elt ).click( function(  ){
+            if ( ! self.last ) { return; }
+            var l = self.last;
+            // var max_id = l.json.data[ l.json.data.length - 1 ].id;
+            // var args = $.extend( {}, l.cmd.args, { max_id: max_id } );
+            // delete args.since_id;
+
+            var args = $.extend( {}, l.cmd.args );
+            args.page = args.page ? args.page + 1 : 2;
+
+            ui.t.acc.load( l.cmd.name, { args: args, cb: l.cmd.cb } );
+
+        } );
+
         $( "#history" ).delegate( ".t_msg .f_del", "click", function( ev ){
             var e = $( this ).parent();
             ui.fav.edit.removehis( e.attr( "id" ) );
             e.remove();
         } );
-        // TODO add func to next/prev page
+
     },
     loadhis: function () {
-        ui.fav.edit.page.find( ".t_his" ).clone().appendTo( $( "#history" ).empty() );
+        ui.fav.edit.page.find( ".t_his" ).clone().appendTo(
+            $( "#history" ).empty() );
     },
-    addhis: function ( rec ) {
+    addhis: function ( json, cmd ) {
+        var rec = ui.t.acc.gen_cmd_hisrecord( json, cmd );
+
+        this.last = { cmd:cmd, json:json };
+
         log( 'paging.addhis:' );
         log( rec );
+
         $( this._elt ).find( ".t_his#" + rec.hisid ).remove();
         $( "#tmpl_hisrec" ).tmpl( [ rec ] ).prependTo( $( "#history" ) );
     }
@@ -1036,6 +1082,7 @@ $.extend( ui.t.my.friend, {
         window.setTimeout(function() { self._elt.find( ".f_idx" ).trigger( 'click' ); }, 0);
     },
 
+    // used only for record last id
     addLast: function ( d ) {
         d = d[ 0 ];
         if ( !this.since_id || d && (d.id+0) > (this.since_id+0) ) {
@@ -1044,6 +1091,9 @@ $.extend( ui.t.my.friend, {
     },
 
     clearStat: function ( data, triggerElt ) {
+        // triggerElt may be not a valid DOM if "load" is called directly
+        if ( ! triggerElt.attr ) { return; }
+
         $( '.stat', triggerElt ).empty();
         if ( triggerElt.attr( "_reset_type" ) ) {
             ui.t.acc.create_loader(
