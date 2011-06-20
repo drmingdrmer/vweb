@@ -1,0 +1,109 @@
+
+html, body {
+    padding: 0px;
+    margin: 0;
+    /* position: relative; */
+    /* height: 100%; */
+    /* overflow: hidden; */
+    background: #000;
+}
+#page {
+    padding: 0 0 0 2px;
+    width: 366px;
+    height: 100%;
+    overflow: hidden;
+    zoom:1;
+    /* overflow: visible; */
+    background: #333;
+    /* position: fixed; */
+}
+
+
+.t_msg .handle,
+.t_msg .avatar,
+.t_msg .cont .username,
+.t_msg .cont .user,
+.t_msg .cont .username_sep,
+.t_msg .cont .msg,
+.t_msg .cont .msg_func
+{ display: none; }
+
+.t_msg { float: left; margin: 2px 2px 0 0; padding: 0; }
+
+.t_msg .cont .msg {
+    /* position: absolute; */
+    /* color: #ddd; */
+}
+.t_msg .cont .imgwrap.thumb {
+    display: table-cell;
+    vertical-align: middle;
+    margin: 0;
+    background: #000;
+    overflow: hidden;
+
+    width:120px;
+    height:120px;
+    text-align:center;
+
+    -webkit-transition: all 0.2s linear;
+}
+.t_msg.showmid .cont .imgwrap.thumb {
+    z-index: 1000;
+    position: relative;
+    box-shadow: 0px 0px 10px #0ff;
+    -webkit-box-shadow: 0px 0px 10px 4px rgba( 0, 128, 255, 0.6 );
+}
+
+.t_msg .cont .imgwrap.midpic {
+/*
+ *     display: none;
+ *     text-align: center;
+ * 
+ *     width: 120px;
+ *     height: 120px;
+ */
+    position: fixed;
+    top: 40px;
+    left:368px;
+    right: 0px;
+
+    display: table-cell;
+    text-align:center;
+    vertical-align: middle;
+
+    margin: 0;
+    background: #000;
+    overflow: hidden;
+
+    opacity: 0;
+
+    -webkit-transition: all 0.2s linear;
+}
+.t_msg.showmid .cont .imgwrap.midpic {
+
+    position: fixed;
+    top: 40px;
+    left:368px;
+    right: 0px;
+    opacity: 1;
+}
+
+.t_msg .cont .imgwrap.midpic .msgimg {
+    border: 1px solid #666;
+    padding: 4px;
+    /* width: 120px; */
+    /* height: 120px; */
+
+    /* opacity: 0; */
+
+    -webkit-transition: all 0.2s linear;
+}
+
+.t_msg.showmid .cont .imgwrap.midpic .msgimg {
+    border: 1px solid #666;
+    padding: 4px;
+    /* width: auto; */
+    /* height: auto; */
+    /* opacity: 1; */
+}
+

@@ -7,7 +7,7 @@ include_once( "util.php" );
 define( "TransGif", "\x47\x49\x46\x38\x39\x61\x01\x00\x01\x00\x80\xff\x00\xc0\xc0\xc0\x00\x00\x00\x21\xf9\x04\x01\x00\x00\x00\x00\x2c\x00\x00\x00\x00\x01\x00\x01\x00\x00\x01\x01\x32\x00\x3b" );
 
 
-function wrap( $s, $nchar ) {
+function wrap_text( $s, $nchar ) {
     $i = 0;
     $w = 0;
     $rst = "";
@@ -34,7 +34,7 @@ function wrap( $s, $nchar ) {
 }
 function textgif( $s, $w, $h, $font ) {
 
-    $s = wrap( $s, $w / $font[ "size" ] * 2 );
+    $s = wrap_text( $s, $w / $font[ "size" ] * 2 );
 
     $img = new SaeImage();
     $img->setData( TransGif );
