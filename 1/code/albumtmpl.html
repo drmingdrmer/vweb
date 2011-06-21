@@ -7,6 +7,9 @@
         <title>**</title>
     </head>
     <body>
+        <div id="title">
+            我的测试相册
+        </div>
         <div id="page" class="ui-sortable">
             <div id="12621317954" class="t_msg thumb retweet ui-draggable" style="display: block; ">
                 <div class="handle ui-corner-all hidden">
@@ -344,10 +347,8 @@
                     <a class="user" id="1548513981" href="#">徐小蛋</a> ( V 614 / 1046 ): </p>
                     <p class="username_sep">&nbsp;</p>
 
-                    <p class="msg">我在来福士鹿港小镇，今天终于给吃上饭了[泪]
-                    <a class="at" screen_name="周凯莉" href="">@周凯莉</a> 童鞋今天扮清纯状。
-                    <a class="at" screen_name="我恨屁王" href="">@我恨屁王</a>
-                    <a class="at" screen_name="木土土" href="">@木土土</a>
+                    <p class="msg">
+                    我在来福士鹿港小镇，今天终于给吃上饭了[泪] <a class="at" screen_name="周凯莉" href="">@周凯莉</a> 童鞋今天扮清纯状。 <a class="at" screen_name="我恨屁王" href="">@我恨屁王</a> <a class="at" screen_name="木土土" href="">@木土土</a>
                     </p>
 
                     <div class="imgwrap thumb"><img class="msgimg thumb" src="http://ww1.sinaimg.cn/thumbnail/5c4c72bdjw1dicbrmnw1ij.jpg">
@@ -363,8 +364,12 @@
     </body>
     <script language="javascript" type="text/javascript">
         $( function(){
-            $( '.t_msg .cont.msg' ).each( function( e ) {
-                
+            $( '.t_msg' ).each( function( i, e ) {
+                e = $( e );
+                var wrap = $( '.imgwrap.midpic', e );
+                var msg = $( '.cont .msg', e );
+                $( '.avatar', e ).prependTo( msg );
+                msg.appendTo( wrap );
             } );
 
             $( '#page' ).delegate( ".t_msg .imgwrap.thumb", "click", function(ev){
