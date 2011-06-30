@@ -9,7 +9,19 @@
     </head>
     <body>
         <div id="title">
-            我的测试相册
+            <a href="#" class="prod">v-Album</a>
+            <span class="sep">|</span>
+            <span class="avatar"><img src="http://tp4.sinaimg.cn/1677892343/50/1283204432/1" alt="alt"/></span>
+            <a href="#" class="username">一个人名</a>
+            <span class="sep">|</span>《<span class="albname">我的测试相册</span>》
+            <a href="#" class="f_repost">分享到微博</a>
+        </div>
+        <div id="sae">
+            <a href="http://sae.sina.com.cn" target="_blank"><img
+                src="http://static.sae.sina.com.cn/image/poweredby/poweredby.png" title="Powered by Sina App Engine" /></a>
+        </div>
+        <div id="side">
+            <a href="#" >转发</a>
         </div>
         <div id="page" class="ui-sortable">
             <div id="12621317954" class="t_msg thumb retweet ui-draggable" style="display: block; ">
@@ -382,7 +394,9 @@
 
 
             $( '.t_msg' ).each( function( i, e ) {
-                $( '.imgwrap.midpic', e ).append( $( '.cont .msg', e ).prepend( $( '.avatar', e ) ) );
+                $( '.imgwrap.midpic', e ).append(
+                    $( '.cont .msg', e ).prepend( $( '.avatar', e ) )
+                );
             } );
 
             $( '#page' ).delegate( ".t_msg .imgwrap.thumb", "click", function(ev){
@@ -417,8 +431,11 @@
             } );
 
             $( window ).resize( function( ev ) {
-                $("<style type='text/css'>.t_msg .cont .imgwrap.midpic .msgimg { max-height: "
-                    + ( $(window).height() - 240 )  + "px;}</style>").appendTo("head");
+                window._resize_handle && window.clearTimeout( window._resize_handle );
+                window._resize_handle = window.setTimeout( function(){
+                        $("<style type='text/css'>.t_msg .cont .imgwrap.midpic .msgimg { max-height: "
+                            + ( $(window).height() - 240 )  + "px;}</style>").appendTo("head");
+                }, 10);
             } ).resize();
 
 

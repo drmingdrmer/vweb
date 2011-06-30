@@ -6,27 +6,83 @@ html, body {
 }
 
 #title {
+    z-index: 20;
 
-    z-index: 2000;
-
-    background: #666;
-    background-image: -webkit-gradient(linear, 0 0, 0 40, from(#ccc), to(#666));
+    background: #000;
+    background-image: -webkit-gradient(linear, 0 0, 0 40, from(#333), to(#000));
     -webkit-box-shadow: 0px 0px 10px 6px rgba( 0, 0, 0, 0.7 );
 
-    color: #333;
-    font-size: 18px;
-    font-weight: bold;
+    border-bottom: 2px solid #333;
 
-    text-shadow: 1px 1px 0px #ccc;
+    color: #777;
+    font-family: Arial,Helvetica,sans-serif;
 
     position: fixed;
     width: 100%;
     top: 0px;
 
-    padding: 8px;
-    text-align: center;
+    padding: 12px 0 12px 16px;
+    text-align: left;
 
-    opacity: 0.9;
+    opacity: 0.8;
+}
+#title .sep {
+    margin: 0 8px 0 8px;
+}
+#title a {
+    color: #aaa;
+    text-decoration: none;
+}
+#title a:hover {
+    color: #fff;
+    text-decoration: underline;
+}
+#title .albname {
+    color: #eee;
+    font-size: 16px;
+}
+#title .f_repost {
+    margin: 0 0 0 16px;
+    font-size: 14px;
+}
+#title .avatar {
+    position: absolute;
+}
+#title .avatar img {
+    height: 18px;
+}
+#title .username {
+    margin: 0 0 0 24px;
+    font-size: 12px;
+    color: #eee;
+}
+
+#sae {
+    z-index: 30;
+    position: fixed;
+    top: 0px;
+    right: 1px;
+
+}
+#sae a {
+    position: relative;
+    top: 3px;
+    opacity: 0.7;
+    -webkit-transition: all 0.1s ease;
+}
+#sae a:hover {
+    opacity: 1;
+}
+
+#side {
+    position: fixed;
+    top: 40px;
+    right: 0px;
+
+    color: #fff;
+}
+#side a {
+    color: #fff;
 }
 
 #page {
