@@ -3,7 +3,7 @@
 var ui = {
     appmsg : {},
     fav : {
-        hd : {},
+        maintool : {},
         menu : {},
         edit : {}
     },
@@ -258,7 +258,7 @@ $.extend( ui, {
         var edit = $( "#edit" );
         var subtabHeight = bodyHeight - tabsHeight;
 
-        edit.height( bodyHeight - $( "#hd,#menu" ).h() );
+        edit.height( bodyHeight - $( "#maintool,#menu" ).h() );
 
         $( "#t>#list" ).height( subtabHeight
             - $( "#t>#update,#t>#func,#t>#paging" ).filter( ':visible' ).h() );
@@ -330,14 +330,16 @@ $.extend( ui.fav, {
     filename : function (fn) {
         if ( fn ) {
             this._fn = fn;
+
         }
         return this._fn;
     }
 
 } );
 
-$.extend( ui.fav.hd, {
+$.extend( ui.fav.maintool, {
     init : function () {
+
         $( "#pub" ).click( function( ev ){
             evstop( ev );
 
@@ -351,12 +353,11 @@ $.extend( ui.fav.hd, {
 
             log( "layout data:" );
             log( data );
+
             vweb_cmd( 'POST', 'pub', { msg:msg }, JSON.stringify( data ), {
                 success: function( json ) {
-                    if ( json.rst == 'ok' ) {
-                    }
-                    else {
-                    }
+                    if ( json.rst == 'ok' ) { }
+                    else { }
                 }
             } );
         } );
@@ -605,11 +606,8 @@ $.extend( ui.t.acc, {
         log( hisdata );
 
         return hisdata;
-    },
-
-    pub : function () {
-
     }
+
 } );
 
 $.extend( ui.t.update, {
