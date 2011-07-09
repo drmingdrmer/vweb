@@ -9,19 +9,20 @@
     </head>
     <body>
         <div id="title">
-            <a href="#" class="prod">v-Album</a>
-            <span class="sep">|</span>
-            <span class="avatar"><img src="http://tp4.sinaimg.cn/1677892343/50/1283204432/1" alt="alt"/></span>
-            <a href="#" class="username">一个人名</a>
-            <span class="sep">|</span>《<span class="albname">我的测试相册</span>》
+            <div class="left">
+                <a href="#" class="prod">Vlbum</a>
+            </div>
+            <span class="user"><img src="http://tp4.sinaimg.cn/1677892343/50/1283204432/1" alt="alt"/><a href="#" class="username">一个人名</a></span>
+            <span class="sep">&nbsp;</span>
+            <span class="albname">我的测试相册</span>
+            <span class="sep">&nbsp;</span>
             <a href="#" class="f_repost">分享到微博</a>
+            <div class="right">
+            </div>
         </div>
         <div id="sae">
             <a href="http://sae.sina.com.cn" target="_blank"><img
                 src="http://static.sae.sina.com.cn/image/poweredby/poweredby.png" title="Powered by Sina App Engine" /></a>
-        </div>
-        <div id="side">
-            <a href="#" >转发</a>
         </div>
         <div id="page" class="ui-sortable">
             <div id="12621317954" class="t_msg thumb retweet ui-draggable" style="display: block; ">
@@ -364,81 +365,14 @@
                     我在来福士鹿港小镇，今天终于给吃上饭了[泪] <a class="at" screen_name="周凯莉" href="">@周凯莉</a> 童鞋今天扮清纯状。 <a class="at" screen_name="我恨屁王" href="">@我恨屁王</a> <a class="at" screen_name="木土土" href="">@木土土</a>
                     </p>
 
-                    <div class="imgwrap thumb"><img class="msgimg thumb" src="http://ww1.sinaimg.cn/thumbnail/5c4c72bdjw1dicbrmnw1ij.jpg">
-                    </div>
+                    <div class="imgwrap thumb"><img class="msgimg thumb" src="http://ww1.sinaimg.cn/thumbnail/5c4c72bdjw1dicbrmnw1ij.jpg"></div>
                     <!-- <div class="imgwrap midpic"><img class="msgimg midpic" src="http://ww1.sinaimg.cn/bmiddle/5c4c72bdjw1dicbrmnw1ij.jpg"> -->
-                    <div class="imgwrap midpic"><img class="msgimg midpic" src="http://ww1.sinaimg.cn/bmiddle/66cb4654jw1dibn56iyn2j.jpg">
-                    </div>
+                    <div class="imgwrap midpic"><img class="msgimg midpic" src="http://ww1.sinaimg.cn/bmiddle/66cb4654jw1dibn56iyn2j.jpg"></div>
                     <div class="msg_func">
                     </div>
                 </div>
             </div>
         </div>
     </body>
-    <script language="javascript" type="text/javascript">
-        $( function(){
-
-            var thumbHeight = 120, nThumbPerLine = 3;
-
-            function evstop( ev ) {
-                ev && ev.stopPropagation && ev.stopPropagation();          /* pop up                  */
-                ev && ev.preventDefault && ev.preventDefault();            /* other event on this DOM */
-                return true;
-            }
-
-            $.fn.xTimes = function ( func, n ) {
-                return n > 0 ? this[func]().xTimes( func, n-1 ) : this;
-            }
-            $.fn.xUp = function() { return this.xTimes( 'prev', nThumbPerLine ); }
-            $.fn.xDown = function() { return this.xTimes( 'next', nThumbPerLine ); }
-
-
-            $( '.t_msg' ).each( function( i, e ) {
-                $( '.imgwrap.midpic', e ).append(
-                    $( '.cont .msg', e ).prepend( $( '.avatar', e ) )
-                );
-            } );
-
-            $( '#page' ).delegate( ".t_msg .imgwrap.thumb", "click", function(ev){
-                evstop( ev );
-
-                var e = $( this ).parents( ".t_msg" );
-                // get cls first or ".showmid" would be removed
-                var cls = e.prevAll( '.showmid')[0] ? 'delayImg' : 'delayWrap';
-
-                $( '.t_msg' ).removeClass( 'showmid delayWrap delayImg' ).addClass( cls );
-                e.addClass( 'showmid' );
-
-                var p = e.offset().top - $( window ).scrollTop(), wh = $( window ).height();
-                p > 40 && p < wh - thumbHeight || $( document ).scrollTo( e, { duration: 200, offset: -wh/2 + thumbHeight } );
-
-            } );
-
-            $( document ).keydown( function( ev ){
-
-                /* console.log( ev.keyCode ); */
-
-                var func = ( {
-                    37: 'prev',  // left
-                    38: 'xUp',   // down
-                    39: 'next',  // right
-                    40: 'xDown', // down
-                    32: 'next'   // space
-                } )[ ev.keyCode ];
-
-                func && evstop( ev ) && $( '.imgwrap.thumb',
-                    $( '.t_msg.showmid' )[func]()[0] || $( '.t_msg:first' ) ).click();
-            } );
-
-            $( window ).resize( function( ev ) {
-                window._resize_handle && window.clearTimeout( window._resize_handle );
-                window._resize_handle = window.setTimeout( function(){
-                        $("<style type='text/css'>.t_msg .cont .imgwrap.midpic .msgimg { max-height: "
-                            + ( $(window).height() - 240 )  + "px;}</style>").appendTo("head");
-                }, 10);
-            } ).resize();
-
-
-        } );
-    </script>
+    <script language="javascript" type="text/javascript" src="album.js"></script>
 </html>

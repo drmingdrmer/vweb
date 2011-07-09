@@ -1,0 +1,54 @@
+
+/*
+ * div {
+ *     background-position: bottom left, bottom right, top right, top left;
+ *     -moz-background-size: 50% 50%;
+ *     -webkit-background-size: 50% 50%;
+ *     background-size: 50% 50%;
+ *     background-repeat: no-repeat;
+ * }
+ * div {
+ *     background: #c00; [> fallback <]
+ *     background:
+ *         -moz-linear-gradient(45deg,  transparent 10px, #c00 10px),
+ *         -moz-linear-gradient(135deg, transparent 10px, #c00 10px),
+ *         -moz-linear-gradient(225deg, transparent 10px, #c00 10px),
+ *         -moz-linear-gradient(315deg, transparent 10px, #c00 10px);
+ *     background:
+ *         -o-linear-gradient(45deg,  transparent 10px, #c00 10px),
+ *         -o-linear-gradient(135deg, transparent 10px, #c00 10px),
+ *         -o-linear-gradient(225deg, transparent 10px, #c00 10px),
+ *         -o-linear-gradient(315deg, transparent 10px, #c00 10px);
+ *     background:
+ *         -webkit-linear-gradient(45deg,  transparent 10px, #c00 10px),
+ *         -webkit-linear-gradient(135deg, transparent 10px, #c00 10px),
+ *         -webkit-linear-gradient(225deg, transparent 10px, #c00 10px),
+ *         -webkit-linear-gradient(315deg, transparent 10px, #c00 10px);
+ * }
+ * 
+ * div.round {
+ *     background:
+ *         -moz-radial-gradient(0 100%, circle, rgba(204,0,0,0) 14px, #c00 15px),
+ *         -moz-radial-gradient(100% 100%, circle, rgba(204,0,0,0) 14px, #c00 15px),
+ *         -moz-radial-gradient(100% 0, circle, rgba(204,0,0,0) 14px, #c00 15px),
+ *         -moz-radial-gradient(0 0, circle, rgba(204,0,0,0) 14px, #c00 15px);
+ *     background:
+ *          -o-radial-gradient(0 100%, circle, rgba(204,0,0,0) 14px, #c00 15px),
+ *          -o-radial-gradient(100% 100%, circle, rgba(204,0,0,0) 14px, #c00 15px),
+ *          -o-radial-gradient(100% 0, circle, rgba(204,0,0,0) 14px, #c00 15px),
+ *          -o-radial-gradient(0 0, circle, rgba(204,0,0,0) 14px, #c00 15px);
+ *     background:
+ *          -webkit-radial-gradient(0 100%, circle, rgba(204,0,0,0) 14px, #c00 15px),
+ *          -webkit-radial-gradient(100% 100%, circle, rgba(204,0,0,0) 14px, #c00 15px),
+ *          -webkit-radial-gradient(100% 0, circle, rgba(204,0,0,0) 14px, #c00 15px),
+ *          -webkit-radial-gradient(0 0, circle, rgba(204,0,0,0) 14px, #c00 15px);
+ * }
+ * 
+ * div, div.round {
+ *     background-position: bottom left, bottom right, top right, top left;
+ *     -moz-background-size: 50% 50%;
+ *     -webkit-background-size: 50% 50%;
+ *     background-size: 50% 50%;
+ *     background-repeat: no-repeat;
+ * }
+ */
