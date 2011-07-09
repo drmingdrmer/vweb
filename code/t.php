@@ -173,16 +173,13 @@ else if ( $verb == "POST" ) {
             $fn = mkimg_local( $data, 'jpg' );
             !$fn && resmsg( 'mkimg', 'mkimg' );
 
-            $s = new SaeStorage();
-            $url = $s->write( 'pub' , "tmp.jpg" , file_get_contents( $fn ) );
+            // $s = new SaeStorage();
+            // $url = $s->write( 'pub' , "tmp.jpg" , file_get_contents( $fn ) );
 
-            resmsg( "ok", "no pub: $url" );
+            $rst = $c->upload( $msg, $fn );
+            output_exit( gen_app_rst( $rst, "发布成功" ) );
             break;
 
-            /*
-             * $url && resjson( array( "rst" => "ok", "url" => $url ) )
-             *     || resmsg( 'save', $s->errmsg() );
-             */
 
             $r = $c->upload( $msg, $fn );
             $r && resmsg( "ok", "published" )
