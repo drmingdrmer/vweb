@@ -1,10 +1,5 @@
 // Works with jquery-1.4.4, jquery-ui-1.8.9
 
-// var cfg = {
-//     key: '2060512444',
-//     xdpath: 'http://vweb.sinaapp.com/xd.html'
-// };
-
 var ui = {
     appmsg : {},
     fav : {
@@ -29,7 +24,7 @@ var ui = {
     }
 };
 
-function weibo_cmd( verb, cmd, args, data, cbs ) {
+function vweb_cmd( verb, cmd, args, data, cbs ) {
 
     args = $.isPlainObject( args ) ? $.param( args ) : args;
     cbs = cbs || {};
@@ -46,9 +41,9 @@ function weibo_cmd( verb, cmd, args, data, cbs ) {
             ui.appmsg.msg( json.rst + " " + json.msg );
             cbs.success && cbs.success( json );
         },
-        error : function( xhr, st, err ) {
-            ui.appmsg.msg( st );
-            cbs.error && cbs.error( xhr, st, err );
+        error : function( jqxhr, errstr, exception ) {
+            ui.appmsg.msg( errstr );
+            cbs.error && cbs.error( jqxhr, errstr, exception );
         }
     } );
 
@@ -286,6 +281,18 @@ $.extend( ui, {
 } );
 
 $.extend( ui.appmsg, {
+    init: function() {
+        this._elt.bind( 'ajaxSend', function(){
+            ui.appmsg.msg( 'Loading..' );
+        } )
+        .bind( 'ajaxSuccess', function( ev, xhr, opts ){
+            // ev is and event object
+        } )
+        .bind( 'ajaxError', function( ev, jqxhr, ajaxsetting, thrownErr ){
+            ui.appmsg.err( ev );
+        } )
+        ;
+    },
     msg : function ( text ) {
         if ( text ) {
             var e = this._elt;
@@ -333,7 +340,25 @@ $.extend( ui.fav.hd, {
     init : function () {
         $( "#pub" ).click( function( ev ){
             evstop( ev );
-            ui.t.acc.pub();
+
+            var data = ui.fav.edit.layoutdata();
+
+            // TODO specific title
+            var msg = ( new Date() );
+            if ( data.d.length > 0 ) {
+                msg += data.d[ 0 ].text;
+            }
+
+            log( "layout data:" );
+            log( data );
+            vweb_cmd( 'POST', 'pub', { msg:msg }, JSON.stringify( data ), {
+                success: function( json ) {
+                    if ( json.rst == 'ok' ) {
+                    }
+                    else {
+                    }
+                }
+            } );
         } );
     }
 
@@ -538,10 +563,7 @@ $.extend( ui.t.acc, {
         log( "args:" );
         log( args );
 
-        // TODO use ajax global event to set up messages
-        ui.appmsg.msg( "载入中..." );
-
-        weibo_cmd( 'GET', cmdname, args, undefined, {
+        vweb_cmd( 'GET', cmdname, args, undefined, {
             success: function( json ) {
                 if ( json.rst == 'ok' ) {
                     var t = trigger;
@@ -587,32 +609,6 @@ $.extend( ui.t.acc, {
 
     pub : function () {
 
-        var data = ui.fav.edit.layoutdata();
-
-        // TODO specific title
-        var msg = ( new Date() );
-        if ( data.d.length > 0 ) {
-            msg += data.d[ 0 ].text;
-        }
-
-        log( "layout data:" );
-        log( data );
-
-        $.ajax( {
-            type : "POST", url : "t.php?act=pub&msg=" + msg,
-            data : JSON.stringify( data ),
-            dataType : "json",
-            success : function( rst, st, xhr ) {
-                if ( rst.rst == "ok" ) {
-                    ui.appmsg.msg( "published" );
-                    // TODO message
-                }
-                else {
-                    ui.appmsg.msg( rst.msg );
-                }
-            }
-
-        } );
     }
 } );
 
@@ -850,7 +846,7 @@ $.extend( ui.t.list, {
 
         .delegate( ".t_msg .f_destroy", "click", function( ev ){
             evstop( ev );
-            weibo_cmd( 'POST', "destroy", '',
+            vweb_cmd( 'POST', "destroy", '',
                 { id: $( this ).p( ".t_msg" ).id() }, { } );
         } )
 
@@ -891,7 +887,7 @@ $.extend( ui.t.list, {
         .delegate( ".t_msg .f_fav", "click", function( ev ){
             evstop( ev );
             log( this );
-            weibo_cmd( 'POST', "fav", '',
+            vweb_cmd( 'POST', "fav", '',
                 { id: $( this ).p( ".t_msg" ).id() }, { } );
         } )
         ;
