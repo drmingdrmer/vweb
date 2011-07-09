@@ -77,47 +77,41 @@ body { background: #ddd; }
 #acc { float: right; }
 
 #bd {
-    overflow: hidden; zoom: 1;
+    /* overflow: hidden; zoom: 1; */
     position: relative;
     height: 100%;
     width: 100%; }
 
     #maintool {
         background: #121212;
-        /* background: #fff; */
+        position: relative;
+        z-index: 40;
 
         width: 100%;
-        /* width: 600px; */
-        margin: 0; padding: 12px 0 12px 0;
-        overflow: visible; zoom: 1; }
+        margin: 0;
+        /* padding: 12px 0 12px 0; */
+        overflow: visible;
+        zoom: 1;
+        box-shadow: 0px 0px 20px #000;
+    }
 
-        #maintool td { height: 50px; }
+        #maintool td { height: 30px; }
         #maintool td .wrap {
             overflow: visibility;
-            width: 100%; height: 50px; }
+            width: 100%; height: 30px; }
 
-        #lg {
+        #logo {
             vertical-align: top;
             border-right: 1px solid #2d2d2d;
-            /* margin-right:12px; */
-            width: 120px;}
-            #lg img {
-                /* width: 40px; height: 40px; */
-                /* margin: -10px 0 0 -10px; */
-            }
+            width: 120px;
+        }
             #appname {
-                position: absolute;
-                line-height: 30px;
-                font-size: 26px; font-family: ºÚÌå;
+                line-height: 25px;
+                font-size: 22px; font-family: ºÚÌå;
+                letter-spacing: 4px;
                 color: #7c7c7c;
-                bottom:15px; left: 45px;
+                padding: 4px 0 0 12px;
             }
-            #applinks {
-                text-align: center;
-                position: absolute;
-                bottom: -2px; left: 20px;
-            }
-            #applinks a { color:#9c9c9c; }
 
         #curfile {
             padding: 0 0 0 20px;
@@ -128,31 +122,23 @@ body { background: #ddd; }
             background: #1d1d1d; color: #fff;
             width: 98%;
             height: 20px;
-            position: absolute;
-            bottom: 0;
-            /* margin: 10px 0 0 0; */
-            /* padding: 3px; */
+            margin: 4px 0 0 0;
         }
         #curfile #open { color:#000; }
-        #tdpub {
+        #pubarea {
             vertical-align: bottom;
             text-align: center;
             width: 100px; }
             #pub {
-                margin: -8px 0 -4px 0;
+                margin: 4px 0 0 0;
                 border:0;
                 background: none;
                 color: #9f9f9f;
                 font-size:14px;
             }
 
-            #pub .ui-icon {
-                top: 0px;
-                left: 50%;
-                margin: 0 0 0 -20px;
-            }
             #pub .ui-button-text {
-                padding: 40px 10px 0 10px;
+                padding: 4px 0 0 0;
             }
     #menu {
         /* width: 600px; */
@@ -167,16 +153,18 @@ body { background: #ddd; }
         bottom: 0; }
     #edit {
         position: relative;
-        /* width: 600px; */
         width: 100%;
         overflow: hidden;
     }
-        #cont { width: 100%; height: 100%;
+        #cont {
+            width: 100%; height: 100%;
             position: absolute;
             bottom: 0; right: 0;
             overflow: auto;
-            border: 1px solid #f00;
-            color: #000; background: #fff; }
+            /* border: 1px solid #f00; */
+            color: #000;
+            background: #fff;
+        }
         #cont.standard {  }
         #cont.album .t_msg {
             -moz-border-radius: 0;
@@ -184,7 +172,8 @@ body { background: #ddd; }
             border-radius: 0;
             float: left;
             margin: 1px;
-            padding: 0; }
+            padding: 0;
+        }
         #cont.album .t_msg .avatar { display: none; }
         #cont.album .t_msg .cont { margin: 0; }
         #cont.album .t_msg .cont .username { display: none; }
@@ -195,8 +184,9 @@ body { background: #ddd; }
         #cont.album .t_msg .cont .msgimg { display: inline; float: none; }
         #cont.album .t_msg .cont .msg_func { display: none; }
             #page {
-                border: 1px solid #ddd;
-                width: 560px;
+                /* border: 1px solid #ddd; */
+                /* width: 560px; */
+                width: 100%;
                 min-height: 400px;
                 overflow: hidden; zoom: 1; }
             #page .t_his { display: none; }
@@ -228,8 +218,14 @@ body { background: #ddd; }
         overflow: visible; zoom: 1; }
     #func {
         position: relative;
+        z-index: 40;
         height: 30px;
-        overflow: visible; zoom: 1; }
+        overflow: visible; zoom: 1;
+
+
+        box-shadow: 0px 0px 20px #000;
+        -webkit-box-shadow: 0px 0px 30px 0px rgba( 0, 0, 0, 0.7 );
+    }
 
         #my {
             z-index: 2;
@@ -300,7 +296,8 @@ body { background: #ddd; }
     #paging {
         position: relative;
         width: 100%;
-        height: 20px;
+        height: 14px;
+        line-height: 14px;
         overflow: visible;
     }
         #begindate {
@@ -594,6 +591,9 @@ body { background: #ddd; }
     padding: 0 0 0 10px;
 }
 
+#list {
+    background: #fff;
+}
 #list .t_msg.retweet {
     color: #333;
     /* background-color: #eee; */
@@ -760,6 +760,6 @@ body.album #my #friend .g_other .f_message,
 body.album #update
 { display:none; }
 
-body.album #paging { display: block; position: static; padding: 8px; float:right; width:auto; }
-body.album #my #friend .g_other { display: block; position: static; padding: 8px; float:left; }
+body.album #paging { display: block; position: static; padding: 6px; float:right; width:auto; }
+body.album #my #friend .g_other { display: block; position: static; padding: 6px; float:left; }
 

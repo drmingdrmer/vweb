@@ -236,8 +236,8 @@ $.extend( ui, {
         $( ".t-group" ).addClass( "ui-widget ui-corner-all" );
         $( "#menu" ).addClass( "cont_dark2 cont_dark_shad2" );
         $( "#func" ).addClass( "cont_dark2 cont_dark_shad2" );
-        $( "#edit" ).addClass( "cont_white0 cont_white_shad0" );
-        $( "#list" ).addClass( "cont_white0 cont_white_shad0" );
+        // $( "#edit" ).addClass( "cont_white0 cont_white_shad0" );
+        // $( "#list" ).addClass( "cont_white0 cont_white_shad0" );
         $( "#paging" ).addClass( "cont_dark0 cont_dark_shad0" );
 
 
@@ -265,7 +265,10 @@ $.extend( ui, {
 
         $( "#tree" ).height( subtabHeight - $( "#vdaccpane" ).h() );
 
-        $( "#edit>#cont" ).width( edit.width() - 30 ).height( edit.height() - 30 );
+        // // NOTE temporarily disabled
+        // $( "#edit>#cont" )
+        // .width( edit.width() - 30 )
+        // .height( edit.height() - 30 );
 
     },
 
@@ -339,6 +342,9 @@ $.extend( ui.fav, {
 
 $.extend( ui.fav.maintool, {
     init : function () {
+
+        var e = this._elt;
+        $( "#fn", e ).DefaultValue( '未命名相册' );
 
         $( "#pub" ).click( function( ev ){
             evstop( ev );
