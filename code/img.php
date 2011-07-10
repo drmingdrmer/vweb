@@ -46,7 +46,7 @@ function textgif( $s, $w, $h, $font ) {
 function square( $w, $h, $color ) {
 
     $img = new SaeImage();
-    $img->setData( array( TransGif, 0, 0, 1, SAE_TOP_LEFT ) );
+    $img->setData( array( array( TransGif, 0, 0, 1, SAE_TOP_LEFT ) ) );
     $img->composite( $w, $h, $color );
 
     return $img->exec( 'png' );

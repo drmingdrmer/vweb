@@ -226,8 +226,7 @@ else if ( $verb == "POST" ) {
             $layout = $data[ 'layout' ];
             $page = $data[ 'page' ];
 
-
-            $albumhtml = json_to_html( $data );
+            $albumhtml = json_to_html( $page );
 
             $useravatar = $_SESSION[ 'user' ][ 'profile_image_url' ];
             $username = $_SESSION[ 'user' ][ 'name' ];

@@ -41,7 +41,8 @@ function vweb_cmd( verb, cmd, args, data, cbs ) {
         success : function( json, st, xhr ) {
             log( json );
             if ( json.rst == 'auth' ) {
-                window.location.href = loginPage;
+                log( 'auth error' );
+                // window.location.href = loginPage;
                 return;
             }
             ui.appmsg.msg( json.rst + " " + json.msg );
@@ -409,12 +410,12 @@ $.extend( ui.fav.edit, {
     },
     layoutdata : function () {
         var rst = [];
-        var root = this.cont.offset();
-        root.top -= this.cont.scrollTop();
-        root.left -= this.cont.scrollLeft();
+        var root = this.page.offset();
+        root.top -= this.page.scrollTop();
+        root.left -= this.page.scrollLeft();
 
-        var rootw = this.cont[ 0 ].scrollWidth;
-        var rooth = this.cont[ 0 ].scrollHeight;
+        // var rootw = this.cont[ 0 ].scrollWidth;
+        // var rooth = this.cont[ 0 ].scrollHeight;
 
         var pagesize = this.page.size_wh( false );
 

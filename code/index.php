@@ -16,20 +16,10 @@ function load_user_to_sess() {
 
     $rst = $c->_load_cmd( 'account/verify_credentials', array() );
 
-    if ( $rst ) {
-        if ( ! $rst[ 'error_code' ] ) {
-            $_SESSION[ 'user' ] = $rst;
-            return true;
-        }
-        else {
-            echo "{$rst['error']}\n";
-            exit();
-        }
+    if ( $rst[ 'rst' ] == 'ok' ) {
+        $_SESSION[ 'user' ] = $rst[ 'data' ];
     }
-    else {
-        echo "调用weibo接口失败。请刷新\n";
-        exit();
-    }
+    return $rst;
 }
 
 
