@@ -43,6 +43,15 @@ function textgif( $s, $w, $h, $font ) {
 
     return $img->exec( 'png' );
 }
+function square( $w, $h, $color ) {
+
+    $img = new SaeImage();
+    $img->setData( array( TransGif, 0, 0, 1, SAE_TOP_LEFT ) );
+    // $img->resize( $w, $h );
+    $img->composite( $w, $h, $color );
+
+    return $img->exec( 'png' );
+}
 function mkimg( $data, $tp, $isout ) {
     $FONT = array(
         "size" => 14,
@@ -55,6 +64,12 @@ function mkimg( $data, $tp, $isout ) {
 
     $comp = array();
     foreach ($d as $e) {
+        if ( $e[ 'bgcolor' ] ) {
+            $img = square( $e[ 'w' ], $e[ 'h' ], $e[ 'bgcolor' ] );
+            $sub = array( $img, $e[ 'l' ], -$e[ 't' ], 1, SAE_TOP_LEFT );
+            array_push( $comp, $sub );
+        }
+
         if ( $e[ 'img' ] ) {
             $img = file_get_contents( $e[ 'img' ] );
             $sub = array( $img, $e[ 'l' ], -$e[ 't' ], 1, SAE_TOP_LEFT );
