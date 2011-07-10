@@ -350,6 +350,7 @@ $.extend( ui.fav.maintool, {
             evstop( ev );
 
             var data = ui.fav.edit.layoutdata();
+            var albumdata = ui.fav.edit.page.children( ":not(.t_his)" ).toJson();
 
             // TODO specific title
             var msg = ( new Date() );
@@ -359,13 +360,23 @@ $.extend( ui.fav.maintool, {
 
             log( "layout data:" );
             log( data );
+            log( "album data" );
+            log( albumdata );
 
-            vweb_cmd( 'POST', 'pub', { msg:msg }, JSON.stringify( data ), {
+            vweb_cmd( 'POST', 'createalbum', { msg:msg }, JSON.stringify( albumdata ), {
                 success: function( json ) {
                     if ( json.rst == 'ok' ) { }
                     else { }
                 }
             } );
+
+            // vweb_cmd( 'POST', 'pub', { msg:msg }, JSON.stringify( data ), {
+            //     success: function( json ) {
+            //         if ( json.rst == 'ok' ) { }
+            //         else { }
+            //     }
+            // } );
+
         } );
     }
 
@@ -1140,10 +1151,10 @@ $.fn.toJson = function() {
         else {
             j = { node: { tag: this.tagName, id:e.id(), class: e.attr( 'class' ) } };
             switch ( j.node.tag ) {
-            case 'img' :
+            case 'IMG' :
                 j.node.src = e.attr( 'src' );
                 break;
-            case 'a' :
+            case 'A' :
                 j.node.href = e.attr( 'href' );
                 break;
             }

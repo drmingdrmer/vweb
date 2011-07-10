@@ -103,6 +103,39 @@ function output_exit( $arr ) {
     }
 }
 
+function json_to_html( &$d ) {
+
+    $html = '';
+
+    foreach ($d as $e) {
+        if ( $e[ 'text' ] ) {
+            return $e[ 'text' ];
+        }
+        else if ( $e[ 'node' ] ) {
+            $n = $e[ 'node' ];
+
+            $html .= "<{$n['tag']} id=\"{$n['id']}\" class=\"{$n['class']}\"";
+
+            if ( $n[ 'tag' ] == 'A' && $n[ 'href' ] ) {
+                $html .= " href=\"{$n['href']}\"";
+            }
+            if ( $n[ 'tag' ] == 'IMG' && $n[ 'src' ] ) {
+                $html .= " src=\"{$n['src']}\"";
+            }
+
+            $html .= ">";
+
+            if ( $e[ 'children' ] ) {
+                $html .= json_to_html( $e[ 'children' ] );
+            }
+
+            $html .="</{$n['tag']}>";
+
+        }
+    }
+    return $html;
+}
+
 $c = new MySaeTClient( WB_AKEY, WB_SKEY,
     $_SESSION['last_key']['oauth_token'],
     $_SESSION['last_key']['oauth_token_secret']  );
@@ -173,8 +206,6 @@ else if ( $verb == "POST" ) {
             $fn = mkimg_local( $data, 'jpg' );
             !$fn && resmsg( 'mkimg', 'mkimg' );
 
-            // $s = new SaeStorage();
-            // $url = $s->write( 'pub' , "tmp.jpg" , file_get_contents( $fn ) );
 
             $rst = $c->upload( $msg, $fn );
             output_exit( gen_app_rst( $rst, "发布成功" ) );
@@ -184,7 +215,50 @@ else if ( $verb == "POST" ) {
             $r = $c->upload( $msg, $fn );
             $r && resmsg( "ok", "published" )
                 || resmsg( "publish", "publish" );
+            break;
 
+        case "createalbum":
+
+            $data = file_get_contents("php://input");
+            !$data && resmsg( "nodata", "nodata" );
+
+            $data = unjson( $data );
+            $albumhtml = json_to_html( $data );
+
+            // echo $albumhtml;
+            // exit();
+
+            $html = <<<HTML
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html>
+    <head>
+        <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+        <link rel="stylesheet" type="text/css" href="albumtmpl.css" />
+        <script language="javascript" type="text/javascript" src="http://lib.sinaapp.com/js/jquery/1.4.4/jquery.min.js"></script>
+        <script language="javascript" type="text/javascript" src="plugin/scrollto/jquery.scrollTo.js"></script>
+        <title>$albumname</title>
+    </head>
+    <body>
+        <div id="title">
+            <div class="left"><a href="#" class="prod">Vlbum</a></div>
+            <span class="user"><img src="$useravatar" alt="alt"/><a href="#" class="username">$username</a></span>
+            <span class="sep">&nbsp;</span>
+            <span class="albname">$albumname</span>
+            <span class="sep">&nbsp;</span>
+            <a href="#" class="f_repost">分享到微博</a>
+        </div>
+        <div id="sae">
+            <a href="http://sae.sina.com.cn" target="_blank"><img
+                src="http://static.sae.sina.com.cn/image/poweredby/poweredby.png" title="Powered by Sina App Engine" /></a>
+        </div>
+        <div id="page" class="ui-sortable">$albumhtml</div>
+    </body>
+    <script language="javascript" type="text/javascript" src="album.js"></script>
+</html>
+HTML;
+            $s = new SaeStorage();
+            $url = $s->write( 'pub' , "tmp.html" , $html );
+            resmsg( 'ok', 'albumcreated' );
 
             break;
     }
