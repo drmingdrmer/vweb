@@ -183,12 +183,29 @@ body { background: #ddd; }
         #cont.album .t_msg .cont .imgwrap.thumb { width:120px; height:120px; text-align:center; }
         #cont.album .t_msg .cont .msgimg { display: inline; float: none; }
         #cont.album .t_msg .cont .msg_func { display: none; }
+
+        .ui-draggable-dragging.t_msg .avatar { display: none; }
+        .ui-draggable-dragging.t_msg .cont { margin: 0; }
+        .ui-draggable-dragging.t_msg .cont .username { display: none; }
+        .ui-draggable-dragging.t_msg .cont .username_sep { display: none; }
+        .ui-draggable-dragging.t_msg .cont .msg { display: none; }
+        .ui-draggable-dragging.t_msg .cont .imgwrap { margin: 0; background: #000; }
+        .ui-draggable-dragging.t_msg .cont .imgwrap.thumb { width:120px; height:120px; text-align:center; }
+        .ui-draggable-dragging.t_msg .cont .msgimg { display: inline; float: none; }
+        .ui-draggable-dragging.t_msg .cont .msg_func { display: none; }
+
             #page {
                 /* border: 1px solid #ddd; */
                 /* width: 560px; */
-                width: 100%;
+                width: 370px;
+                /* width: 100%; */
                 min-height: 400px;
-                overflow: hidden; zoom: 1; }
+                overflow: hidden;
+                zoom: 1;
+
+                background: #eee;
+
+            }
             #page .t_his { display: none; }
 
 #td_sidepad { width:1px; background: #cfcfcf; }

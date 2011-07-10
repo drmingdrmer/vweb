@@ -1,5 +1,5 @@
 name: vweb
-version: 1
+version: 2
 #cron:
 #    - description: cron test
 #      url: index.php

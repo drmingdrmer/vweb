@@ -47,7 +47,6 @@ function square( $w, $h, $color ) {
 
     $img = new SaeImage();
     $img->setData( array( TransGif, 0, 0, 1, SAE_TOP_LEFT ) );
-    // $img->resize( $w, $h );
     $img->composite( $w, $h, $color );
 
     return $img->exec( 'png' );

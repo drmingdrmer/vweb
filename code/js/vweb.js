@@ -404,6 +404,7 @@ $.extend( ui.fav.edit, {
 
         this.page.sortable({
             // handle : ".handle",
+            tolerance:'pointer',
             receive : function ( ev, ui ) {
                 var msg = ui.item;
                 msg.hide();
@@ -434,67 +435,44 @@ $.extend( ui.fav.edit, {
         root.top -= this.cont.scrollTop();
         root.left -= this.cont.scrollLeft();
 
-        // var rootw = this.cont.innerWidth();
-        // var rooth = this.cont.innerHeight();
-
         var rootw = this.cont[ 0 ].scrollWidth;
         var rooth = this.cont[ 0 ].scrollHeight;
 
+        var pagesize = this.page.size_wh( false );
+
+        function tlwh( elt ){
+            return $.extend( elt.offset_tl(), elt.size_wh( false ) );
+        }
+
         this.cont.find( ".t_msg" ).each( function() {
             var e = $( this );
-            var thumb = e.find( "img.thumb:visible" );
-            var thumbData = null;
+            var thumb = $( "img.thumb:visible", e );
+            var midpic = $( "img.midpic:visible", e);
 
             if ( thumb.length > 0 ) {
-                var tp = thumb.offset();
-                thumbData = {
-                    t : tp.top - root.top,
-                    l : tp.left - root.left,
-                    w : thumb.outerWidth(),
-                    h : thumb.outerHeight(),
-                    img : thumb.attr( "src" )
-                };
-                rst.push( thumbData );
+                rst.push( $.extend( { bgcolor:'#000' },
+                    tlwh( thumb.p( '.imgwrap' ) ) ) );
+
+                rst.push( $.extend( { img : thumb.attr( "src" ) },
+                    tlwh( thumb ) ) );
             }
 
             if ( e.find( ".cont .msg:visible" ).length > 0 ) {
-                var p = e.offset();
-
-                var d = {
-                    t : p.top - root.top,
-                    l : p.left - root.left,
-                    w : e.outerWidth() - ( thumbData ? thumbData.w + 4 : 0 ),
-                    h : e.outerHeight(),
-                    color : "#000",
-                    text : e.simpText()
-                };
-
-                rst.push( d );
+                rst.push( $.extend( { color : "#000", text : e.simpText() },
+                    tlwh( e ) ) );
+                rst[ rst.length-1 ].w -= thumb ? tlwh( thumb ).w + 4 : 0;
             }
 
-
-            var midpic = e.find( "img.midpic:visible" );
-
-            if ( midpic.length > 0 ) {
-                var tp = midpic.offset();
-                midpicData = {
-                    t : tp.top - root.top,
-                    l : tp.left - root.left,
-                    w : midpic.outerWidth(),
-                    h : midpic.outerHeight(),
-                    img : midpic.attr( "src" )
-                };
-                rst.push( midpicData );
-            }
+            midpic.length > 0 && rst.push( $.extend( { img : midpic.attr( "src" ) },
+                tlwh( midpic ) ) );
 
         } );
 
-        return {
-            w : rootw,
-            h : rooth,
-            bgcolor : "#fff",
-            d : rst
-        };
+        $.each( rst, function( i, v ){
+            v.t -= root.top; v.l -= root.left;
+        } );
+
+        return $.extend( { bgcolor : "#fff", d : rst }, pagesize );
     },
     addhis: function ( json, cmd ) {
 
@@ -1147,12 +1125,28 @@ $.unescape = function(html) {
     return htmlNode.textContent; // FF
 }
 
-$.fn.h = function() {
-    var h = 0;
+$.fn.tl = $.fn.offset_tl = function(){
+    var tl = this.offset();
+    return { t:tl.top, l:tl.left };
+}
+
+$.fn._outerSize = function( funcname, withMargin ){
+    withMargin = withMargin == undefined ? true : withMargin;
+    var s = 0;
     this.each( function( i, v ){
-        h += $(v).outerHeight( true );
+        s += $(v)[ funcname ]( withMargin );
     } );
-    return h;
+    return s;
+}
+$.fn.h = function( withMargin ) {
+    return this._outerSize( 'outerHeight', withMargin );
+}
+
+$.fn.w = function( withMargin ) {
+    return this._outerSize( 'outerWidth', withMargin );
+}
+$.fn.size_wh = function( withMargin ) {
+    return { w: this.w( withMargin ), h: this.h( withMargin ) };
 }
 
 $.fn.p = $.fn.parents;
