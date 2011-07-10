@@ -3,8 +3,8 @@
 session_start();
 include_once( 'config.php' );
 include_once( 'saet.ex.class.php' );
-// include_once( 'ss.php' );
 include_once( 'util.php' );
+include_once( 'weibo_util.php' );
 include_once( 'img.php' );
 
 header('Content-Type:text/html; charset=utf-8');
@@ -61,46 +61,6 @@ $cmds = array(
     "statuses/magic_followers"        =>  "/statuses/magic_followers.json"         // 获取用户优质粉丝列表
 );
 
-class MySaeTClient extends SaeTClient
-{
-    function _load_cmd( $cmd, &$p )
-    {
-        def( $p, 'page', 1 );
-        def( $p, 'count', 20 );
-
-        $url = "http://api.t.sina.com.cn/$cmd.json";
-        $rst = $this->oauth->get($url , $p );
-        return $rst;
-    }
-}
-
-function gen_app_rst( $rst, $okmsg, $info = NULL ) {
-    if ( $rst ) {
-        if ( ! $rst[ 'error_code' ] ) {
-            $ret = array( "rst" => "ok", "info" => $info,
-                "msg" => $okmsg, "data" => $rst);
-        }
-        else {
-
-            if ( $rst[ 'error_code' ] == 400 ) {
-                $ret = array( "rst" => "auth", "info" => $info,
-                    "error_code"=> $rst[ 'error_code' ],
-                    "msg" => $rst[ 'error' ]);
-            }
-            else {
-                $ret = array( "rst" => "unknown", "info" => $info,
-                    "error_code"=> $rst[ 'error_code' ],
-                    "msg" => $rst[ 'error' ]);
-            }
-
-        }
-    }
-    else {
-        $ret = array( "rst" => "load", "info" => $info,
-            "msg" => "微薄接口调用失败");
-    }
-    return $ret;
-}
 function output_exit( $arr ) {
     $cb = $_REQUEST[ 'cb' ];
 
@@ -146,6 +106,53 @@ function json_to_html( &$d ) {
     return $html;
 }
 
+
+/*
+ * (
+ *     [id] => 1937013762
+ *     [screen_name] => xpxpxxp2
+ *     [name] => xpxpxxp2
+ *     [province] => 11
+ *     [city] => 8
+ *     [location] => 北京 海淀区
+ *     [description] => 
+ *     [url] => 
+ *     [profile_image_url] => http://tp3.sinaimg.cn/1937013762/50/0/1
+ *     [domain] => 
+ *     [gender] => m
+ *     [followers_count] => 7
+ *     [friends_count] => 54
+ *     [statuses_count] => 12
+ *     [favourites_count] => 0
+ *     [created_at] => Tue May 17 00:00:00 +0800 2011
+ *     [following] => 
+ *     [allow_all_act_msg] => 
+ *     [geo_enabled] => 1
+ *     [verified] => 
+ *     [status] => Array
+ *         (
+ *             [created_at] => Sun Jul 10 13:38:09 +0800 2011
+ *             [id] => 14076670939
+ *             [text] => Sun Jul 10 2011 13:38:06 GMT+0800 (CST)undefined
+ *             [source] => <a href="" rel="nofollow">未通过审核应用</a>
+ *             [favorited] => 
+ *             [truncated] => 
+ *             [in_reply_to_status_id] => 
+ *             [in_reply_to_user_id] => 
+ *             [in_reply_to_screen_name] => 
+ *             [thumbnail_pic] => http://ww3.sinaimg.cn/thumbnail/73747c02jw1dj0k3gtf95j.jpg
+ *             [bmiddle_pic] => http://ww3.sinaimg.cn/bmiddle/73747c02jw1dj0k3gtf95j.jpg
+ *             [original_pic] => http://ww3.sinaimg.cn/large/73747c02jw1dj0k3gtf95j.jpg
+ *             [geo] => 
+ *             [mid] => 2111107103071633
+ *         )
+ * 
+ * )
+ */
+
+isset( $_SESSION['last_key'] ) || resmsg( 'auth', 'auth' );
+
+
 $c = new MySaeTClient( WB_AKEY, WB_SKEY,
     $_SESSION['last_key']['oauth_token'],
     $_SESSION['last_key']['oauth_token_secret']  );
@@ -166,8 +173,8 @@ if ( $verb == "GET" ) {
         unset( $p[ 'act' ] );
         unset( $p[ 'resptype' ] );
 
-        $rst = $c->_load_cmd( $act, $p );
-        res_json( gen_app_rst( $rst, "not set yet" ) );
+        res_json(
+            $c->_load_cmd( $act, $p, NULL, NULL ) );
     }
     else {
         resmsg( "unknown_act", $act );
@@ -207,36 +214,23 @@ else if ( $verb == "POST" ) {
 
         case "pub" :
             $msg = $_GET[ 'msg' ];
+            $albumname = $_GET[ 'albumname' ];
+
             $data = file_get_contents("php://input");
             !$data && resmsg( "nodata", "nodata" );
 
             $data = unjson( $data );
             !$data && resmsg( "invalid", "invalid" );
 
-            $fn = mkimg_local( $data, 'jpg' );
-            !$fn && resmsg( 'mkimg', 'mkimg' );
+
+            $layout = $data[ 'layout' ];
+            $page = $data[ 'page' ];
 
 
-            $rst = $c->upload( $msg, $fn );
-            output_exit( gen_app_rst( $rst, "发布成功" ) );
-            break;
-
-
-            $r = $c->upload( $msg, $fn );
-            $r && resmsg( "ok", "published" )
-                || resmsg( "publish", "publish" );
-            break;
-
-        case "createalbum":
-
-            $data = file_get_contents("php://input");
-            !$data && resmsg( "nodata", "nodata" );
-
-            $data = unjson( $data );
             $albumhtml = json_to_html( $data );
 
-            // echo $albumhtml;
-            // exit();
+            $useravatar = $_SESSION[ 'user' ][ 'profile_image_url' ];
+            $username = $_SESSION[ 'user' ][ 'name' ];
 
             $html = <<<HTML
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
@@ -266,18 +260,20 @@ else if ( $verb == "POST" ) {
     <script language="javascript" type="text/javascript" src="http://vweb-pub.stor.sinaapp.com/album.js"></script>
 </html>
 HTML;
+
+
             $s = new SaeStorage();
             $url = $s->write( 'pub' , "tmp.html" , $html );
-            resmsg( 'ok', 'albumcreated' );
+            !$url && resmsg( 'createalbum', 'createalbum' );
+
+            $fn = mkimg_local( $layout, 'jpg' );
+            !$fn && resmsg( 'mkimg', 'mkimg' );
+
+            $rst = $c->upload( $msg, $fn );
+            output_exit( gen_app_rst( $rst, "发布成功" ) );
 
             break;
     }
 }
-
-/*
- * $ms  = $c->show_user( null ); // done
- *
- * var_dump(  );
- */
 
 ?>

@@ -27,4 +27,7 @@ function def( &$arr, $key, $val ) {
         $arr[ $key ] = $val;
     }
 }
+
+
+
 ?>

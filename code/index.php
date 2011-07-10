@@ -4,22 +4,12 @@ session_start();
 
 include_once( 'config.php' );
 include_once( 'saet.ex.class.php' );
-// include_once( 'ss.php' );
+include_once( 'util.php' );
+include_once( 'weibo_util.php' );
 
-class MySaeTClient extends SaeTClient
-{
-    function _load_cmd( $cmd, $p )
-    {
-        def( $p, 'page', 1 );
-        def( $p, 'count', 20 );
 
-        $url = "http://api.t.sina.com.cn/$cmd.json";
-        $rst = $this->oauth->get($url , $p );
-        return $rst;
-    }
-}
 
-function load_user() {
+function load_user_to_sess() {
     $c = new MySaeTClient( WB_AKEY, WB_SKEY,
         $_SESSION['last_key']['oauth_token'],
         $_SESSION['last_key']['oauth_token_secret']  );
@@ -29,6 +19,7 @@ function load_user() {
     if ( $rst ) {
         if ( ! $rst[ 'error_code' ] ) {
             $_SESSION[ 'user' ] = $rst;
+            return true;
         }
         else {
             echo "{$rst['error']}\n";
@@ -48,7 +39,7 @@ $redirectPage = $_GET[ 'r' ] ? $_GET[ 'r' ] : $defaultPage;
 
 
 if( isset($_SESSION['last_key']) ) {
-    load_user();
+    load_user_to_sess();
     header("Location: $redirectPage");
     exit();
 }
@@ -62,7 +53,7 @@ if ( $verifier ) {
 
     $_SESSION['last_key'] = $o->getAccessToken( $verifier ) ;
 
-    load_user();
+    load_user_to_sess();
     header("Location: $redirectPage");
 }
 else {

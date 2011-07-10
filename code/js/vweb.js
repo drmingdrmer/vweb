@@ -179,23 +179,11 @@ function $TweetData ( data ) {
     };
     return self;
 }
-Function.prototype.dele = function( self, args ) {
-    var fun = this;
-    return function () {
-        return fun.apply( self || this, args || arguments );
-    }
-}
 Function.prototype.dele$ = function() {
     var args = arguments;
     var fun = this;
     return function () {
         return fun.apply( $( this ), args );
-    }
-}
-Function.prototype.delethis = function( self, args ) {
-    var thiz = this;
-    return function () {
-        return thiz.apply( self || this, args );
     }
 }
 
@@ -242,8 +230,6 @@ $.extend( ui, {
         $( ".t-group" ).addClass( "ui-widget ui-corner-all" );
         $( "#menu" ).addClass( "cont_dark2 cont_dark_shad2" );
         $( "#func" ).addClass( "cont_dark2 cont_dark_shad2" );
-        // $( "#edit" ).addClass( "cont_white0 cont_white_shad0" );
-        // $( "#list" ).addClass( "cont_white0 cont_white_shad0" );
         $( "#paging" ).addClass( "cont_dark0 cont_dark_shad0" );
 
 
@@ -325,7 +311,6 @@ $.extend( ui.fav, {
         this.eltPath = this.eltMenu.find( "#path" );
         init_sub( this );
     },
-
     path : function ( p ) {
         if ( p ) {
             this._path = p;
@@ -339,7 +324,6 @@ $.extend( ui.fav, {
     filename : function (fn) {
         if ( fn ) {
             this._fn = fn;
-
         }
         return this._fn;
     }
@@ -349,49 +333,35 @@ $.extend( ui.fav, {
 $.extend( ui.fav.maintool, {
     init : function () {
 
-        var e = this._elt;
-        $( "#fn", e ).DefaultValue( '未命名相册' );
+        var fn = this.fn = $( "#fn", this._elt );
+        this._defaultAlbumName = '未命名相册';
+
+
+        fn.DefaultValue( this._defaultAlbumName );
 
         $( "#pub" ).click( function( ev ){
             evstop( ev );
 
-            var data = ui.fav.edit.layoutdata();
-            var albumdata = ui.fav.edit.page.children( ".t_msg:not(.t_his)" ).toJson();
-
             // TODO specific title
-            var msg = ( new Date() );
-            if ( data.d.length > 0 ) {
-                msg += data.d[ 0 ].text;
-            }
+            var msg = 'no msg';
+            var data = {
+                page: ui.fav.edit.pagedata(),
+                layout: ui.fav.edit.layoutdata() };
 
-            log( "layout data:" );
-            log( data );
-            log( "album data" );
-            log( albumdata );
-
-            vweb_cmd( 'POST', 'createalbum', { msg:msg }, JSON.stringify( albumdata ), {
-                success: function( json ) {
-                    if ( json.rst == 'ok' ) { }
-                    else { }
-                }
-            } );
-
-            // vweb_cmd( 'POST', 'pub', { msg:msg }, JSON.stringify( data ), {
-            //     success: function( json ) {
-            //         if ( json.rst == 'ok' ) { }
-            //         else { }
-            //     }
-            // } );
-
+            vweb_cmd( 'POST', 'pub', { albumname: fn.val(), msg: msg },
+                JSON.stringify( data ), {
+                    success: function( json ) {
+                        if ( json.rst == 'ok' ) { }
+                        else { }
+                    }
+                } );
         } );
     }
 
 } );
 
 $.extend( ui.fav.menu, {
-    init : function () {
-
-    }
+    init : function () {}
 } );
 
 $.extend( ui.fav.edit, {
@@ -413,8 +383,6 @@ $.extend( ui.fav.edit, {
         } );
 
         this._elt.find( "#screen_mode input" ).button();
-
-
     },
     setup_func : function () {
         ui.setup_img_switch( this.page );
@@ -426,25 +394,18 @@ $.extend( ui.fav.edit, {
                 var msg = ui.item;
                 msg.hide();
                 // TODO add to global filter list
-
-                log( "receive" );
-                log( $( ev.target ).parent().attr( 'id' ) );
-                log( ev );
-                log( ui );
-                log( ui.item.parent().attr( "id" ) );
-                log( ui.helper.parent().attr( "id" ) );
             },
             // NOTE: helper setting to "clone" prevents click event to trigger
             helper : "clone"
         });
     },
     ids : function () {
-        var ids = [];
-        this.page.find( ".t_msg" ).each( function() {
-            ids.push( $( this ).attr( "id" ) );
+        return $.map( $( '.t_msg', this.page ), function( v, i ){
+            return $( v ).id();
         } );
-        log( "ids=", ids );
-        return ids;
+    },
+    pagedata: function(){
+        return this.page.children( ".t_msg:not(.t_his)" ).to_json();
     },
     layoutdata : function () {
         var rst = [];
@@ -457,8 +418,8 @@ $.extend( ui.fav.edit, {
 
         var pagesize = this.page.size_wh( false );
 
-        function tlwh( elt ){
-            return $.extend( elt.offset_tl(), elt.size_wh( false ) );
+        function lo( elt, attrs ) {
+            return $.extend( attrs || {}, elt.offset_tl(), elt.size_wh( false ) );
         }
 
         this.cont.find( ".t_msg" ).each( function() {
@@ -467,21 +428,16 @@ $.extend( ui.fav.edit, {
             var midpic = $( "img.midpic:visible", e);
 
             if ( thumb.length > 0 ) {
-                rst.push( $.extend( { bgcolor:'#000' },
-                    tlwh( thumb.p( '.imgwrap' ) ) ) );
-
-                rst.push( $.extend( { img : thumb.attr( "src" ) },
-                    tlwh( thumb ) ) );
+                rst.push( lo( thumb.p( '.imgwrap' ), { bgcolor:'#000' } ) );
+                rst.push( lo( thumb, { img : thumb.attr( "src" ) } ) );
             }
 
             if ( e.find( ".cont .msg:visible" ).length > 0 ) {
-                rst.push( $.extend( { color : "#000", text : e.simpText() },
-                    tlwh( e ) ) );
-                rst[ rst.length-1 ].w -= thumb ? tlwh( thumb ).w + 4 : 0;
+                rst.push( lo( e, { color : "#000", text : e.simpText() } ) );
+                rst[ rst.length-1 ].w -= thumb ? lo( thumb ).w + 4 : 0;
             }
 
-            midpic.length > 0 && rst.push( $.extend( { img : midpic.attr( "src" ) },
-                tlwh( midpic ) ) );
+            midpic.length > 0 && rst.push( lo( midpic, { img : midpic.attr( "src" ) } ) );
 
         } );
 
@@ -1142,7 +1098,7 @@ $.unescape = function(html) {
     return htmlNode.textContent; // FF
 }
 
-$.fn.toJson = function() {
+$.fn.to_json = function() {
     // TODO filter non-comment node
     var rst = [];
     $( this ).each( function( i, v ){
@@ -1166,7 +1122,7 @@ $.fn.toJson = function() {
             }
             var children = e.contents();
             if ( children.length > 0 ) {
-                j.children = children.toJson();
+                j.children = children.to_json();
             }
             rst.push( j );
         }
@@ -1261,46 +1217,3 @@ $( function() {
     }
     ui.init();
 } );
-
-
-/* ( function( $ ){
- *
- * $.widget( 'ui.hint', {
- *
- *         title : '',
- *         iconName : 'info',
- *         baseClass : 'ui-state-highlight',
- *
- *         _create : function() {
- *
- *             this.element
- *                     .addClass( this.baseClass + ' ui-corner-all' );
- *
- *             var text = this.element.text();
- *
- *             var p = $( '<p></p>' )
- *                     .css( { 'padding' : '5px' } )
- *                     .appendTo( this.element.empty() );
- *
- *             var hintIcon = $( '<span></span>' )
- *                     .addClass( 'ui-icon ui-icon-' + this.iconName )
- *                     .css( { 'float' : 'left',
- *                             'margin' : '4px' } )
- *                     .appendTo( p );
- *
- *             var title = $( '<strong></strong>' )
- *                     .text( this.title )
- *                     .appendTo( p );
- *
- *             p.append( text );
- *
- *         }
- * } );
- *
- * // $.widget( 'ui.error', $.ui.hint, {
- * //         iconName : 'alert',
- * //         baseClass : 'ui-state-error'
- * // } );
- *
- * } )( jQuery );
- */
