@@ -1,5 +1,7 @@
 // Works with jquery-1.4.4, jquery-ui-1.8.9
 
+// TODO request not through weibo_cmd should also be handled like this
+var loginPage = "http://" + window.location.host;
 var ui = {
     appmsg : {},
     fav : {
@@ -38,6 +40,10 @@ function vweb_cmd( verb, cmd, args, data, cbs ) {
         dataType : "json",
         success : function( json, st, xhr ) {
             log( json );
+            if ( json.rst == 'auth' ) {
+                window.location.href = loginPage;
+                return;
+            }
             ui.appmsg.msg( json.rst + " " + json.msg );
             cbs.success && cbs.success( json );
         },

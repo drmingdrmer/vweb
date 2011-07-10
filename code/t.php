@@ -81,8 +81,18 @@ function gen_app_rst( $rst, $okmsg, $info = NULL ) {
                 "msg" => $okmsg, "data" => $rst);
         }
         else {
-            $ret = array( "rst" => "load", "info" => $info,
-                "msg" => $rst[ 'error' ]);
+
+            if ( $rst[ 'error_code' ] == 400 ) {
+                $ret = array( "rst" => "auth", "info" => $info,
+                    "error_code"=> $rst[ 'error_code' ],
+                    "msg" => $rst[ 'error' ]);
+            }
+            else {
+                $ret = array( "rst" => "unknown", "info" => $info,
+                    "error_code"=> $rst[ 'error_code' ],
+                    "msg" => $rst[ 'error' ]);
+            }
+
         }
     }
     else {
@@ -233,9 +243,9 @@ else if ( $verb == "POST" ) {
 <html>
     <head>
         <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
-        <link rel="stylesheet" type="text/css" href="albumtmpl.css" />
+        <link rel="stylesheet" type="text/css" href="http://vweb-pub.stor.sinaapp.com/albumtmpl.css" />
         <script language="javascript" type="text/javascript" src="http://lib.sinaapp.com/js/jquery/1.4.4/jquery.min.js"></script>
-        <script language="javascript" type="text/javascript" src="plugin/scrollto/jquery.scrollTo.js"></script>
+        <script language="javascript" type="text/javascript" src="http://vweb-pub.stor.sinaapp.com/plugin/scrollto/jquery.scrollTo.js"></script>
         <title>$albumname</title>
     </head>
     <body>
@@ -253,7 +263,7 @@ else if ( $verb == "POST" ) {
         </div>
         <div id="page" class="ui-sortable">$albumhtml</div>
     </body>
-    <script language="javascript" type="text/javascript" src="album.js"></script>
+    <script language="javascript" type="text/javascript" src="http://vweb-pub.stor.sinaapp.com/album.js"></script>
 </html>
 HTML;
             $s = new SaeStorage();
