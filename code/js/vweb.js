@@ -1125,6 +1125,39 @@ $.unescape = function(html) {
     return htmlNode.textContent; // FF
 }
 
+$.fn.toJson = function() {
+    // TODO filter non-comment node
+    var rst = [];
+    $( this ).each( function( i, v ){
+        var e = $( this );
+        var j, text;
+        if ( this.nodeType == 3 ) {
+            text = e.simpText();
+            if ( text != '' ) {
+                rst.push( { text: this.nodeValue } );
+            }
+        }
+        else {
+            j = { node: { tag: this.tagName, id:e.id(), class: e.attr( 'class' ) } };
+            switch ( j.node.tag ) {
+            case 'img' :
+                j.node.src = e.attr( 'src' );
+                break;
+            case 'a' :
+                j.node.href = e.attr( 'href' );
+                break;
+            }
+            var children = e.contents();
+            if ( children.length > 0 ) {
+                j.children = children.toJson();
+            }
+            rst.push( j );
+        }
+    } );
+
+    return rst;
+}
+
 $.fn.tl = $.fn.offset_tl = function(){
     var tl = this.offset();
     return { t:tl.top, l:tl.left };
