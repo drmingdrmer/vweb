@@ -195,10 +195,8 @@ body { background: #ddd; }
         .ui-draggable-dragging.t_msg .cont .msg_func { display: none; }
 
             #page {
-                /* border: 1px solid #ddd; */
-                /* width: 560px; */
-                width: 370px;
-                /* width: 100%; */
+                width: 367px;
+                margin: 30px auto auto auto;
                 min-height: 400px;
                 overflow: hidden;
                 zoom: 1;

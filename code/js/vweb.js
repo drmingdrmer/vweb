@@ -356,7 +356,7 @@ $.extend( ui.fav.maintool, {
             evstop( ev );
 
             var data = ui.fav.edit.layoutdata();
-            var albumdata = ui.fav.edit.page.children( ":not(.t_his)" ).toJson();
+            var albumdata = ui.fav.edit.page.children( ".t_msg:not(.t_his)" ).toJson();
 
             // TODO specific title
             var msg = ( new Date() );
