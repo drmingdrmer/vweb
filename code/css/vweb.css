@@ -107,15 +107,19 @@ body { background: #ddd; }
         }
             #appname {
                 line-height: 25px;
-                font-size: 22px; font-family: ºÚÌå;
+                font-size: 22px;
+                /* font-family: ºÚÌå; */
+                font-family: Arial,Helvetica,sans-serif;
                 letter-spacing: 4px;
                 color: #7c7c7c;
                 padding: 4px 0 0 12px;
             }
 
         #curfile {
+            visibility: hidden;
             padding: 0 0 0 20px;
-            vertical-align: bottom; }
+            vertical-align: bottom;
+        }
         #curfile #path { color: #676776; margin: 2px 0 0 0; }
         #curfile #fn {
             border: 1px solid #404040;
@@ -140,6 +144,23 @@ body { background: #ddd; }
             #pub .ui-button-text {
                 padding: 4px 0 0 0;
             }
+    #td_pubmsg {
+        text-align: center;
+        vertical-align: middle;
+    }
+        #pubmsg {
+            font-size:14px;
+            color: #ccc;
+            background: #333;
+            border: 1px solid #404040;
+            width: 96%;
+            height: 20px;
+        }
+        #pubmsg.focused {
+            height: 80px;
+            padding: 4px 0;
+            margin: 4px 0 4px 0;
+        }
     #menu {
         /* width: 600px; */
         width: 100%;

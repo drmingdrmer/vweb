@@ -335,10 +335,20 @@ $.extend( ui.fav.maintool, {
     init : function () {
 
         var fn = this.fn = $( "#fn", this._elt );
+        var pubmsg = this.pubmsg = $( "#pubmsg", this._elt );
         this._defaultAlbumName = '未命名相册';
 
 
         fn.DefaultValue( this._defaultAlbumName );
+
+        pubmsg.focus( function( ev ){
+            $( this ).addClass( 'focused' );
+            ui.relayout();
+        } )
+        .blur( function( ev ){
+            $( this ).removeClass( 'focused' );
+            ui.relayout();
+        } );
 
         $( "#pub" ).click( function( ev ){
             evstop( ev );

@@ -212,7 +212,7 @@ else if ( $verb == "POST" ) {
             $rst = $c->add_to_favorites( $id );
             output_exit( gen_app_rst( $rst, "收藏成功", array( "id" => $id ) ) );
 
-        case "pub" :
+        case "pub":
             $msg = $_GET[ 'msg' ];
             $albumname = $_GET[ 'albumname' ];
 
@@ -226,47 +226,57 @@ else if ( $verb == "POST" ) {
             $layout = $data[ 'layout' ];
             $page = $data[ 'page' ];
 
-            $albumhtml = json_to_html( $page );
+/*
+ *             $albumhtml = json_to_html( $page );
+ * 
+ *             $useravatar = $_SESSION[ 'user' ][ 'profile_image_url' ];
+ *             $username = $_SESSION[ 'user' ][ 'name' ];
+ *             $uid = $_SESSION[ 'user' ][ 'id' ];
+ * 
+ *             $html = <<<HTML
+ * <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+ * <html>
+ *     <head>
+ *         <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+ *         <link rel="stylesheet" type="text/css" href="http://vweb-pub.stor.sinaapp.com/albumtmpl.css" />
+ *         <script language="javascript" type="text/javascript" src="http://lib.sinaapp.com/js/jquery/1.4.4/jquery.min.js"></script>
+ *         <script language="javascript" type="text/javascript" src="http://vweb-pub.stor.sinaapp.com/plugin/scrollto/jquery.scrollTo.js"></script>
+ *         <title>$albumname</title>
+ *     </head>
+ *     <body>
+ *         <div id="title">
+ *             <div class="left"><a href="#" class="prod">Vlbum</a></div>
+ *             <span class="user"><img src="$useravatar" alt="alt"/><a href="#" class="username">$username</a></span>
+ *             <span class="sep">&nbsp;</span>
+ *             <span class="albname">$albumname</span>
+ *             <span class="sep">&nbsp;</span>
+ *             <a href="#" class="f_repost">分享到微博</a>
+ *         </div>
+ *         <div id="sae">
+ *             <a href="http://sae.sina.com.cn" target="_blank"><img
+ *                 src="http://static.sae.sina.com.cn/image/poweredby/poweredby.png" title="Powered by Sina App Engine" /></a>
+ *         </div>
+ *         <div id="page" class="ui-sortable">$albumhtml</div>
+ *     </body>
+ *     <script language="javascript" type="text/javascript" src="http://vweb-pub.stor.sinaapp.com/album.js"></script>
+ * </html>
+ * HTML;
+ */
 
-            $useravatar = $_SESSION[ 'user' ][ 'profile_image_url' ];
-            $username = $_SESSION[ 'user' ][ 'name' ];
-
-            $html = <<<HTML
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
-<html>
-    <head>
-        <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
-        <link rel="stylesheet" type="text/css" href="http://vweb-pub.stor.sinaapp.com/albumtmpl.css" />
-        <script language="javascript" type="text/javascript" src="http://lib.sinaapp.com/js/jquery/1.4.4/jquery.min.js"></script>
-        <script language="javascript" type="text/javascript" src="http://vweb-pub.stor.sinaapp.com/plugin/scrollto/jquery.scrollTo.js"></script>
-        <title>$albumname</title>
-    </head>
-    <body>
-        <div id="title">
-            <div class="left"><a href="#" class="prod">Vlbum</a></div>
-            <span class="user"><img src="$useravatar" alt="alt"/><a href="#" class="username">$username</a></span>
-            <span class="sep">&nbsp;</span>
-            <span class="albname">$albumname</span>
-            <span class="sep">&nbsp;</span>
-            <a href="#" class="f_repost">分享到微博</a>
-        </div>
-        <div id="sae">
-            <a href="http://sae.sina.com.cn" target="_blank"><img
-                src="http://static.sae.sina.com.cn/image/poweredby/poweredby.png" title="Powered by Sina App Engine" /></a>
-        </div>
-        <div id="page" class="ui-sortable">$albumhtml</div>
-    </body>
-    <script language="javascript" type="text/javascript" src="http://vweb-pub.stor.sinaapp.com/album.js"></script>
-</html>
-HTML;
-
-
-            $s = new SaeStorage();
-            $url = $s->write( 'pub' , "tmp.html" , $html );
-            !$url && resmsg( 'createalbum', 'createalbum' );
+/*
+ *             $albumpath = "$uid/$albumname.html";
+ * 
+ *             $s = new SaeStorage();
+ *             $url = $s->write( 'pub' , $albumpath , $html );
+ *             !$url && resmsg( 'createalbum', 'createalbum' );
+ */
 
             $fn = mkimg_local( $layout, 'jpg' );
             !$fn && resmsg( 'mkimg', 'mkimg' );
+
+            // $msg = "《$albumname》-- $msg $url";
+            // $msg = "《$albumname》-- $msg";
+            $msg = "$msg";
 
             $rst = $c->upload( $msg, $fn );
             output_exit( gen_app_rst( $rst, "发布成功" ) );
