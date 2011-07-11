@@ -336,6 +336,7 @@ $.extend( ui.fav.maintool, {
 
         var fn = this.fn = $( "#fn", this._elt );
         var pubmsg = this.pubmsg = $( "#pubmsg", this._elt );
+        var pub = this.pub = $( "#pub", this._elt );
         this._defaultAlbumName = '未命名相册';
 
 
@@ -348,13 +349,19 @@ $.extend( ui.fav.maintool, {
         .blur( function( ev ){
             $( this ).removeClass( 'focused' );
             ui.relayout();
-        } );
+        } )
+        .keydown( function( ev ){
+            if ( ev.keyCode == 13 && ( ev.metaKey || ev.ctrlKey ) ) {
+                // ctrl-cr. command-cr on Mac.
+                pub.click();
+            }
+        } )
+        ;
 
-        $( "#pub" ).click( function( ev ){
+        pub.click( function( ev ){
             evstop( ev );
 
-            // TODO specific title
-            var msg = 'no msg';
+            var msg = pubmsg.val();
             var data = {
                 page: ui.fav.edit.pagedata(),
                 layout: ui.fav.edit.layoutdata() };
