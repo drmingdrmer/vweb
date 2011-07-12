@@ -215,6 +215,16 @@ body { background: #ddd; }
         .ui-draggable-dragging.t_msg .cont .msgimg { display: inline; float: none; }
         .ui-draggable-dragging.t_msg .cont .msg_func { display: none; }
 
+        .ui-sortable-helper.t_msg .avatar { display: none; }
+        .ui-sortable-helper.t_msg .cont { margin: 0; }
+        .ui-sortable-helper.t_msg .cont .username { display: none; }
+        .ui-sortable-helper.t_msg .cont .username_sep { display: none; }
+        .ui-sortable-helper.t_msg .cont .msg { display: none; }
+        .ui-sortable-helper.t_msg .cont .imgwrap { margin: 0; background: #000; }
+        .ui-sortable-helper.t_msg .cont .imgwrap.thumb { width:120px; height:120px; text-align:center; }
+        .ui-sortable-helper.t_msg .cont .msgimg { display: inline; float: none; }
+        .ui-sortable-helper.t_msg .cont .msg_func { display: none; }
+
             #page {
                 width: 367px;
                 margin: 30px auto auto auto;

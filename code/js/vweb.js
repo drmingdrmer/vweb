@@ -117,7 +117,8 @@ function $TweetData ( data ) {
             this._d = ids.length == 0
                 ? this._d
                 : $.grep( this._d, function( v, i ) {
-                    return ids.indexOf( v.id + "" ) < 0;
+                    return ids.indexOf( v.id + "" ) < 0
+                        && ( !v.retweeted_status || ids.indexOf( v.retweeted_status.id + "" ) < 0  );
                 } );
             return this;
         },
@@ -408,10 +409,11 @@ $.extend( ui.fav.edit, {
         this.page.sortable({
             // handle : ".handle",
             tolerance:'pointer',
-            containment:"window",
-            receive : function ( ev, ui ) {
-                var msg = ui.item;
-                msg.hide();
+            appendTo:"body",
+            zIndex:2000,
+            receive : function ( ev, theui ) {
+                var msg = theui.item;
+                ui.t.list.msg_visible( msg.id(), false );
 
                 // TODO add to global filter list
             },
@@ -872,6 +874,13 @@ $.extend( ui.t.list, {
         return data
     },
 
+    msg_visible: function( id, visible ) {
+        var e = $( '#' + id, this._elt );
+        var f = visible ? "show" : "hide";
+
+        e[ f ]().prev( '.retweeter' )[ f ]();
+    },
+
     show : function ( data ) {
 
         data = $TweetData( data ).splitRetweet().exclude( ui.fav.edit.ids() )
@@ -895,6 +904,16 @@ $.extend( ui.t.list, {
             zIndex : 2000,
             cursorAt:{ left:50, top:50 },
             stop : function ( ev, ui ) {
+            }
+        } );
+
+        this._elt.droppable( {
+            drop: function( ev, theui ){
+                var msg = theui.draggable;
+
+                msg.remove();
+                ui.t.list.msg_visible( msg.id(), true );
+
             }
         } );
 
