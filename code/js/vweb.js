@@ -408,9 +408,11 @@ $.extend( ui.fav.edit, {
         this.page.sortable({
             // handle : ".handle",
             tolerance:'pointer',
+            containment:"window",
             receive : function ( ev, ui ) {
                 var msg = ui.item;
                 msg.hide();
+
                 // TODO add to global filter list
             },
             // NOTE: helper setting to "clone" prevents click event to trigger
@@ -891,6 +893,7 @@ $.extend( ui.t.list, {
             helper : "clone",
             revert : "invalid",
             zIndex : 2000,
+            cursorAt:{ left:50, top:50 },
             stop : function ( ev, ui ) {
             }
         } );
