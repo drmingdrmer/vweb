@@ -282,6 +282,7 @@ $.extend( ui, {
         var subtabHeight = bodyHeight - tabsHeight;
 
         edit.height( bodyHeight - $( "#maintool,#menu" ).h() );
+        $( '#appmsg' ).css( { top: $( '#maintool' ).h() } );
 
         $( "#t>#list" ).height( subtabHeight
             - $( "#t>#update,#t>#func,#t>#paging" ).filter( ':visible' ).h() );
@@ -392,29 +393,33 @@ $.extend( ui.fav.maintool, {
             if ( ev.keyCode == 13 && ( ev.metaKey || ev.ctrlKey ) ) {
                 // ctrl-cr. command-cr on Mac.
 
-                evstop( ev );
                 pub.click();
             }
             else if ( ev.keyCode == 27 ) {
                 // esc
 
-                evstop( ev );
                 pubmsg.blur();
             }
+            else {
+                return;
+            }
+
+            evstop( ev );
         } )
         ;
 
         $( document ).keydown( function( ev ){
 
-            log( "doc keydown" );
-
             if ( ev.keyCode == 13 && ( ev.metaKey || ev.ctrlKey ) ) {
                 // ctrl-cr. command-cr on Mac.
 
-                log( 'to focus' );
-                evstop( ev );
                 pubmsg.focus();
             }
+            else {
+                return;
+            }
+
+            evstop( ev );
         } );
 
         pub.click( function( ev ){
