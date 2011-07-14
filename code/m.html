@@ -51,6 +51,7 @@
                 </td>
             </tr>
         </table>
+        <div id="appmsg"></div>
         <!--
            - <div id="menu">
            -     <form class="f_args g_vdacc right">
@@ -71,7 +72,9 @@
            -->
         <div id="edit" class="">
             <div id="cont" class="album">
-                <div id="page"></div>
+                <div id="page">
+                    <div id="pagehint">拖过来</div>
+                </div>
             </div>
         </div>
     </div>
@@ -249,7 +252,6 @@
             <a id="btnhis" href="#">历史</a>
             <div id="history" class="hidden"></div>
         </div>
-        <div id="appmsg"></div>
         <div id="list"></div>
     </div>
     <div id="vd" class="hidden">
@@ -417,7 +419,7 @@
 </script>
 
 <script id="tmpl_appmsg" type="text/x-jquery-tmpl">
-<span class="msg ui-state-highlight ui-corner-all">${text}</span>
+<span class="msg -ui-corner-all">${text}</span>
 </script>
 
     </body>

@@ -295,7 +295,7 @@ $.extend( ui.appmsg, {
             var e = this._elt;
             $( "#tmpl_appmsg" ).tmpl( [{text:text}] ).appendTo( e.empty() );
             this.lastid && window.clearTimeout( this.lastid );
-            this.lastid = window.setTimeout( function(){ e.empty(); }, 5000 );
+            this.lastid = window.setTimeout( function(){ e.empty(); }, 105000 );
         }
     },
     err: function ( text ) {
@@ -348,8 +348,12 @@ $.extend( ui.fav.maintool, {
             ui.relayout();
         } )
         .blur( function( ev ){
-            $( this ).removeClass( 'focused' );
-            ui.relayout();
+            var e = $( this );
+            // prevent from user being unable to click "pub"
+            window.setTimeout( function(){
+                e.removeClass( 'focused' );
+                ui.relayout();
+            }, 500 );
         } )
         .keydown( function( ev ){
             if ( ev.keyCode == 13 && ( ev.metaKey || ev.ctrlKey ) ) {
@@ -389,7 +393,7 @@ $.extend( ui.fav.edit, {
         this.cont = this._elt.children( "#cont" );
         this.page = this.cont.children( "#page" );
 
-        this.page.empty();
+        // this.page.empty();
 
         this.setup_func();
 
@@ -407,15 +411,14 @@ $.extend( ui.fav.edit, {
         ui.setup_img_switch( this.page );
 
         this.page.sortable({
-            // handle : ".handle",
+            items:".t_msg",
             tolerance:'pointer',
             appendTo:"body",
             zIndex:2000,
             receive : function ( ev, theui ) {
+                $( '#pagehint' ).remove();
                 var msg = theui.item;
                 ui.t.list.msg_visible( msg.id(), false );
-
-                // TODO add to global filter list
             },
             // NOTE: helper setting to "clone" prevents click event to trigger
             helper : "clone"

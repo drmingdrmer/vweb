@@ -108,7 +108,6 @@ body { background: #ddd; }
             #appname {
                 line-height: 25px;
                 font-size: 22px;
-                /* font-family: ºÚÌå; */
                 font-family: Arial,Helvetica,sans-serif;
                 letter-spacing: 4px;
                 color: #7c7c7c;
@@ -181,7 +180,8 @@ body { background: #ddd; }
             width: 100%; height: 100%;
             position: absolute;
             bottom: 0; right: 0;
-            overflow: auto;
+            overflow-x: auto;
+            overflow-y: scroll;
             /* border: 1px solid #f00; */
             color: #000;
             background: #fff;
@@ -226,9 +226,10 @@ body { background: #ddd; }
         .ui-sortable-helper.t_msg .cont .msg_func { display: none; }
 
             #page {
+                position: relative;
                 width: 367px;
                 margin: 30px auto auto auto;
-                min-height: 400px;
+                min-height: 120px;
                 overflow: hidden;
                 zoom: 1;
 
@@ -236,6 +237,16 @@ body { background: #ddd; }
 
             }
             #page .t_his { display: none; }
+
+                #pagehint {
+                    font-size:100px;
+                    font-family: Arial,Helvetica,sans-serif;
+                    color: #ccc;
+
+                    text-align: center;
+
+                    margin: auto;
+                }
 
 #td_sidepad { width:1px; background: #cfcfcf; }
 /* max image size is 440 plus 4*2 padding plus 40 margin and width of
@@ -561,7 +572,10 @@ body { background: #ddd; }
 
 .t_msg {
     position: relative;
-    overflow: hidden; zoom: 1;
+    overflow: hidden;
+    zoom: 1;
+
+    max-width: 100%;
 
     margin: 20px 0 0 0;
     min-height: 30px;
@@ -612,12 +626,10 @@ body { background: #ddd; }
 .t_msg .username_sep { line-height: 4px; }
 
 .t_msg .cont {
-    /* padding: 0 4px 4px 4px; */
-    margin: 0 12px 0 72px; }
+    margin: 0 12px 0 72px;
+}
 
 .t_msg .cont .msg {
-    /* text-indent: 20px; */
-    /* padding: 0 0 0 20px; */
 }
 .t_msg .cont .msg a.at{
     color: #272;
@@ -642,9 +654,6 @@ body { background: #ddd; }
 }
 #list .t_msg.retweet {
     color: #333;
-    /* background-color: #eee; */
-    /* box-shadow: inset 1px 1px 5px #000; */
-    /* -webkit-box-shadow: inset 1px 1px 7px 2px rgba( 0, 0, 0, 0.4 ); */
     -moz-border-radius: 4px;
     -webkit-border-radius: 4px;
     border-radius: 4px;
@@ -653,7 +662,6 @@ body { background: #ddd; }
 
     min-height: 0;
     padding: 12px;
-    /* margin: 10px 12px 0 72px; */
     margin: 10px 72px 0 72px;
 }
 #list .t_msg.retweet .avatar { display: none; }
@@ -661,7 +669,13 @@ body { background: #ddd; }
 
 .t_msg .imgwrap { display: table-cell; margin: 8px 0 0 0; vertical-align: middle; }
 .t_msg .imgwrap.thumb { display: table-cell; }
-.t_msg .imgwrap.midpic { display: block; }
+.t_msg .imgwrap.midpic {
+    display: block;
+    width: 100%;
+}
+.t_msg .imgwrap.midpic img {
+    max-width: 100%;
+}
 
 .t_msg.midpic .imgwrap.thumb { display:none; }
 .t_msg.thumb .imgwrap.midpic { display: none; }
@@ -703,14 +717,28 @@ body { background: #ddd; }
     z-index: 1000;
     position: absolute;
     width: 100%;
-    left: 0; top: 36;
-    text-align: center;
+    left: 0;
+    /* top: 36; */
+    top: 30px;
+    /* text-align: center; */
+    text-align: left;
+    padding: 0px;
+
+    overflow: hidden;
 }
 #appmsg .msg {
+    position: relative;
     margin: auto;
     padding: 4px;
-    line-height: 30px;
+
+
+    /* line-height: 30px; */
     font-size: 14px;
+    font-family: Arial,Helvetica,sans-serif;
+
+    background: #222;
+    color: #666;
+    /* opacity: 0.8; */
 }
 
 .t_ctrl .current {
