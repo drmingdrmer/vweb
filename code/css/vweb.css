@@ -134,10 +134,13 @@ body { background: #ddd; }
             width: 100px; }
             #pub {
                 margin: 4px 0 0 0;
-                border:0;
+                border: 1px solid #333;
                 background: none;
                 color: #9f9f9f;
                 font-size:14px;
+            }
+            #pub:hover {
+                cursor: pointer;
             }
 
             #pub .ui-button-text {
@@ -668,13 +671,21 @@ body { background: #ddd; }
 #list .t_msg.retweet .cont { margin: 0 0 0 0px; }
 
 .t_msg .imgwrap { display: table-cell; margin: 8px 0 0 0; vertical-align: middle; }
-.t_msg .imgwrap.thumb { display: table-cell; }
+.t_msg .imgwrap.thumb {
+    display: table-cell;
+}
+.t_msg .imgwrap.thumb img:hover {
+    cursor: pointer;
+}
 .t_msg .imgwrap.midpic {
     display: block;
     width: 100%;
 }
 .t_msg .imgwrap.midpic img {
     max-width: 100%;
+}
+.t_msg .imgwrap.midpic img:hover {
+    cursor: pointer;
 }
 
 .t_msg.midpic .imgwrap.thumb { display:none; }

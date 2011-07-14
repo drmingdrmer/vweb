@@ -1,7 +1,12 @@
 // Works with jquery-1.4.4, jquery-ui-1.8.9
 
 // TODO request not through weibo_cmd should also be handled like this
-var loginPage = "http://" + window.location.host;
+
+var conf = {
+    loginPage : "http://" + window.location.host,
+    // TODO change it before deploying
+    appLink: 'http://t.cn/aOXV5H',  // 2.vweb
+};
 var ui = {
     appmsg : {},
     fav : {
@@ -40,13 +45,37 @@ function vweb_cmd( verb, cmd, args, data, cbs ) {
         dataType : "json",
         success : function( json, st, xhr ) {
             log( json );
-            if ( json.rst == 'auth' ) {
-                log( 'auth error' );
-                // window.location.href = loginPage;
+
+            if ( json.rst == 'weiboerror' ) {
+
+                log( 'weiboerror error' );
+
+                var msg = json.msg || '0:';
+                var cm = msg.split( ':' );
+                var msgCode = cm[ 0 ];
+                msg = cm[ 1 ];
+
+                if ( msgCode == '40028' ) {
+                    // too many repeated update
+                    // content length error
+                    ui.appmsg.err( msg );
+                }
+                else {
+                    ui.appmsg.err( msg );
+                }
+
                 return;
             }
+            else if ( json.rst == 'auth' ) {
+                // no Oauth key
+                window.location.href = conf.loginPage;
+            }
+            else{
+            }
+
             ui.appmsg.msg( json.rst + " " + json.msg );
             cbs.success && cbs.success( json );
+
         },
         error : function( jqxhr, errstr, exception ) {
             ui.appmsg.msg( errstr );
@@ -298,6 +327,9 @@ $.extend( ui.appmsg, {
             this.lastid = window.setTimeout( function(){ e.empty(); }, 105000 );
         }
     },
+    alert: function( text ) {
+        return this.msg( text );
+    },
     err: function ( text ) {
         return this.msg( text );
     }
@@ -353,20 +385,54 @@ $.extend( ui.fav.maintool, {
             window.setTimeout( function(){
                 e.removeClass( 'focused' );
                 ui.relayout();
-            }, 500 );
+            }, 50 );
         } )
         .keydown( function( ev ){
+
             if ( ev.keyCode == 13 && ( ev.metaKey || ev.ctrlKey ) ) {
                 // ctrl-cr. command-cr on Mac.
+
+                evstop( ev );
                 pub.click();
+            }
+            else if ( ev.keyCode == 27 ) {
+                // esc
+
+                evstop( ev );
+                pubmsg.blur();
             }
         } )
         ;
 
+        $( document ).keydown( function( ev ){
+
+            log( "doc keydown" );
+
+            if ( ev.keyCode == 13 && ( ev.metaKey || ev.ctrlKey ) ) {
+                // ctrl-cr. command-cr on Mac.
+
+                log( 'to focus' );
+                evstop( ev );
+                pubmsg.focus();
+            }
+        } );
+
         pub.click( function( ev ){
             evstop( ev );
 
-            var msg = pubmsg.val();
+            var msg = pubmsg.simpVal();
+
+            if ( msg.length == 0 ) {
+                ui.appmsg.alert( "还没有填写内容" );
+                pubmsg.focus();
+                return;
+            }
+            else if ( msg.length > 140 ) {
+                ui.appmsg.alert( "字数太多" );
+                pubmsg.focus();
+                return;
+            }
+
             var data = {
                 page: ui.fav.edit.pagedata(),
                 layout: ui.fav.edit.layoutdata() };
@@ -466,11 +532,27 @@ $.extend( ui.fav.edit, {
 
         } );
 
+        log( 'root is' );
+        log( root );
+
+        log( rst );
+
+        var actualsize = { w:0, h:0 };
+
         $.each( rst, function( i, v ){
-            v.t -= root.top; v.l -= root.left;
+            v.t -= root.top;
+            v.l -= root.left;
+
+            log( v );
+
+            actualsize.w < ( v.l + v.w ) && ( actualsize.w = v.l + v.w );
+            actualsize.h < ( v.t + v.h ) && ( actualsize.h = v.t + v.h );
+
+            log( actualsize );
         } );
 
-        return $.extend( { bgcolor : "#fff", d : rst }, pagesize );
+        // return $.extend( { bgcolor : "#fff", d : rst }, pagesize );
+        return $.extend( { bgcolor : "#fff", d : rst }, actualsize );
     },
     addhis: function ( json, cmd ) {
 
@@ -1201,8 +1283,15 @@ $.fn.size_wh = function( withMargin ) {
 $.fn.p = $.fn.parents;
 
 $.fn.id = function() { return this.attr( 'id' ); }
-$.fn.simpText = function(t) {
-    return $.trim( this.text( t ) ).replace( / +/g, ' ' );
+
+$.simpText = function( str ) {
+    return $.trim( str ).replace( / +/g, ' ' );
+}
+$.fn.simpText = function() {
+    return $.simpText( this.text() );
+}
+$.fn.simpVal = function() {
+    return $.simpText( this.val() );
 }
 
 $.fn.btn_opt = function (  ) {

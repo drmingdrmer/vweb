@@ -15,7 +15,7 @@ function gen_app_rst( $rst, $okmsg, $info = NULL ) {
                 "msg" => $rst[ 'error' ]);
 
             if ( $rst[ 'error_code' ] == 400 ) {
-                $ret[ 'rst' ] = 'auth';
+                $ret[ 'rst' ] = 'weiboerror';
             }
         }
     }
