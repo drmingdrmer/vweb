@@ -135,7 +135,7 @@ body { background: #ddd; }
             width: 100px;
         }
             #charleft {
-                font-size:18px;
+                font-size:16px;
                 font-family: Arial,Helvetica,sans-serif;
                 color: #ccc;
             }
@@ -143,8 +143,10 @@ body { background: #ddd; }
                 margin: 4px 0 4px 0;
                 border: 1px solid #333;
                 background: none;
-                color: #9f9f9f;
+                /* color: #9f9f9f; */
+                color: #ddd;
                 font-size:14px;
+                width: 80px;
             }
             #pub:hover {
                 cursor: pointer;
