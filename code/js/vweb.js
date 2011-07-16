@@ -395,10 +395,9 @@ $.extend( ui.fav.maintool, {
 
         
         pubmsg.focus( function( ev ){
-            var e = $( this );
             window._pubmsg_foc_id && window.clearTimeout( window._pubmsg_foc_id );
             window._pubmsg_foc_id = window.setTimeout(function() {
-                e.addClass( 'focused' );
+                pubmsg.addClass( 'focused' );
                 charleft.show();
                 self.update_charleft();
                 ui.relayout();
@@ -406,10 +405,8 @@ $.extend( ui.fav.maintool, {
         } )
         .blur( function( ev ){
             window._pubmsg_foc_id && window.clearTimeout( window._pubmsg_foc_id );
-            var e = $( this );
-            // prevent from user being unable to click "pub"
             window._pubmsg_foc_id = window.setTimeout(function() {
-                e.removeClass( 'focused' );
+                pubmsg.removeClass( 'focused' );
                 charleft.hide();
                 ui.relayout();
             }, 50 );
