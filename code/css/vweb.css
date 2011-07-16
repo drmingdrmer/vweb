@@ -62,19 +62,33 @@ html,  body {
 }
 body { background: #ddd; }
 
-#appbg{
-    height: 30px;
-    position: absolute;
-    width: 100%;
-    background-color: #222;
-
-}
+/*
+ * #appbg{
+ *     height: 30px;
+ *     position: absolute;
+ *     width: 100%;
+ *     background-color: #222;
+ * 
+ * }
+ */
 #app {
     /* width: 1145px; */
     height: 100%;
     /* padding: 5px; */
     margin: auto;
     background-color: #ddd;
+}
+
+#footer {
+    height: 20px;
+    background: #444;
+    color: #fff;
+    text-align: center;
+}
+#footer a {
+    text-decoration: none;
+    color: #fff;
+    margin: 0 12px;
 }
 
 #td_bd {

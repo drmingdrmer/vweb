@@ -280,11 +280,12 @@ $.extend( ui, {
     },
     relayout : function () {
         var bodyHeight = $( "body" ).height();
+        var footerHeight = $( "#footer" ).h();
         var tabsHeight = $( "#tabs" ).h();
         var edit = $( "#edit" );
-        var subtabHeight = bodyHeight - tabsHeight;
+        var subtabHeight = bodyHeight - tabsHeight - footerHeight;
 
-        edit.height( bodyHeight - $( "#maintool,#menu" ).h() );
+        edit.height( bodyHeight - footerHeight - $( "#maintool,#menu" ).h() );
         $( '#appmsg' ).css( { top: $( '#maintool' ).h() } );
 
         $( "#t>#list" ).height( subtabHeight
