@@ -51,6 +51,15 @@ function square( $w, $h, $color ) {
 
     return $img->exec( 'png' );
 }
+
+function fiximg( $src, $w, $h ) {
+    $data = file_get_contents( $src );
+    $img = new SaeImage();
+    $img->setData( $data );
+    $img->resize( $w, $h );
+
+    return $img->exec( 'png' );
+}
 function mkimg( $data, $tp, $isout ) {
     $FONT = array(
         "size" => 14,
@@ -70,7 +79,8 @@ function mkimg( $data, $tp, $isout ) {
         }
 
         if ( $e[ 'img' ] ) {
-            $img = file_get_contents( $e[ 'img' ] );
+            // $img = file_get_contents( $e[ 'img' ] );
+            $img = fiximg( $e[ 'img' ], $e[ 'w' ], $e[ 'h' ] );
             $sub = array( $img, $e[ 'l' ], -$e[ 't' ], 1, SAE_TOP_LEFT );
             array_push( $comp, $sub );
         }

@@ -165,8 +165,8 @@ body { background: #ddd; }
             background: #333;
             border: 1px solid #404040;
             width: 96%;
-            height: 12px;
-            padding: 4px 0;
+            height: 16px;
+            padding: 4px 0 0 0;
 
             overflow: hidden;
         }
