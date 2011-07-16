@@ -221,6 +221,7 @@ body { background: #ddd; }
             /* border: 1px solid #f00; */
             color: #000;
             background: #fff;
+            /* padding: 60px; */
         }
         #cont.standard {  }
         #cont.album .t_msg {
@@ -268,6 +269,7 @@ body { background: #ddd; }
                 min-height: 400px;
                 overflow: hidden;
                 zoom: 1;
+                padding: 0 0 40px 0;
 
                 background: #eee;
 

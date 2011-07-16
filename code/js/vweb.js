@@ -275,7 +275,18 @@ $.extend( ui, {
             if ( tagname != 'INPUT' && tagname != 'BUTTON' ) {
                 $( ".t-autoclose" ).hide();
             }
-        } );
+        } )
+        .droppable( {
+            drop: function( ev, theui ) {
+                log( ev );
+                var msg = theui.draggable;
+                if ( $( msg ).parent( '#page' ).length ) {
+                    msg.remove();
+                    ui.t.list.msg_visible( msg.id(), true );
+                }
+            }
+        } )
+        ;
 
     },
     relayout : function () {
@@ -303,7 +314,7 @@ $.extend( ui, {
     setup_img_switch : function ( container ) {
         var swi = { thumb: "midpic", midpic: "thumb" };
 
-        $( container ).delegate( ".t_msg img.msgimg", "click", function(){
+        $( container ).delegate( ".t_msg .imgwrap", "click", function(){
             var e = $( this ).p( ".t_msg" );
             e.toggleClass( 'thumb' );
             e.toggleClass( 'midpic' );
@@ -382,16 +393,22 @@ $.extend( ui.fav.maintool, {
 
         fn.DefaultValue( this._defaultAlbumName );
 
+        
         pubmsg.focus( function( ev ){
-            $( this ).addClass( 'focused' );
-            charleft.show();
-            self.update_charleft();
-            ui.relayout();
+            var e = $( this );
+            window._pubmsg_foc_id && window.clearTimeout( window._pubmsg_foc_id );
+            window._pubmsg_foc_id = window.setTimeout(function() {
+                e.addClass( 'focused' );
+                charleft.show();
+                self.update_charleft();
+                ui.relayout();
+            }, 50);
         } )
         .blur( function( ev ){
+            window._pubmsg_foc_id && window.clearTimeout( window._pubmsg_foc_id );
             var e = $( this );
             // prevent from user being unable to click "pub"
-            window.setTimeout( function(){
+            window._pubmsg_foc_id = window.setTimeout(function() {
                 e.removeClass( 'focused' );
                 charleft.hide();
                 ui.relayout();
@@ -503,13 +520,23 @@ $.extend( ui.fav.edit, {
             appendTo:"body",
             zIndex:2000,
             receive : function ( ev, theui ) {
+                evstop( ev );
+                log( ev );
                 $( '#pagehint' ).remove();
                 var msg = theui.item;
                 ui.t.list.msg_visible( msg.id(), false );
             },
             // NOTE: helper setting to "clone" prevents click event to trigger
             helper : "clone"
-        });
+        })
+        .droppable( {
+            // doing nothing but prevent 'body' from receiving 'drop' event
+            drop: function( ev, theui ) {
+                evstop( ev );
+            }
+        } );
+        ;
+
     },
     ids : function () {
         return $.map( $( '.t_msg', this.page ), function( v, i ){
@@ -977,6 +1004,17 @@ $.extend( ui.t.list, {
                 { id: $( this ).p( ".t_msg" ).id() }, { } );
         } )
         ;
+
+        // this._elt.droppable( {
+        //     drop: function( ev, theui ) {
+        //         var msg = theui.draggable;
+        //         log( ev );
+        //         if ( $( msg ).parent( '#page' ).length ) {
+        //             msg.remove();
+        //             ui.t.list.msg_visible( msg.id(), true );
+        //         }
+        //     }
+        // } );
     },
 
     filter_existed : function ( data ) {
@@ -1016,15 +1054,6 @@ $.extend( ui.t.list, {
             }
         } );
 
-        this._elt.droppable( {
-            drop: function( ev, theui ){
-                var msg = theui.draggable;
-
-                msg.remove();
-                ui.t.list.msg_visible( msg.id(), true );
-
-            }
-        } );
 
     }
 } );
