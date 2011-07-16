@@ -274,9 +274,11 @@ else if ( $verb == "POST" ) {
             $fn = mkimg_local( $layout, 'jpg' );
             !$fn && resmsg( 'mkimg', 'mkimg' );
 
+            $sysMsg = " -- 建自己的图集：" . LINK_VWEB;
+
             // $msg = "《$albumname》-- $msg $url";
             // $msg = "《$albumname》-- $msg";
-            $msg = "$msg";
+            $msg = "$msg$sysMsg";
 
             $rst = $c->upload( $msg, $fn );
             output_exit( gen_app_rst( $rst, "发布成功" ) );
