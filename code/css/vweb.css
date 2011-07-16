@@ -62,11 +62,18 @@ html,  body {
 }
 body { background: #ddd; }
 
+#appbg{
+    height: 30px;
+    position: absolute;
+    width: 100%;
+    background-color: #222;
+
+}
 #app {
     /* width: 1145px; */
     height: 100%;
     /* padding: 5px; */
-    /* margin: auto; */
+    margin: auto;
     background-color: #ddd;
 }
 
@@ -285,7 +292,6 @@ body { background: #ddd; }
             bottom: 0px; right: 4px; }
 
     #t { width: 100%;
-        /* background: #aaa; */
         position: relative;
         overflow: visible; zoom: 1; }
     #func {
@@ -304,7 +310,9 @@ body { background: #ddd; }
             width: 100%;
             left:0; top: 0;
             position: absolute;
-            overflow: hidden; zoom: 1; }
+            overflow: hidden; zoom: 1;
+            background: #000;
+        }
 
         #my>fieldset {
             /* left:5%; */
