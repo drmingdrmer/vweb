@@ -329,7 +329,7 @@ $.extend( ui.appmsg, {
             var e = this._elt;
             $( "#tmpl_appmsg" ).tmpl( [{text:text}] ).appendTo( e.empty() );
             this.lastid && window.clearTimeout( this.lastid );
-            this.lastid = window.setTimeout( function(){ e.empty(); }, 5000 );
+            this.lastid = window.setTimeout( function(){ e.empty(); }, 105000 );
         }
     },
     alert: function( text ) {
