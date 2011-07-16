@@ -112,7 +112,7 @@ body { background: #ddd; }
                 font-family: Arial,Helvetica,sans-serif;
                 letter-spacing: 4px;
                 color: #7c7c7c;
-                padding: 4px 0 0 12px;
+                padding: 2px 0 0 18px;
             }
 
         #curfile {
@@ -838,10 +838,15 @@ body { background: #ddd; }
 }
 .t_opt .ui-button.ui-state-active {
 
-    background: -webkit-gradient(linear, left top, left bottom, color-stop(0.2, #112), to(#336));
-    background: -moz-linear-gradient(top, #000, #233);
+    /* background: -webkit-gradient(linear, left top, left bottom, color-stop(0.2, #112), to(#336)); */
+    background: -webkit-gradient(linear, left top, left bottom, color-stop(0.2, #147), to(#36c));
+    background: -moz-linear-gradient(top, #147, #36c);
 
     color: #acd;
+    /* color: #fff; */
+}
+.t_opt .ui-button.ui-state-active .ui-button-text {
+    color: #fff;
 }
 
 .t_opt .ui-button-text {
