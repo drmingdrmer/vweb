@@ -639,10 +639,13 @@ $.extend( ui.t.acc, {
     load : function( cmdname, opt ) {
         // 'this' is set by create_loader and which is the DOM fired the event
 
+        log( opt );
         var trigger = this;
         var args = {};
         if ( opt.args ) {
             args = opt.args.apply ? opt.args.apply( this, [] ) : opt.args;
+            log( args );
+            args = $.isPlainObject( args ) ? args : $.unparam( args );
         }
 
         log( "args:" );
@@ -1224,10 +1227,12 @@ $.unparam = function( s ){
     var o = {};
     var args = s.split( "&" );
     $.each( args, function( i, e ){
-        var kv = e.split( "=" );
-        var k = decodeURIComponent( k );
-        var v = decodeURIComponent( v );
-        o[ k ] = v;
+        if ( e != "" ) {
+            var kv = e.split( "=" );
+            var k = decodeURIComponent( kv[ 0 ] );
+            var v = decodeURIComponent( kv[ 1 ] );
+            o[ k ] = v;
+        }
     } );
 
     return o;
