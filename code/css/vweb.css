@@ -98,7 +98,8 @@ body { background: #ddd; }
         #maintool td { height: 30px; }
         #maintool td .wrap {
             overflow: visibility;
-            width: 100%; height: 30px; }
+            width: 100%; height: 30px;
+        }
 
         #logo {
             vertical-align: top;
@@ -131,9 +132,15 @@ body { background: #ddd; }
         #pubarea {
             vertical-align: bottom;
             text-align: center;
-            width: 100px; }
+            width: 100px;
+        }
+            #charleft {
+                font-size:18px;
+                font-family: Arial,Helvetica,sans-serif;
+                color: #ccc;
+            }
             #pub {
-                margin: 4px 0 0 0;
+                margin: 4px 0 4px 0;
                 border: 1px solid #333;
                 background: none;
                 color: #9f9f9f;
@@ -156,7 +163,10 @@ body { background: #ddd; }
             background: #333;
             border: 1px solid #404040;
             width: 96%;
-            height: 20px;
+            height: 12px;
+            padding: 4px 0;
+
+            overflow: hidden;
         }
         #pubmsg.focused {
             height: 80px;
@@ -232,7 +242,7 @@ body { background: #ddd; }
                 position: relative;
                 width: 367px;
                 margin: 30px auto auto auto;
-                min-height: 120px;
+                min-height: 400px;
                 overflow: hidden;
                 zoom: 1;
 

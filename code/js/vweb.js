@@ -5,7 +5,9 @@
 var conf = {
     loginPage : "http://" + window.location.host,
     // TODO change it before deploying
-    appLink: 'http://t.cn/aOXV5H',  // 2.vweb
+    appLink: 'http://t.cn/a0yUgu',  // 2.vweb
+    appLinkDev: 'http://t.cn/aOXV5H',  // 2.vweb
+    maxChar: 110
 };
 var ui = {
     appmsg : {},
@@ -30,6 +32,7 @@ var ui = {
         tree : {}
     }
 };
+
 
 function vweb_cmd( verb, cmd, args, data, cbs ) {
 
@@ -325,7 +328,7 @@ $.extend( ui.appmsg, {
             var e = this._elt;
             $( "#tmpl_appmsg" ).tmpl( [{text:text}] ).appendTo( e.empty() );
             this.lastid && window.clearTimeout( this.lastid );
-            this.lastid = window.setTimeout( function(){ e.empty(); }, 105000 );
+            this.lastid = window.setTimeout( function(){ e.empty(); }, 5000 );
         }
     },
     alert: function( text ) {
@@ -368,8 +371,10 @@ $.extend( ui.fav, {
 $.extend( ui.fav.maintool, {
     init : function () {
 
+        var self = this;
         var fn = this.fn = $( "#fn", this._elt );
         var pubmsg = this.pubmsg = $( "#pubmsg", this._elt );
+        var charleft = this.charleft = $( "#charleft" ).hide();
         var pub = this.pub = $( "#pub", this._elt );
         this._defaultAlbumName = '未命名相册';
 
@@ -378,6 +383,8 @@ $.extend( ui.fav.maintool, {
 
         pubmsg.focus( function( ev ){
             $( this ).addClass( 'focused' );
+            charleft.show();
+            self.update_charleft();
             ui.relayout();
         } )
         .blur( function( ev ){
@@ -385,6 +392,7 @@ $.extend( ui.fav.maintool, {
             // prevent from user being unable to click "pub"
             window.setTimeout( function(){
                 e.removeClass( 'focused' );
+                charleft.hide();
                 ui.relayout();
             }, 50 );
         } )
@@ -401,6 +409,7 @@ $.extend( ui.fav.maintool, {
                 pubmsg.blur();
             }
             else {
+                self.update_charleft();
                 return;
             }
 
@@ -430,26 +439,32 @@ $.extend( ui.fav.maintool, {
             if ( msg.length == 0 ) {
                 ui.appmsg.alert( "还没有填写内容" );
                 pubmsg.focus();
-                return;
             }
-            else if ( msg.length > 140 ) {
+            else if ( msg.length > conf.maxChar ) {
                 ui.appmsg.alert( "字数太多" );
                 pubmsg.focus();
-                return;
+            }
+            else {
+                var data = {
+                    page: ui.fav.edit.pagedata(),
+                    layout: ui.fav.edit.layoutdata() };
+
+                vweb_cmd( 'POST', 'pub', { albumname: fn.val(), msg: msg },
+                    JSON.stringify( data ), {
+                        success: function( json ) {
+                            if ( json.rst == 'ok' ) {
+                                pubmsg.val( '' ).blur();
+                            }
+                        }
+                    } );
             }
 
-            var data = {
-                page: ui.fav.edit.pagedata(),
-                layout: ui.fav.edit.layoutdata() };
-
-            vweb_cmd( 'POST', 'pub', { albumname: fn.val(), msg: msg },
-                JSON.stringify( data ), {
-                    success: function( json ) {
-                        if ( json.rst == 'ok' ) { }
-                        else { }
-                    }
-                } );
         } );
+    },
+
+    update_charleft: function(){
+        this.charleft.text( "剩余 " + (
+            conf.maxChar - this.pubmsg.val().length ) + " 字" );
     }
 
 } );
