@@ -761,16 +761,17 @@ body { background: #ddd; }
 
 
 #appmsg {
-    z-index: 1000;
+    z-index: 30;
     position: absolute;
-    width: 100%;
-    height: 40px;
-    left: 0;
+    /* width: 100%; */
+    /* height: 40px; */
+    left: 4px;
     top: 30px;
     text-align: left;
     padding: 0px;
 
-    overflow: hidden;
+    overflow: visible;
+
 }
 #appmsg .msg {
     position: relative;
@@ -784,8 +785,12 @@ body { background: #ddd; }
 
     background: #ffb;
     color: #000;
-    border: 1px solid #dd9
+    border: 1px solid #dd9;
     /* opacity: 0.8; */
+
+
+    box-shadow: 2px 2px 16px rgba( 0, 0, 0, 0.3 );
+    /* -webkit-box-shadow: 0px 0px 10px 10px rgba( 0, 0, 0, 0.7 ); */
 }
 
 .t_ctrl .current {
