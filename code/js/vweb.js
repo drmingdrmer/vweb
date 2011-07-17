@@ -1,10 +1,9 @@
 // Works with jquery-1.4.4, jquery-ui-1.8.9
 
-// TODO request not through vweb_cmd should also be handled like this
 
 $.vweb = {
-    conf : {
-        loginPage : "http://" + window.location.host,
+    conf: {
+        loginPage: "http://" + window.location.host,
         appLink: 'http://t.cn/a0yUgu',  // vweb
         appLinkDev: 'http://t.cn/aOXV5H',  // 2.vweb
         maxChar: 110
@@ -38,67 +37,168 @@ $.vweb.ui = {
     }
 };
 
-
-function vweb_cmd( verb, cmd, args, data, cbs ) {
-
-    args = $.isPlainObject( args ) ? $.param( args ) : args;
-    cbs = cbs || {};
-
-    log( cmd, args );
-
-    $.ajax( {
-        type : verb,
-        url : "t.php?act=" + cmd + "&resptype=json&" + args,
-        data: data,
-        dataType : "json",
-        success : function( json, st, xhr ) {
-
-            if ( json.rst == 'weiboerror' ) {
-
-                log( 'weiboerror error' );
-
-                var msg = json.msg || '0:';
-                var cm = msg.split( ':' );
-                var msgCode = cm[ 0 ];
-                msg = cm[ 1 ];
-
-                if ( msgCode == '40028' ) {
-                    // too many repeated update
-                    // content length error
-                    // TODO do not use ui.appmsg
-                    // $.vweb.ui.appmsg.err( msg );
-                }
-                else {
-                    // TODO do not use ui.appmsg
-                    // $.vweb.ui.appmsg.err( msg );
-                }
-
-                return;
-            }
-            else if ( json.rst == 'auth' ) {
-                // no Oauth key
-                window.location.href = $.vweb.conf.loginPage;
-            }
-            else{
-            }
-
-            // TODO do not use ui.appmsg
-            // $.vweb.ui.appmsg.msg( json.rst + " " + json.msg );
-            cbs.success && cbs.success( json );
-
-        },
-        error : function( jqxhr, errstr, exception ) {
-            // TODO do not use ui.appmsg
-            // $.vweb.ui.appmsg.msg( errstr );
-            cbs.error && cbs.error( jqxhr, errstr, exception );
+$.extend( $, {
+    log: function(mes) {
+        console.log( mes );
+    },
+    evstop: function( ev ) {
+        if ( ev ) {
+            ev.stopPropagation && ev.stopPropagation(); /* pop up                  */
+            ev.preventDefault && ev.preventDefault();   /* other event on this DOM */
         }
-    } );
+    }
+} );
 
-}
+$.extend( $.vweb, {
+    // TODO request not through t_cmd should also be handled like this
+    t_cmd: function( verb, cmd, args, data, cbs ) {
 
-function log (mes) {
-    console.log( mes );
-}
+        args = $.isPlainObject( args ) ? $.param( args ) : args;
+        cbs = cbs || {};
+
+        $.log( cmd, args );
+
+        $.ajax( {
+            type : verb,
+            url : "t.php?act=" + cmd + "&resptype=json&" + args,
+            data: data,
+            dataType : "json",
+            success : function( json, st, xhr ) {
+
+                if ( json.rst == 'weiboerror' ) {
+
+                    $.log( 'weiboerror error' );
+
+                    var msg = json.msg || '0:';
+                    var cm = msg.split( ':' );
+                    var msgCode = cm[ 0 ];
+                    msg = cm[ 1 ];
+
+                    if ( msgCode == '40028' ) {
+                        // too many repeated update
+                        // content length error
+                        // TODO do not use ui.appmsg
+                        // $.vweb.ui.appmsg.err( msg );
+                    }
+                    else {
+                        // TODO do not use ui.appmsg
+                        // $.vweb.ui.appmsg.err( msg );
+                    }
+
+                    return;
+                }
+                else if ( json.rst == 'auth' ) {
+                    // no Oauth key
+                    window.location.href = $.vweb.conf.loginPage;
+                }
+                else{
+                }
+
+                // TODO do not use ui.appmsg
+                // $.vweb.ui.appmsg.msg( json.rst + " " + json.msg );
+                cbs.success && cbs.success( json );
+
+            },
+            error : function( jqxhr, errstr, exception ) {
+                // TODO do not use ui.appmsg
+                // $.vweb.ui.appmsg.msg( errstr );
+                cbs.error && cbs.error( jqxhr, errstr, exception );
+            }
+        } );
+
+    },
+    tweets: function( data ) {
+        function _stdAvatar( e ) {
+            if ( e.profile_image_url ) {
+                e.avatar_50 = e.profile_image_url;
+                e.avatar_30 = e.profile_image_url.replace( /\/50\//, '/30/' );
+            }
+        }
+        var self = {
+            _d : data,
+            get: function () { return this._d; },
+            splitRetweet: function () {
+                var d = [];
+                $.each( this._d, function( i, v ){
+                    d.push( v );
+                    if ( v.retweeted_status ) {
+                        v.status = 'retweeter';
+                        v.retweeted_status.status = "retweet";
+                        d.push( v.retweeted_status );
+                    }
+                } );
+                this._d = d;
+                return this;
+            },
+            exclude: function (ids) {
+                this._d = ids.length == 0
+                    ? this._d
+                    : $.grep( this._d, function( v, i ) {
+                        return ids.indexOf( v.id + "" ) < 0
+                            && ( !v.retweeted_status || ids.indexOf( v.retweeted_status.id + "" ) < 0  );
+                    } );
+                return this;
+            },
+            stdAvatar: function ( userkey ) {
+                $.each( this._d, function( i, v ) {
+                    $.each( [ 'user', 'sender', 'recipient' ], function( ii, k ){
+                        v[ k ] && _stdAvatar( v[ k ] );
+                    } );
+                } );
+                return this;
+            },
+            htmlLinks: function () {
+                $.each( this._d, function( i, v ) {
+                    v.html = v.text.replace(
+                        /(http:\/\/(?:sinaurl|t)\.cn\/[a-zA-Z0-9_]+)/g,
+                        "<a target='_blank' class='raw' href='$1'>$1</a>" )
+                    .replace(
+                        /@([_a-zA-Z0-9\u4e00-\u9fa5\-]+)/g,
+                        "<a class='at' screen_name='$1' href=''>@$1</a>" )
+                    .replace(
+                        /#([^#]+)#/g,
+                        "<a class='topic' href=''>@$1</a>" )
+                    ;
+                } );
+                return this;
+            },
+            defaultUser: function ( which ) {
+                $.each( this._d, function( i, v ) {
+                    v[ which ] && !v.user && ( v.user = v[ which ] );
+                } );
+                return this;
+            },
+            setMe: function( id ){
+                $.each( this._d, function( i, v ){
+                    v.user.isme = ( id == v.user.id );
+                } );
+                return this;
+            },
+            historyText: function () {
+                $.each( this._d, function( i, v ){
+                    v.text_forhis = v.text.replace( /([\u0100-\uffff])/g, '\u00ff$1' )
+                    .substr( 0, 10 ).replace( /\u00ff/g, '' );
+
+                    if ( v.text_forhis != v.text ) {
+                        v.text_forhis +=  '...';
+                    }
+                } );
+                return this;
+            },
+            historyTime: function () {
+                var now = new Date();
+                $.each( this._d, function( i, v ){
+                    var d = new Date( v.created_at );
+                    var dt = d.getYear() + "年" + d.getMonth() + "月" + d.getDate();
+                    dt = ( dt == now.getYear() + "年" + now.getMonth() + "月" + now.getDate() ) ?  "今天" : dt;
+                    v.time_forhis = dt + " " + d.getHours() + ":" + d.getMinutes() + ":" + d.getSeconds();
+                } );
+                return this;
+            }
+        };
+        return self;
+    }
+} );
 
 function handle_json ( handlers, json, st, xhr ) {
     $.vweb.ui.appmsg[ json.rst == 'ok' ? 'msg' : 'err' ]( json.msg );
@@ -119,107 +219,13 @@ function create_handler( handlers ) {
 
     return hdlr;
 }
-function evstop ( ev ) {
-    ev.stopPropagation && ev.stopPropagation();          /* pop up                  */
-    ev.preventDefault && ev.preventDefault();           /* other event on this DOM */
-}
+
 function init_sub ( self ) {
     $.each( self, function( k, v ){
         var u = self[ k ];
         u._elt = $( "#" + k );
         u.init && u.init( u._elt );
     } );
-}
-function $TweetData ( data ) {
-    function _stdAvatar( e ) {
-        if ( e.profile_image_url ) {
-            e.avatar_50 = e.profile_image_url;
-            e.avatar_30 = e.profile_image_url.replace( /\/50\//, '/30/' );
-        }
-    }
-    var self = {
-        _d : data,
-        get: function () { return this._d; },
-        splitRetweet: function () {
-            var d = [];
-            $.each( this._d, function( i, v ){
-                d.push( v );
-                if ( v.retweeted_status ) {
-                    v.status = 'retweeter';
-                    v.retweeted_status.status = "retweet";
-                    d.push( v.retweeted_status );
-                }
-            } );
-            this._d = d;
-            return this;
-        },
-        exclude: function (ids) {
-            this._d = ids.length == 0
-                ? this._d
-                : $.grep( this._d, function( v, i ) {
-                    return ids.indexOf( v.id + "" ) < 0
-                        && ( !v.retweeted_status || ids.indexOf( v.retweeted_status.id + "" ) < 0  );
-                } );
-            return this;
-        },
-        stdAvatar: function ( userkey ) {
-            $.each( this._d, function( i, v ) {
-                $.each( [ 'user', 'sender', 'recipient' ], function( ii, k ){
-                    v[ k ] && _stdAvatar( v[ k ] );
-                } );
-            } );
-            return this;
-        },
-        htmlLinks: function () {
-            $.each( this._d, function( i, v ) {
-                v.html = v.text.replace(
-                    /(http:\/\/(?:sinaurl|t)\.cn\/[a-zA-Z0-9_]+)/g,
-                    "<a target='_blank' class='raw' href='$1'>$1</a>" )
-                .replace(
-                    /@([_a-zA-Z0-9\u4e00-\u9fa5\-]+)/g,
-                    "<a class='at' screen_name='$1' href=''>@$1</a>" )
-                .replace(
-                    /#([^#]+)#/g,
-                    "<a class='topic' href=''>@$1</a>" )
-                ;
-            } );
-            return this;
-        },
-        defaultUser: function ( which ) {
-            $.each( this._d, function( i, v ) {
-                v[ which ] && !v.user && ( v.user = v[ which ] );
-            } );
-            return this;
-        },
-        setMe: function( id ){
-            $.each( this._d, function( i, v ){
-                v.user.isme = ( id == v.user.id );
-            } );
-            return this;
-        },
-        historyText: function () {
-            $.each( this._d, function( i, v ){
-                v.text_forhis = v.text.replace( /([\u0100-\uffff])/g, '\u00ff$1' )
-                .substr( 0, 10 ).replace( /\u00ff/g, '' );
-
-                if ( v.text_forhis != v.text ) {
-                    v.text_forhis +=  '...';
-                }
-            } );
-            return this;
-        },
-        historyTime: function () {
-            var now = new Date();
-            $.each( this._d, function( i, v ){
-                var d = new Date( v.created_at );
-                var dt = d.getYear() + "年" + d.getMonth() + "月" + d.getDate();
-                dt = ( dt == now.getYear() + "年" + now.getMonth() + "月" + now.getDate() ) ?  "今天" : dt;
-                v.time_forhis = dt + " " + d.getHours() + ":" + d.getMinutes() + ":" + d.getSeconds();
-            } );
-            return this;
-        }
-    };
-    return self;
 }
 
 $.extend( $.vweb.ui, {
@@ -279,8 +285,8 @@ $.extend( $.vweb.ui, {
         } )
         .droppable( {
             drop: function( ev, theui ) {
-                log( ev );
-                log( theui );
+                $.log( ev );
+                $.log( theui );
                 var msg = theui.draggable;
                 if ( $( msg ).parent( '#page' ).length ) {
                     msg.remove();
@@ -345,7 +351,7 @@ $.extend( $.vweb.ui.appmsg, {
             $( "#tmpl_appmsg" ).tmpl( data ).appendTo( e.empty() );
 
             this.lastid && window.clearTimeout( this.lastid );
-            this.lastid = window.setTimeout( function(){ e.empty(); }, 105000 );
+            this.lastid = window.setTimeout( function(){ e.empty(); }, 5000 );
         }
     },
     alert: function( text ) {
@@ -448,7 +454,7 @@ $.extend( $.vweb.ui.fav.maintool, {
                 return;
             }
 
-            evstop( ev );
+            $.evstop( ev );
         } )
         ;
 
@@ -471,11 +477,11 @@ $.extend( $.vweb.ui.fav.maintool, {
                 return;
             }
 
-            evstop( ev );
+            $.evstop( ev );
         } );
 
         pub.click( function( ev ){
-            evstop( ev );
+            $.evstop( ev );
 
             var msg = pubmsg.simpVal();
 
@@ -492,7 +498,7 @@ $.extend( $.vweb.ui.fav.maintool, {
                     page: $.vweb.ui.fav.edit.pagedata(),
                     layout: $.vweb.ui.fav.edit.layoutdata() };
 
-                vweb_cmd( 'POST', 'pub', { albumname: fn.val(), msg: msg },
+                $.vweb.t_cmd( 'POST', 'pub', { albumname: fn.val(), msg: msg },
                     JSON.stringify( data ), {
                         success: function( json ) {
                             if ( json.rst == 'ok' ) {
@@ -549,8 +555,8 @@ $.extend( $.vweb.ui.fav.edit, {
             appendTo:"body",
             zIndex:2000,
             receive : function ( ev, theui ) {
-                evstop( ev );
-                log( ev );
+                $.evstop( ev );
+                $.log( ev );
                 $( '#pagehint' ).remove();
                 var msg = theui.item;
                 $.vweb.ui.t.list.msg_visible( msg.id(), false );
@@ -561,7 +567,7 @@ $.extend( $.vweb.ui.fav.edit, {
         .droppable( {
             // doing nothing but prevent 'body' from receiving 'drop' event
             drop: function( ev, theui ) {
-                evstop( ev );
+                $.evstop( ev );
             }
         } );
         ;
@@ -647,8 +653,8 @@ $.extend( $.vweb.ui.t.acc, {
     },
 
     // save_user_info: function( data, trigger, cmd ) {
-    //     log( "user info saved" );
-    //     log( data );
+    //     $.log( "user info saved" );
+    //     $.log( data );
     //     this.user = data;
     // },
 
@@ -662,7 +668,7 @@ $.extend( $.vweb.ui.t.acc, {
         args.sort();
 
         var s = cmdname.replace( /\//g, '__' ) + '____' + args.join( '____' ) ;
-        log( 'cmd str=' + s );
+        $.log( 'cmd str=' + s );
         return s;
     },
 
@@ -682,7 +688,7 @@ $.extend( $.vweb.ui.t.acc, {
     create_loader : function ( cmdname, opt ) {
         var realload = this.load;
         return function ( ev ) {
-            ev && evstop( ev );
+            ev && $.evstop( ev );
             realload.apply( $(this), [ cmdname, opt ] );
         }
     },
@@ -690,7 +696,7 @@ $.extend( $.vweb.ui.t.acc, {
     load : function( cmdname, opt ) {
         // 'this' is set by create_loader and which is the DOM fired the event
 
-        log( opt );
+        $.log( opt );
         var trigger = this;
         var args = {};
         if ( opt.args ) {
@@ -698,10 +704,10 @@ $.extend( $.vweb.ui.t.acc, {
             args = $.isPlainObject( args ) ? args : $.unparam( args );
         }
 
-        log( "args:" );
-        log( args );
+        $.log( "args:" );
+        $.log( args );
 
-        vweb_cmd( 'GET', cmdname, args, undefined, {
+        $.vweb.t_cmd( 'GET', cmdname, args, undefined, {
             success: function( json ) {
                 if ( json.rst == 'ok' ) {
                     var t = trigger;
@@ -735,12 +741,12 @@ $.extend( $.vweb.ui.t.acc, {
         var d = json.data[ 0 ];
 
         d.hisid = $.vweb.ui.t.acc.cmd_serialize( cmd.name, cmd.args, d.id );
-        log( d );
+        $.log( d );
 
-        var hisdata = $TweetData( [ d ] ).stdAvatar().defaultUser('sender')
+        var hisdata = $.vweb.tweets( [ d ] ).stdAvatar().defaultUser('sender')
         .historyText().historyTime().get()[ 0 ];
 
-        log( hisdata );
+        $.log( hisdata );
 
         return hisdata;
     }
@@ -978,12 +984,12 @@ $.extend( $.vweb.ui.t.list, {
         .delegate( ".t_msg .avatar a.user, .t_msg .username a.user", "click", uldr )
         .delegate( ".t_msg .cont.msg a.at", "click", atldr )
         .delegate( ".t_msg .f_destroy", "click", function( ev ){
-            evstop( ev );
-            vweb_cmd( 'POST', "destroy", '',
+            $.evstop( ev );
+            $.vweb.t_cmd( 'POST', "destroy", '',
                 { id: $( this ).p( ".t_msg" ).id() }, { } );
         } )
         .delegate( ".t_msg .f_retweet", "click", function( ev ){
-            evstop( ev );
+            $.evstop( ev );
             var e = $( this ).p( ".t_msg" );
             e.addClass( 'in_repost' );
             $( ".g_repost", e ).remove();
@@ -996,12 +1002,12 @@ $.extend( $.vweb.ui.t.list, {
             $( '.f_text', rp ).focus();
         } )
         .delegate( ".t_msg .g_repost .f_cancel", "click", function( ev ){
-            evstop( ev );
+            $.evstop( ev );
             $( this ).p( ".t_msg" ).removeClass( 'in_repost' );
             $( this ).p( ".g_repost" ).remove();
         } )
         .delegate( ".t_msg .f_comment", "click", function ( ev ) {
-            evstop( ev );
+            $.evstop( ev );
             var e = $( this ).p( ".t_msg" );
             $( ".g_comment", e ).remove();
             $( "#tmpl_comment" ).tmpl( [ {
@@ -1010,13 +1016,13 @@ $.extend( $.vweb.ui.t.list, {
             } ] ).appendTo( e );
         } )
         .delegate( ".t_msg .g_comment .f_cancel", "click", function( ev ){
-            evstop( ev );
+            $.evstop( ev );
             $( this ).p( ".g_comment" ).remove();
         } )
         .delegate( ".t_msg .f_fav", "click", function( ev ){
-            evstop( ev );
-            log( this );
-            vweb_cmd( 'POST', "fav", '',
+            $.evstop( ev );
+            $.log( this );
+            $.vweb.t_cmd( 'POST', "fav", '',
                 { id: $( this ).p( ".t_msg" ).id() }, { } );
         } )
         ;
@@ -1035,7 +1041,7 @@ $.extend( $.vweb.ui.t.list, {
 
     show : function ( data ) {
 
-        data = $TweetData( data ).splitRetweet().exclude( $.vweb.ui.fav.edit.ids() )
+        data = $.vweb.tweets( data ).splitRetweet().exclude( $.vweb.ui.fav.edit.ids() )
         .stdAvatar().defaultUser( 'sender' ).setMe( $.vweb.account.id )
         .htmlLinks().get();
 
@@ -1113,8 +1119,8 @@ $.extend( $.vweb.ui.t.paging, {
 
         this.last = { cmd:cmd, json:json };
 
-        log( 'paging.addhis:' );
-        log( rec );
+        $.log( 'paging.addhis:' );
+        $.log( rec );
 
         $( this._elt ).find( ".t_his#" + rec.hisid ).remove();
         $( "#tmpl_hisrec" ).tmpl( [ rec ] ).prependTo( $( "#history" ) );
@@ -1131,7 +1137,7 @@ $.extend( $.vweb.ui.t.my, {
     init : function () {
         var self = this;
         $( "#expand.t_btn" ).click( function (ev){
-            evstop( ev );
+            $.evstop( ev );
             self._elt.removeClass( 'hideall' );
         } );
 
@@ -1384,7 +1390,7 @@ $( function() {
         $( '.nomode_album' ).remove();
     }
 
-    vweb_cmd( 'GET', 'account/verify_credentials', {}, undefined, {
+    $.vweb.t_cmd( 'GET', 'account/verify_credentials', {}, undefined, {
         success:function( json ) {
             $.vweb.account = json.data;
             $.vweb.ui.init();
