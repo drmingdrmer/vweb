@@ -1,142 +1,5 @@
 // Works with jquery-1.4.4, jquery-ui-1.8.9
 
-
-
-$.extend( $, {
-    log: function(mes) {
-        console.log( mes );
-    },
-    evstop: function( ev ) {
-        if ( ev ) {
-            ev.stopPropagation && ev.stopPropagation(); /* pop up                  */
-            ev.preventDefault && ev.preventDefault();   /* other event on this DOM */
-        }
-    },
-    simpText: function( str ) {
-        return $.trim( str ).replace( / +/g, ' ' );
-    },
-    unparam: function( s ) {
-        var o = {};
-        var args = s.split( "&" );
-        $.each( args, function( i, e ){
-            if ( e != "" ) {
-                var kv = e.split( "=" );
-                var k = decodeURIComponent( kv[ 0 ] );
-                var v = decodeURIComponent( kv[ 1 ] );
-                o[ k ] = v;
-            }
-        } );
-
-        return o;
-    },
-    unescape: function( html ) {
-        var htmlNode = document.createElement('div');
-        htmlNode.innerHTML = html;
-        if (htmlNode.innerText) {
-            return htmlNode.innerText; // IE
-        }
-        return htmlNode.textContent; // FF
-    }
-} );
-
-$.extend( $.fn, {
-    to_json: function() {
-        // TODO filter non-comment node
-        var rst = [];
-        $( this ).each( function( i, v ){
-            var e = $( this );
-            var j, text;
-            if ( this.nodeType == 3 ) {
-                text = e.simpText();
-                if ( text != '' ) {
-                    rst.push( { text: this.nodeValue } );
-                }
-            }
-            else {
-                j = { node: { tag: this.tagName, id:e.id(), class: e.attr( 'class' ) } };
-                switch ( j.node.tag ) {
-                case 'IMG' :
-                    j.node.src = e.attr( 'src' );
-                    break;
-                case 'A' :
-                    j.node.href = e.attr( 'href' );
-                    break;
-                }
-                var children = e.contents();
-                if ( children.length > 0 ) {
-                    j.children = children.to_json();
-                }
-                rst.push( j );
-            }
-        } );
-
-        return rst;
-    },
-    offset_tl: function(){
-        var tl = $(this).offset();
-        return { t:tl.top, l:tl.left };
-    },
-    _outerSize: function( funcname, withMargin ){
-        withMargin = withMargin == undefined ? true : withMargin;
-        var s = 0;
-        this.each( function( i, v ){
-            s += $(v)[ funcname ]( withMargin );
-        } );
-        return s;
-    },
-    h: function( withMargin ) {
-        return this._outerSize( 'outerHeight', withMargin );
-    },
-    w: function( withMargin ) {
-        return this._outerSize( 'outerWidth', withMargin );
-    },
-    size_wh: function( withMargin ) {
-        return { w: this.w( withMargin ), h: this.h( withMargin ) };
-    },
-    id: function() {
-        return this.attr( 'id' );
-    },
-    simpText: function() {
-        return $.simpText( this.text() );
-    },
-    simpVal: function() {
-        return $.simpText( this.val() );
-    },
-    btn_opt: function (  ) {
-        var e = $( this );
-        var opt = {
-            icons : {},
-            text : e.attr( "_text" ) != "no"
-        };
-
-        e.attr( "_icon" ) && ( opt.icons.primary = "ui-icon-" + e.attr( "_icon" ) );
-        e.attr( "_icon2" ) && ( opt.icons.secondary = "ui-icon-" + e.attr( "_icon2" ) );
-
-        return opt;
-    },
-    jsonRequest: function( succ ){
-
-        $( this ).each( function(){
-
-            var form = $( this );
-
-            $.ajax( {
-                url : form.attr( 'action' ),
-                type : form.attr( 'method' ),
-                data : form.serialize(),
-                dataType : 'json',
-                success : succ
-            } );
-
-        } );
-    }
-} );
-
-$.extend( $.fn, {
-    tl: $.fn.offset_tl,
-    p: $.fn.parents
-} );
-
 $.vweb = {
     conf: {
         loginPage: "http://" + window.location.host,
@@ -146,11 +9,10 @@ $.vweb = {
     },
     account: undefined,
     ui : {},
-    data : {}
+    backend : {}
 };
 
 $.vweb.ui = {
-    appmsg : {},
     fav : {
         maintool : {},
         menu : {},
@@ -175,62 +37,6 @@ $.vweb.ui = {
 
 $.extend( $.vweb, {
     // TODO request not through t_cmd should also be handled like this
-    t_cmd: function( verb, cmd, args, data, cbs ) {
-
-        args = $.isPlainObject( args ) ? $.param( args ) : args;
-        cbs = cbs || {};
-
-        $.log( cmd, args );
-
-        $.ajax( {
-            type : verb,
-            url : "t.php?act=" + cmd + "&resptype=json&" + args,
-            data: data,
-            dataType : "json",
-            success : function( json, st, xhr ) {
-
-                if ( json.rst == 'weiboerror' ) {
-
-                    $.log( 'weiboerror error' );
-
-                    var msg = json.msg || '0:';
-                    var cm = msg.split( ':' );
-                    var msgCode = cm[ 0 ];
-                    msg = cm[ 1 ];
-
-                    if ( msgCode == '40028' ) {
-                        // too many repeated update
-                        // content length error
-                        // TODO do not use ui.appmsg
-                        // $.vweb.ui.appmsg.err( msg );
-                    }
-                    else {
-                        // TODO do not use ui.appmsg
-                        // $.vweb.ui.appmsg.err( msg );
-                    }
-
-                    return;
-                }
-                else if ( json.rst == 'auth' ) {
-                    // no Oauth key
-                    window.location.href = $.vweb.conf.loginPage;
-                }
-                else{
-                }
-
-                // TODO do not use ui.appmsg
-                // $.vweb.ui.appmsg.msg( json.rst + " " + json.msg );
-                cbs.success && cbs.success( json );
-
-            },
-            error : function( jqxhr, errstr, exception ) {
-                // TODO do not use ui.appmsg
-                // $.vweb.ui.appmsg.msg( errstr );
-                cbs.error && cbs.error( jqxhr, errstr, exception );
-            }
-        } );
-
-    },
     tweets: function( data ) {
         function _stdAvatar( e ) {
             if ( e.profile_image_url ) {
@@ -323,8 +129,6 @@ $.extend( $.vweb, {
         return self;
     },
     handle_json: function( handlers, json, st, xhr ) {
-        $.vweb.ui.appmsg[ json.rst == 'ok' ? 'msg' : 'err' ]( json.msg );
-
         if ( handlers[ json.rst ] ) {
             return handlers[ json.rst ]( json, st, xhr );
         }
@@ -342,7 +146,7 @@ $.extend( $.vweb, {
             var u = self[ k ];
             if ( u.init ) {
                 u._elt = $( "#" + k );
-                u.init( u._elt );
+                u.init( u, u._elt );
             }
         } );
     },
@@ -453,37 +257,6 @@ $.extend( $.vweb.ui, {
 
 } );
 
-$.extend( $.vweb.ui.appmsg, {
-    init: function() {
-        this._elt.bind( 'ajaxSend', function(){
-            $.vweb.ui.appmsg.msg( 'Loading..' );
-        } )
-        .bind( 'ajaxSuccess', function( ev, xhr, opts ){
-            // ev is and event object
-        } )
-        .bind( 'ajaxError', function( ev, jqxhr, ajaxsetting, thrownErr ){
-            $.vweb.ui.appmsg.err( ev );
-        } )
-        ;
-    },
-    msg : function ( text, level ) {
-        if ( text ) {
-            var e = this._elt;
-            var data = [{text:text, level:level || 'info'}];
-
-            $( "#tmpl_appmsg" ).tmpl( data ).appendTo( e.empty() );
-
-            this.lastid && window.clearTimeout( this.lastid );
-            this.lastid = window.setTimeout( function(){ e.empty(); }, 5000 );
-        }
-    },
-    alert: function( text ) {
-        return this.msg( text, 'alert' );
-    },
-    err: function ( text ) {
-        return this.msg( text, 'error' );
-    }
-} );
 
 $.extend( $.vweb.ui.fav, {
     _path : [],
@@ -621,7 +394,7 @@ $.extend( $.vweb.ui.fav.maintool, {
                     page: $.vweb.ui.fav.edit.pagedata(),
                     layout: $.vweb.ui.fav.edit.layoutdata() };
 
-                $.vweb.t_cmd( 'POST', 'pub', { albumname: fn.val(), msg: msg },
+                $.vweb.backend.weibo.t_cmd( 'POST', 'pub', { albumname: fn.val(), msg: msg },
                     JSON.stringify( data ), {
                         success: function( json ) {
                             if ( json.rst == 'ok' ) {
@@ -802,7 +575,7 @@ $.extend( $.vweb.ui.t.acc, {
     create_loader : function ( cmdname, opt ) {
         var realload = this.load;
         return function ( ev ) {
-            ev && $.evstop( ev );
+            $.evstop( ev );
             realload.apply( $(this), [ cmdname, opt ] );
         }
     },
@@ -821,7 +594,7 @@ $.extend( $.vweb.ui.t.acc, {
         $.log( "args:" );
         $.log( args );
 
-        $.vweb.t_cmd( 'GET', cmdname, args, undefined, {
+        $.vweb.backend.weibo.t_cmd( 'GET', cmdname, args, undefined, {
             success: function( json ) {
                 if ( json.rst == 'ok' ) {
                     var t = trigger;
@@ -933,7 +706,7 @@ $.extend( $.vweb.ui.t.list, {
         .delegate( ".t_msg .cont.msg a.at", "click", atldr )
         .delegate( ".t_msg .f_destroy", "click", function( ev ){
             $.evstop( ev );
-            $.vweb.t_cmd( 'POST', "destroy", '',
+            $.vweb.backend.weibo.t_cmd( 'POST', "destroy", '',
                 { id: $( this ).p( ".t_msg" ).id() }, { } );
         } )
         .delegate( ".t_msg .f_retweet", "click", function( ev ){
@@ -970,7 +743,7 @@ $.extend( $.vweb.ui.t.list, {
         .delegate( ".t_msg .f_fav", "click", function( ev ){
             $.evstop( ev );
             $.log( this );
-            $.vweb.t_cmd( 'POST', "fav", '',
+            $.vweb.backend.weibo.t_cmd( 'POST', "fav", '',
                 { id: $( this ).p( ".t_msg" ).id() }, { } );
         } )
         ;
@@ -1214,10 +987,10 @@ $( function() {
         $( '.nomode_album' ).remove();
     }
 
-    $.vweb.t_cmd( 'GET', 'account/verify_credentials', {}, undefined, {
+    $.vweb.backend.weibo.t_cmd( 'GET', 'account/verify_credentials', {}, undefined, {
         success:function( json ) {
             $.vweb.account = json.data;
-            $.vweb.ui.init();
+            $.vweb.ui.init( $.vweb.ui );
         },
         error: function( jqxhr, errstr, exception ) {
 
