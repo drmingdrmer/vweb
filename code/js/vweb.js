@@ -197,36 +197,30 @@ $.extend( $.vweb, {
             }
         };
         return self;
+    },
+    handle_json: function( handlers, json, st, xhr ) {
+        $.vweb.ui.appmsg[ json.rst == 'ok' ? 'msg' : 'err' ]( json.msg );
+
+        if ( handlers[ json.rst ] ) {
+            return handlers[ json.rst ]( json, st, xhr );
+        }
+        else if ( json.rst != "ok" && handlers[ "any" ] ) {
+            return handlers.any( json, st, xhr );
+        }
+    },
+    create_handler: function( handlers ) {
+        return function ( json, st, xhr ) {
+            return $.vweb.handle_json( handlers, json, st, xhr );
+        };
+    },
+    init_sub: function( self ) {
+        $.each( self, function( k, v ){
+            var u = self[ k ];
+            u._elt = $( "#" + k );
+            u.init && u.init( u._elt );
+        } );
     }
 } );
-
-function handle_json ( handlers, json, st, xhr ) {
-    $.vweb.ui.appmsg[ json.rst == 'ok' ? 'msg' : 'err' ]( json.msg );
-
-    if ( handlers[ json.rst ] ) {
-        return handlers[ json.rst ]( json, st, xhr );
-    }
-    else if ( json.rst != "ok" && handlers[ "any" ] ) {
-        return handlers.any( json, st, xhr );
-    }
-}
-
-function create_handler( handlers ) {
-
-    function hdlr ( json, st, xhr ) {
-        return handle_json( handlers, json, st, xhr );
-    }
-
-    return hdlr;
-}
-
-function init_sub ( self ) {
-    $.each( self, function( k, v ){
-        var u = self[ k ];
-        u._elt = $( "#" + k );
-        u.init && u.init( u._elt );
-    } );
-}
 
 $.extend( $.vweb.ui, {
 
@@ -274,7 +268,7 @@ $.extend( $.vweb.ui, {
         $( "#paging" ).addClass( "cont_dark0 cont_dark_shad0" );
 
 
-        init_sub( this );
+        $.vweb.init_sub( this );
 
         $( window ).resize( function() { self.relayout(); } );
         $( "body" ).click( function( ev ) {
@@ -370,7 +364,7 @@ $.extend( $.vweb.ui.fav, {
         // TODO need these?
         this.eltMenu = $( "#menu" );
         this.eltPath = this.eltMenu.find( "#path" );
-        init_sub( this );
+        $.vweb.init_sub( this );
     },
     path : function ( p ) {
         if ( p ) {
@@ -758,7 +752,7 @@ $.extend( $.vweb.ui.t.update, {
 
     },
     upload_cb: function (rst) {
-        handle_json( {
+        $.vweb.handle_json( {
             ok: function ( json, st, xhr ) {
                 var e = $.vweb.ui.t.update._elt;
                 $( '.f_status', e ).val('');
@@ -788,7 +782,7 @@ $.extend( $.vweb.ui.vdacc, {
     do_login : function() {
         var self = this;
 
-        self.vdform.jsonRequest( create_handler( {
+        self.vdform.jsonRequest( $.vweb.create_handler( {
             ok : function () {
 
                 // self.vddialog.dialog( "close" );
@@ -831,7 +825,7 @@ $.extend( $.vweb.ui.vdacc, {
         $.ajax( {
             type : "GET", url : url,
             dataType : 'json',
-            success : create_handler( {
+            success : $.vweb.create_handler( {
                 "ok" : function( json ){ $.vweb.ui.tree.update( json.data ); },
                 "invalid_token" : function () {
                     self.afterLogin.push( function(){
@@ -856,7 +850,7 @@ $.extend( $.vweb.ui.vdacc, {
             type : "PUT", url : url,
             data : html,
             dataType : 'json',
-            success : create_handler( {
+            success : $.vweb.create_handler( {
                 "ok" : cb,
                 "invalid_token" : function () {
                     self.afterLogin.push( function(){
@@ -877,7 +871,7 @@ $.extend( $.vweb.ui.vdacc, {
         $.ajax( {
             type : "GET", url : url,
             dataType : 'json',
-            success : create_handler( {
+            success : $.vweb.create_handler( {
                 "ok" : function( json, st, xhr ){
                     $.vweb.ui.fav.edit.html( json.html );
                     // what.path ?
@@ -945,7 +939,7 @@ $.extend( $.vweb.ui.t.list, {
 
     repost_cb: function ( rst ) {
         var e = this._elt;
-        handle_json( { 'ok': function(){
+        $.vweb.handle_json( { 'ok': function(){
             $( "#" + rst.info.id, e ).removeClass( 'in_repost' );
             $( "#" + rst.info.id + " .g_repost", e ).remove();
         } }, rst );
@@ -953,7 +947,7 @@ $.extend( $.vweb.ui.t.list, {
 
     comment_cb: function ( rst ) {
         var e = this._elt;
-        handle_json( { 'ok': function(){
+        $.vweb.handle_json( { 'ok': function(){
             $( "#" + rst.info.id + " .g_comment", e ).remove();
         } }, rst );
     },
@@ -1129,7 +1123,7 @@ $.extend( $.vweb.ui.t.paging, {
 
 $.extend( $.vweb.ui.t, {
     init: function (){
-        init_sub( this );
+        $.vweb.init_sub( this );
     }
 } );
 
@@ -1161,7 +1155,7 @@ $.extend( $.vweb.ui.t.my, {
             }
         } );
 
-        init_sub( this );
+        $.vweb.init_sub( this );
     },
 
     setStat: function( d, tgr ){
@@ -1214,7 +1208,7 @@ $.extend( $.vweb.ui.t.my.friend, {
             function( ev ){ $.vweb.ui.t.my.friend.clearStat( null, $( this ) ); }
         );
 
-        init_sub( self );
+        $.vweb.init_sub( self );
 
         // TODO default action after page loaded
         window.setTimeout(function() { self._elt.find( ".f_idx" ).trigger( 'click' ); }, 0);
