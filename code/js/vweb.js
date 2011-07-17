@@ -1,6 +1,6 @@
 // Works with jquery-1.4.4, jquery-ui-1.8.9
 
-// TODO request not through weibo_cmd should also be handled like this
+// TODO request not through vweb_cmd should also be handled like this
 
 $.vweb = {
     conf : {
@@ -9,6 +9,7 @@ $.vweb = {
         appLinkDev: 'http://t.cn/aOXV5H',  // 2.vweb
         maxChar: 110
     },
+    account: undefined,
     ui : {},
     data : {}
 };
@@ -64,10 +65,12 @@ function vweb_cmd( verb, cmd, args, data, cbs ) {
                 if ( msgCode == '40028' ) {
                     // too many repeated update
                     // content length error
-                    $.vweb.ui.appmsg.err( msg );
+                    // TODO do not use ui.appmsg
+                    // $.vweb.ui.appmsg.err( msg );
                 }
                 else {
-                    $.vweb.ui.appmsg.err( msg );
+                    // TODO do not use ui.appmsg
+                    // $.vweb.ui.appmsg.err( msg );
                 }
 
                 return;
@@ -79,12 +82,14 @@ function vweb_cmd( verb, cmd, args, data, cbs ) {
             else{
             }
 
-            $.vweb.ui.appmsg.msg( json.rst + " " + json.msg );
+            // TODO do not use ui.appmsg
+            // $.vweb.ui.appmsg.msg( json.rst + " " + json.msg );
             cbs.success && cbs.success( json );
 
         },
         error : function( jqxhr, errstr, exception ) {
-            $.vweb.ui.appmsg.msg( errstr );
+            // TODO do not use ui.appmsg
+            // $.vweb.ui.appmsg.msg( errstr );
             cbs.error && cbs.error( jqxhr, errstr, exception );
         }
     } );
@@ -332,19 +337,22 @@ $.extend( $.vweb.ui.appmsg, {
         } )
         ;
     },
-    msg : function ( text ) {
+    msg : function ( text, level ) {
         if ( text ) {
             var e = this._elt;
-            $( "#tmpl_appmsg" ).tmpl( [{text:text}] ).appendTo( e.empty() );
+            var data = [{text:text, level:level || 'info'}];
+
+            $( "#tmpl_appmsg" ).tmpl( data ).appendTo( e.empty() );
+
             this.lastid && window.clearTimeout( this.lastid );
             this.lastid = window.setTimeout( function(){ e.empty(); }, 105000 );
         }
     },
     alert: function( text ) {
-        return this.msg( text );
+        return this.msg( text, 'alert' );
     },
     err: function ( text ) {
-        return this.msg( text );
+        return this.msg( text, 'error' );
     }
 } );
 
@@ -390,14 +398,28 @@ $.extend( $.vweb.ui.fav.maintool, {
 
         fn.DefaultValue( this._defaultAlbumName );
 
+        function pubmsg_open () {
+            pubmsg.addClass( 'focused' );
+            charleft.show();
+            self.update_charleft();
+            $.vweb.ui.relayout();
+        }
+
+        function pubmsg_close () {
+            pubmsg.removeClass( 'focused' );
+            charleft.hide();
+            $.vweb.ui.relayout();
+        }
+
         pubmsg.focus( function( ev ){
-            window._pubmsg_foc_id && window.clearTimeout( window._pubmsg_foc_id );
-            window._pubmsg_foc_id = window.setTimeout(function() {
-                pubmsg.addClass( 'focused' );
-                charleft.show();
-                self.update_charleft();
-                $.vweb.ui.relayout();
-            }, 50);
+
+            if ( $( this ).simpVal() == '' ) {
+                return;
+            }
+
+            self.focusTWID && window.clearTimeout( self.focusTWID );
+            self.focusTWID = window.setTimeout( pubmsg_open, 50 );
+
         } )
         .keydown( function( ev ){
 
@@ -410,22 +432,32 @@ $.extend( $.vweb.ui.fav.maintool, {
                 // esc
 
                 pubmsg.blur();
+                pubmsg_close();
             }
             else {
-                self.update_charleft();
+
+                // NOTE: val() retreives text without the key just pressed.
+                self.keydownTW && window.clearTimeout( self.keydownTW );
+                self.keydownTW = window.setTimeout(function() {
+                    var txt = pubmsg.simpVal();
+                    if ( txt.length > 20 || pubmsg.val().match( /\n/ ) ) {
+                        pubmsg.hasClass( 'focused' ) || pubmsg_open();
+                    }
+                    self.update_charleft();
+                 }, 10);
                 return;
             }
 
             evstop( ev );
         } )
         ;
+
         $( document ).click( function( ev ){
             var tagname = ev.target.tagName;
-            if ( ! tagname.match( /INPUT|BUTTON|TEXTAREA/ ) ) {
-                pubmsg.removeClass( 'focused' );
-                charleft.hide();
-                $.vweb.ui.relayout();
+            if ( tagname && tagname.match( /INPUT|BUTTON|TEXTAREA/ ) ) {
+                return;
             }
+            pubmsg_close();
         } )
 
         $( document ).keydown( function( ev ){
@@ -449,9 +481,11 @@ $.extend( $.vweb.ui.fav.maintool, {
 
             if ( msg.length == 0 ) {
                 $.vweb.ui.appmsg.alert( "还没有填写内容" );
+                pubmsg.focus();
             }
             else if ( msg.length > $.vweb.conf.maxChar ) {
                 $.vweb.ui.appmsg.alert( "字数太多" );
+                pubmsg.focus();
             }
             else {
                 var data = {
@@ -608,15 +642,15 @@ $.extend( $.vweb.ui.fav.edit, {
 
 $.extend( $.vweb.ui.t.acc, {
     init : function() {
-        this.user = undefined;
-        this.load( 'account/verify_credentials', { cb: [ '$.vweb.ui.t.acc.save_user_info' ] } );
+        // this.user = undefined;
+        // this.load( 'account/verify_credentials', { cb: [ '$.vweb.ui.t.acc.save_user_info' ] } );
     },
 
-    save_user_info: function( data, trigger, cmd ) {
-        log( "user info saved" );
-        log( data );
-        this.user = data;
-    },
+    // save_user_info: function( data, trigger, cmd ) {
+    //     log( "user info saved" );
+    //     log( data );
+    //     this.user = data;
+    // },
 
     cmd_serialize: function ( cmdname, opt, idfirst ) {
         var args = [];
@@ -1002,7 +1036,7 @@ $.extend( $.vweb.ui.t.list, {
     show : function ( data ) {
 
         data = $TweetData( data ).splitRetweet().exclude( $.vweb.ui.fav.edit.ids() )
-        .stdAvatar().defaultUser( 'sender' ).setMe( $.vweb.ui.t.acc.user.id )
+        .stdAvatar().defaultUser( 'sender' ).setMe( $.vweb.account.id )
         .htmlLinks().get();
 
         this._elt.empty();
@@ -1014,7 +1048,7 @@ $.extend( $.vweb.ui.t.list, {
 
         this._elt.children().draggable( {
             connectToSortable: "#page",
-            // handle : ".handle",
+            handle : ".imgwrap",
             helper : "clone",
             revert : "invalid",
             zIndex : 2000,
@@ -1147,7 +1181,7 @@ $.extend( $.vweb.ui.t.my.friend, {
 
         // option arg of all these 3 loader: since_id, max_id, count, page
         var mineLoader = $.vweb.ui.t.acc.create_loader( 'statuses/user_timeline', {
-            args: function(){ return { user_id: $.vweb.ui.t.acc.user.id }; },
+            args: function(){ return { user_id: $.vweb.account.id }; },
             cb: [ '$.vweb.ui.t.list.show' ]
         } );
         var atLoader = $.vweb.ui.t.acc.create_loader( 'statuses/mentions',
@@ -1344,29 +1378,20 @@ $.fn.jsonRequest = function( succ ){
 
     } );
 }
-$.fn.fullPanel = function( opt ) {
-
-    opt = $.extend( {
-        autoOpen : false,
-        modal : true,
-        draggable : false,
-        resizable : false
-    }, opt );
-
-    $( this ).dialog( opt );
-
-    if ( $( this ).dialog( 'option', 'title' ) == '' ) {
-
-        $( this ).dialog( 'option', 'title',
-            $( this ).find( '#title' ).hide().text() );
-
-    }
-}
-
 
 $( function() {
     if ( MODE == 'album' ) {
         $( '.nomode_album' ).remove();
     }
-    $.vweb.ui.init();
+
+    vweb_cmd( 'GET', 'account/verify_credentials', {}, undefined, {
+        success:function( json ) {
+            $.vweb.account = json.data;
+            $.vweb.ui.init();
+        },
+        error: function( jqxhr, errstr, exception ) {
+
+        }
+    } );
+
 } );

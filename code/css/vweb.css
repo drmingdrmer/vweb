@@ -792,6 +792,14 @@ body { background: #ddd; }
     box-shadow: 2px 2px 16px rgba( 0, 0, 0, 0.3 );
     /* -webkit-box-shadow: 0px 0px 10px 10px rgba( 0, 0, 0, 0.7 ); */
 }
+#appmsg .msg.info {
+    background: #ffb;
+    border: 1px solid #dd9;
+}
+#appmsg .msg.alert {
+    background: #fbb;
+    border: 1px solid #d99;
+}
 
 .t_ctrl .current {
     width: 14px;
