@@ -11,7 +11,6 @@ $.vweb = {
     ui : {
         main : {
             maintool : {},
-            menu : {},
             edit : {}
         },
         t : {
@@ -197,7 +196,6 @@ $.extend( $.vweb.ui, {
         $( ".t-panel" ).addClass( "ui-widget ui-corner-all" );
         $( ".t_ctrl" ).addClass( "ui-widget ui-corner-all" );
         $( ".t-group" ).addClass( "ui-widget ui-corner-all" );
-        $( "#menu" ).addClass( "cont_dark2 cont_dark_shad2" );
         $( "#func" ).addClass( "cont_dark2 cont_dark_shad2" );
         $( "#paging" ).addClass( "cont_dark0 cont_dark_shad0" );
 
@@ -231,7 +229,7 @@ $.extend( $.vweb.ui, {
         var edit = $( "#edit" );
         var subtabHeight = bodyHeight - footerHeight;
 
-        edit.height( bodyHeight - footerHeight - $( "#maintool,#menu" ).h() );
+        edit.height( bodyHeight - footerHeight - $( "#maintool" ).h() );
         $( '#appmsg' ).css( { top: $( '#maintool' ).h() } );
 
         $( "#t>#list" ).height( subtabHeight
@@ -250,32 +248,9 @@ $.extend( $.vweb.ui, {
 
 
 $.extend( $.vweb.ui.main, {
-    _path : [],
-    _fn   : "",
-
     init : function () {
-        // TODO need these?
-        this.eltMenu = $( "#menu" );
-        this.eltPath = this.eltMenu.find( "#path" );
         $.vweb.init_sub( this );
-    },
-    path : function ( p ) {
-        if ( p ) {
-            this._path = p;
-            // this.eltPath.val( p );
-        }
-        else {
-            return this._path;
-            // return "/vweb/" + this.eltPath.val() + ".html";
-        }
-    },
-    filename : function (fn) {
-        if ( fn ) {
-            this._fn = fn;
-        }
-        return this._fn;
     }
-
 } );
 
 $.extend( $.vweb.ui.main.maintool, {
@@ -403,10 +378,6 @@ $.extend( $.vweb.ui.main.maintool, {
             $.vweb.conf.maxChar - this.pubmsg.val().length ) + " 字" );
     }
 
-} );
-
-$.extend( $.vweb.ui.main.menu, {
-    init : function () {}
 } );
 
 $.extend( $.vweb.ui.main.edit, {
