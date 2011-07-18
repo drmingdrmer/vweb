@@ -1,9 +1,3 @@
-$.extend( $.vweb.ui.main, {
-    init : function () {
-        $.vweb.init_sub( this );
-    }
-} );
-
 $.extend( $.vweb.ui.main.maintool, {
     init : function () {
 
