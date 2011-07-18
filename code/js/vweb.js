@@ -8,31 +8,23 @@ $.vweb = {
         maxChar: 110
     },
     account: undefined,
-    ui : {},
-    backend : {}
-};
-
-$.vweb.ui = {
-    fav : {
-        maintool : {},
-        menu : {},
-        edit : {}
-    },
-    tabs : {},
-    t : {
-        acc : {},
-        update : {},
-        my : {
-            friend : {},
-            globalsearch : {}
+    ui : {
+        main : {
+            maintool : {},
+            menu : {},
+            edit : {}
         },
-        paging : {},
-        list : {}
+        t : {
+            update : {},
+            my : {
+                friend : {},
+                globalsearch : {}
+            },
+            paging : {},
+            list : {}
+        }
     },
-    vd : {
-        vdacc : {},
-        tree : {}
-    }
+    backend : {}
 };
 
 $.extend( $.vweb, {
@@ -236,9 +228,8 @@ $.extend( $.vweb.ui, {
     relayout : function () {
         var bodyHeight = $( "body" ).height();
         var footerHeight = $( "#footer" ).h();
-        var tabsHeight = $( "#tabs" ).h();
         var edit = $( "#edit" );
-        var subtabHeight = bodyHeight - tabsHeight - footerHeight;
+        var subtabHeight = bodyHeight - footerHeight;
 
         edit.height( bodyHeight - footerHeight - $( "#maintool,#menu" ).h() );
         $( '#appmsg' ).css( { top: $( '#maintool' ).h() } );
@@ -258,7 +249,7 @@ $.extend( $.vweb.ui, {
 } );
 
 
-$.extend( $.vweb.ui.fav, {
+$.extend( $.vweb.ui.main, {
     _path : [],
     _fn   : "",
 
@@ -287,7 +278,7 @@ $.extend( $.vweb.ui.fav, {
 
 } );
 
-$.extend( $.vweb.ui.fav.maintool, {
+$.extend( $.vweb.ui.main.maintool, {
     init : function () {
 
         var self = this;
@@ -391,8 +382,8 @@ $.extend( $.vweb.ui.fav.maintool, {
             }
             else {
                 var data = {
-                    page: $.vweb.ui.fav.edit.pagedata(),
-                    layout: $.vweb.ui.fav.edit.layoutdata() };
+                    page: $.vweb.ui.main.edit.pagedata(),
+                    layout: $.vweb.ui.main.edit.layoutdata() };
 
                 $.vweb.backend.weibo.t_cmd( 'POST', 'pub', { albumname: fn.val(), msg: msg },
                     JSON.stringify( data ), {
@@ -414,29 +405,26 @@ $.extend( $.vweb.ui.fav.maintool, {
 
 } );
 
-$.extend( $.vweb.ui.fav.menu, {
+$.extend( $.vweb.ui.main.menu, {
     init : function () {}
 } );
 
-$.extend( $.vweb.ui.fav.edit, {
-    init : function () {
-        var self = this;
-        this.cont = this._elt.children( "#cont" );
+$.extend( $.vweb.ui.main.edit, {
+    init : function ( self, e ) {
+        this.cont = e.children( "#cont" );
         this.page = this.cont.children( "#page" );
-
-        // this.page.empty();
 
         this.setup_func();
 
 
-        this._elt.find( "#edit_mode input" ).button().click( function() {
+        e.find( "#edit_mode input" ).button().click( function() {
             $( this ).parent().find( "input" ).each( function() {
                 self.cont.removeClass( $( this ).val() );
             } );
             self.cont.addClass( $( this ).val() );
         } );
 
-        this._elt.find( "#screen_mode input" ).button();
+        e.find( "#screen_mode input" ).button();
     },
     setup_func : function () {
         $.vweb.setup_img_switch( this.page );
@@ -485,12 +473,6 @@ $.extend( $.vweb.ui.fav.edit, {
         root.top -= this.page.scrollTop();
         root.left -= this.page.scrollLeft();
 
-        // var rootw = this.cont[ 0 ].scrollWidth;
-        // var rooth = this.cont[ 0 ].scrollHeight;
-
-        // TODO not used
-        var pagesize = this.page.size_wh( false );
-
         function lo( elt, attrs ) {
             return $.extend( attrs || {}, elt.offset_tl(), elt.size_wh( false ) );
         }
@@ -520,16 +502,15 @@ $.extend( $.vweb.ui.fav.edit, {
             v.t -= root.top;
             v.l -= root.left;
 
-            actualsize.w < ( v.l + v.w ) && ( actualsize.w = v.l + v.w );
-            actualsize.h < ( v.t + v.h ) && ( actualsize.h = v.t + v.h );
+            actualsize.w = Math.max( v.l+v.w, actualsize.w );
+            actualsize.h = Math.max( v.t+v.h, actualsize.h );
         } );
 
-        // return $.extend( { bgcolor : "#fff", d : rst }, pagesize );
         return $.extend( { bgcolor : "#fff", d : rst }, actualsize );
     },
     addhis: function ( json, cmd ) {
 
-        var rec = $.vweb.ui.t.acc.gen_cmd_hisrecord( json, cmd );
+        var rec = $.vweb.backend.weibo.gen_cmd_hisrecord( json, cmd );
 
         this.page.find( "#" + rec.hisid ).remove();
         $( "#tmpl_hisrec" ).tmpl( [ rec ] ).prependTo( this.page );
@@ -542,103 +523,6 @@ $.extend( $.vweb.ui.fav.edit, {
     }
 } );
 
-$.extend( $.vweb.ui.t.acc, {
-    init : function() {},
-
-    cmd_serialize: function ( cmdname, opt, idfirst ) {
-        var args = [];
-        var o = {};
-
-        $.isPlainObject( opt ) && ( $.extend( o, opt ) ) || ( o = $.unparam( opt ) );
-        o.max_id || ( o.max_id = idfirst );
-        $.each( o, function( k, v ){ args.push( k + '__' + v ); } );
-        args.sort();
-
-        var s = cmdname.replace( /\//g, '__' ) + '____' + args.join( '____' ) ;
-        $.log( 'cmd str=' + s );
-        return s;
-    },
-
-    cmd_unserialize: function ( s ) {
-        var args = s.split( /____/ );
-        var cmdname = args.shift().replace( /__/g, '/' );
-        var opt = {};
-
-        $.each( args, function( i, v ){
-            var q = v.split( '__' );
-            opt[ q[ 0 ] ] = q[ 1 ];
-        } );
-
-        return [ cmdname, opt ];
-    },
-
-    create_loader : function ( cmdname, opt ) {
-        var realload = this.load;
-        return function ( ev ) {
-            $.evstop( ev );
-            realload.apply( $(this), [ cmdname, opt ] );
-        }
-    },
-
-    load : function( cmdname, opt ) {
-        // 'this' is set by create_loader and which is the DOM fired the event
-
-        $.log( opt );
-        var trigger = this;
-        var args = {};
-        if ( opt.args ) {
-            args = opt.args.apply ? opt.args.apply( this, [] ) : opt.args;
-            args = $.isPlainObject( args ) ? args : $.unparam( args );
-        }
-
-        $.log( "args:" );
-        $.log( args );
-
-        $.vweb.backend.weibo.t_cmd( 'GET', cmdname, args, undefined, {
-            success: function( json ) {
-                if ( json.rst == 'ok' ) {
-                    var t = trigger;
-                    var cmd = { name: cmdname, args: args, cb:opt.cb };
-
-                    $.vweb.ui.appmsg.msg( "载入成功" );
-
-                    // TODO do not addhis after paging down/up
-                    $.vweb.ui.t.acc.addhis( json, cmd );
-
-                    opt.cb && $.each( opt.cb, function( i, v ){
-                        eval( v + "(json.data,t,cmd)" );
-                    } );
-                }
-                else { /* need something to be done? */  }
-            }
-        }
-        );
-    },
-
-    addhis: function ( json, cmd ) {
-        if ( json.rst != 'ok' || ! json.data[ 0 ] ) {
-            return;
-        }
-
-        $.vweb.ui.t.paging.addhis( json, cmd );
-        $.vweb.ui.fav.edit.addhis( json, cmd );
-    },
-
-    gen_cmd_hisrecord: function( json, cmd ){
-        var d = json.data[ 0 ];
-
-        d.hisid = $.vweb.ui.t.acc.cmd_serialize( cmd.name, cmd.args, d.id );
-        $.log( d );
-
-        var hisdata = $.vweb.tweets( [ d ] ).stdAvatar().defaultUser('sender')
-        .historyText().historyTime().get()[ 0 ];
-
-        $.log( hisdata );
-
-        return hisdata;
-    }
-
-} );
 
 $.extend( $.vweb.ui.t.update, {
     init: function () {
@@ -658,7 +542,6 @@ $.extend( $.vweb.ui.t.update, {
 
 $.extend( $.vweb.ui.t.list, {
     init : function () {
-        $.log( "setup list" );
         this.last = {};
         $.vweb.setup_img_switch( this._elt.empty() );
         this.setup_func();
@@ -681,19 +564,19 @@ $.extend( $.vweb.ui.t.list, {
 
     setup_func : function () {
 
-        var uldr = $.vweb.ui.t.acc.create_loader(
+        var uldr = $.vweb.backend.weibo.create_loader(
             'statuses/user_timeline', {
                 args: function(){ return { user_id: this.id() }; },
                 cb: [ '$.vweb.ui.t.list.show' ]
             } );
 
-        var atldr = $.vweb.ui.t.acc.create_loader(
+        var atldr = $.vweb.backend.weibo.create_loader(
             'statuses/user_timeline', {
                 args: function(){ return { screen_name: this.attr( 'screen_name' ) }; },
                 cb: [ '$.vweb.ui.t.list.show' ]
             } );
 
-        var atldr = $.vweb.ui.t.acc.create_loader(
+        var atldr = $.vweb.backend.weibo.create_loader(
             'statuses/user_timeline', {
                 args: function(){ return { screen_name: this.attr( 'screen_name' ) }; },
                 cb: [ '$.vweb.ui.t.list.show' ]
@@ -762,7 +645,7 @@ $.extend( $.vweb.ui.t.list, {
 
     show : function ( data ) {
 
-        data = $.vweb.tweets( data ).splitRetweet().exclude( $.vweb.ui.fav.edit.ids() )
+        data = $.vweb.tweets( data ).splitRetweet().exclude( $.vweb.ui.main.edit.ids() )
         .stdAvatar().defaultUser( 'sender' ).setMe( $.vweb.account.id )
         .htmlLinks().get();
 
@@ -807,7 +690,7 @@ $.extend( $.vweb.ui.t.paging, {
             args.page = args.page ? args.page - 1 : 1;
             args.page = args.page <= 0 ? 1 : args.page;
 
-            $.vweb.ui.t.acc.load( l.cmd.name, { args: args, cb: l.cmd.cb } );
+            $.vweb.backend.weibo.load( l.cmd.name, { args: args, cb: l.cmd.cb } );
 
         } );
         $( '.f_next', this._elt ).click( function(  ){
@@ -820,23 +703,23 @@ $.extend( $.vweb.ui.t.paging, {
             var args = $.extend( {}, l.cmd.args );
             args.page = args.page ? args.page + 1 : 2;
 
-            $.vweb.ui.t.acc.load( l.cmd.name, { args: args, cb: l.cmd.cb } );
+            $.vweb.backend.weibo.load( l.cmd.name, { args: args, cb: l.cmd.cb } );
 
         } );
 
         $( "#history" ).delegate( ".t_msg .f_del", "click", function( ev ){
             var e = $( this ).parent();
-            $.vweb.ui.fav.edit.removehis( e.attr( "id" ) );
+            $.vweb.ui.main.edit.removehis( e.attr( "id" ) );
             e.remove();
         } );
 
     },
     loadhis: function () {
-        $.vweb.ui.fav.edit.page.find( ".t_his" ).clone().appendTo(
+        $.vweb.ui.main.edit.page.find( ".t_his" ).clone().appendTo(
             $( "#history" ).empty() );
     },
     addhis: function ( json, cmd ) {
-        var rec = $.vweb.ui.t.acc.gen_cmd_hisrecord( json, cmd );
+        var rec = $.vweb.backend.weibo.gen_cmd_hisrecord( json, cmd );
 
         this.last = { cmd:cmd, json:json };
 
@@ -863,7 +746,7 @@ $.extend( $.vweb.ui.t.my, {
             self._elt.removeClass( 'hideall' );
         } );
 
-        var statLoader = $.vweb.ui.t.acc.create_loader( 'statuses/unread', {
+        var statLoader = $.vweb.backend.weibo.create_loader( 'statuses/unread', {
             args: function () {
                 return {
                     'since_id': $.vweb.ui.t.my.friend.since_id,
@@ -897,28 +780,27 @@ $.extend( $.vweb.ui.t.my, {
 } );
 
 $.extend( $.vweb.ui.t.my.friend, {
-    init : function( e ){
-        var self = this;
+    init : function( self, e ){
         self.formSimp = e.find( "form.g_simp" );
         self.formSearch = e.find( "form.g_search" );
 
-        var simpLoader = $.vweb.ui.t.acc.create_loader( 'statuses/friends_timeline', {
+        var simpLoader = $.vweb.backend.weibo.create_loader( 'statuses/friends_timeline', {
             args: function() { return self.formSimp.serialize(); },
             cb: [ '$.vweb.ui.t.list.show', '$.vweb.ui.t.my.friend.addLast', '$.vweb.ui.t.my.friend.clearStat']
         } );
 
         // option arg of all these 3 loader: since_id, max_id, count, page
-        var mineLoader = $.vweb.ui.t.acc.create_loader( 'statuses/user_timeline', {
+        var mineLoader = $.vweb.backend.weibo.create_loader( 'statuses/user_timeline', {
             args: function(){ return { user_id: $.vweb.account.id }; },
             cb: [ '$.vweb.ui.t.list.show' ]
         } );
-        var atLoader = $.vweb.ui.t.acc.create_loader( 'statuses/mentions',
+        var atLoader = $.vweb.backend.weibo.create_loader( 'statuses/mentions',
             { cb: [ '$.vweb.ui.t.list.show', '$.vweb.ui.t.my.friend.clearStat' ] } );
 
-        var cmtLoader = $.vweb.ui.t.acc.create_loader( 'statuses/comments_to_me',
+        var cmtLoader = $.vweb.backend.weibo.create_loader( 'statuses/comments_to_me',
             { cb: [ '$.vweb.ui.t.list.show', '$.vweb.ui.t.my.friend.clearStat' ] });
 
-        var msgLoader = $.vweb.ui.t.acc.create_loader( 'direct_messages',
+        var msgLoader = $.vweb.backend.weibo.create_loader( 'direct_messages',
             { cb: [ '$.vweb.ui.t.my.friend.clearStat' ] });
 
 
@@ -956,7 +838,7 @@ $.extend( $.vweb.ui.t.my.friend, {
 
         $( '.stat', triggerElt ).empty();
         if ( triggerElt.attr( "_reset_type" ) ) {
-            $.vweb.ui.t.acc.create_loader(
+            $.vweb.backend.weibo.create_loader(
                 'statuses/reset_count',
                 { args: function() { return { type: triggerElt.attr( "_reset_type" ) }; } }
                 )();
@@ -970,7 +852,7 @@ $.extend( $.vweb.ui.t.my.globalsearch, {
         self.buttonSubmit = self._elt.find( ".f_submit" );
         self.formParam = self._elt.find( "form.g_search" );
 
-        var searchLoader = $.vweb.ui.t.acc.create_loader(
+        var searchLoader = $.vweb.backend.weibo.create_loader(
             'statuses/search',
             {
                 args: function() { return self.formParam.serialize(); },

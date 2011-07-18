@@ -1,5 +1,4 @@
-
-$.extend( $.vweb.ui.vdacc, {
+$.extend( $.vweb.ui.vdisk, { vdacc: {
     afterLogin : [],
     curPath : "",
     curFile : "Untitled",
@@ -75,7 +74,7 @@ $.extend( $.vweb.ui.vdacc, {
     save : function( cb ) {
 
         var self = this;
-        var html = $.trim( $.vweb.ui.fav.edit.html() );
+        var html = $.trim( $.vweb.ui.main.edit.html() );
 
         // TODO unicode, utf-8, url-encoding test
         var path = $.vweb.ui.menu.path();
@@ -109,7 +108,7 @@ $.extend( $.vweb.ui.vdacc, {
             dataType : 'json',
             success : $.vweb.create_handler( {
                 "ok" : function( json, st, xhr ){
-                    $.vweb.ui.fav.edit.html( json.html );
+                    $.vweb.ui.main.edit.html( json.html );
                     // what.path ?
 
                 },
@@ -126,7 +125,8 @@ $.extend( $.vweb.ui.vdacc, {
 
     }
 } );
-$.extend( $.vweb.ui.tree, {
+
+$.extend( $.vweb.ui.vdisk, { tree: {
     init : function() {
         $( "#tree ul" )
         .delegate( "li", "hover", function( ev ){ $( this ).toggleClass( 'hover' ); } )
@@ -164,4 +164,4 @@ $.extend( $.vweb.ui.tree, {
         .appendTo( $( "#tree ul" ).empty() );
     }
 
-} );
+} } );
