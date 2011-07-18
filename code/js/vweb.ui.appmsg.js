@@ -7,7 +7,7 @@ $.extend( $.vweb.ui, { appmsg: {
             // ev is and event object
         } )
         .bind( 'ajaxError', function( ev, jqxhr, ajaxsetting, thrownErr ){
-            self.err( ev );
+            // self.err( ev );
         } );
     },
     msg : function ( text, level ) {

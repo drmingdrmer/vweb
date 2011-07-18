@@ -1,8 +1,6 @@
 $.extend( $.vweb.ui, {
 
-    init : function () {
-
-        var self = this;
+    init : function ( self, e ) {
 
         self.relayout();
 
@@ -46,6 +44,7 @@ $.extend( $.vweb.ui, {
         $.vweb.init_sub( this );
 
         $( window ).resize( function() { self.relayout(); } );
+
         $( "body" ).click( function( ev ) {
             var tagname = ev.target.tagName;
             if ( tagname != 'INPUT' && tagname != 'BUTTON' ) {
@@ -66,6 +65,7 @@ $.extend( $.vweb.ui, {
         ;
 
     },
+
     relayout : function () {
         var bodyHeight = $( "body" ).height();
         var footerHeight = $( "#footer" ).h();

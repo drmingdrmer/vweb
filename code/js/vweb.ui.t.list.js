@@ -114,7 +114,7 @@ $.extend( $.vweb.ui.t, { list: {
     },
     setup_draggable : function () {
 
-        this._elt.children().draggable( {
+        this._elt.children().has( '.imgwrap' ).draggable( {
             connectToSortable: "#page",
             handle : ".imgwrap",
             helper : "clone",
