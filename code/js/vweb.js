@@ -9,10 +9,6 @@ $.vweb = {
     },
     account: undefined,
     ui : {
-        main : {
-            maintool : {},
-            edit : {}
-        },
         t : {
             update : {},
             my : {
