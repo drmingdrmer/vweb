@@ -6,7 +6,10 @@ $.extend( $.vweb.backend, { weibo: {
         args = $.isPlainObject( args ) ? $.param( args ) : args;
         cbs = cbs || {};
 
-        $.log( cmd, args );
+        $.log( 'cmd:' );
+        $.log( cmd );
+        $.log( 'args:' );
+        $.log( args );
 
         $.ajax( {
             type : verb,
@@ -43,6 +46,9 @@ $.extend( $.vweb.backend, { weibo: {
                 }
                 else{
                 }
+
+                $.log( 'it is ok' );
+                $.log( json );
 
                 // TODO do not use ui.appmsg
                 // $.vweb.ui.appmsg.msg( json.rst + " " + json.msg );

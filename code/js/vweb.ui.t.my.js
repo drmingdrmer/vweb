@@ -35,6 +35,6 @@ $.extend( $.vweb.ui.t, { my: {
         d.comments && $( '#friend .f_comment .stat', e ).text( "(" + d.comments + ")" );
         d.mentions && $( '#friend .f_at .stat', e ).text( "(" + d.mentions + ")" );
         d.dm && $( '#friend .f_message .stat', e ).text( "(" + d.dm + ")" );
-    },
+    }
 
 } } );

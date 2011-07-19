@@ -1,11 +1,10 @@
 $.extend( $.vweb.ui.main, { maintool: {
-    init : function () {
+    init : function ( self, e ) {
 
-        var self = this;
-        var fn = this.fn = $( "#fn", this._elt );
-        var pubmsg = this.pubmsg = $( "#pubmsg", this._elt );
+        var fn = this.fn = $( "#fn", e );
+        var pubmsg = this.pubmsg = $( "#pubmsg", e );
         var charleft = this.charleft = $( "#charleft" ).hide();
-        var pub = this.pub = $( "#pub", this._elt );
+        var pub = this.pub = $( "#pub", e );
         this._defaultAlbumName = '未命名相册';
 
 
@@ -109,6 +108,7 @@ $.extend( $.vweb.ui.main, { maintool: {
                     JSON.stringify( data ), {
                         success: function( json ) {
                             if ( json.rst == 'ok' ) {
+                                $.vweb.ui.appmsg.msg( "发布成功" );
                                 pubmsg.val( '' ).blur();
                             }
                         }

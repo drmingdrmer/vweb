@@ -56,7 +56,13 @@ else {
 
     $_SESSION['keys'] = $keys;
 
-    ?> <a href="<?=$aurl?>">Use Oauth to login</a> <?
+    header("Location: $aurl");
+
+/*
+ * ?>
+ * <a href="<?=$aurl?>">Use Oauth to login</a>
+ * <?
+ */
 }
 
 ?>

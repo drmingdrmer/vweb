@@ -2,6 +2,8 @@ $.extend( $.vweb.ui, {
 
     init : function ( self, e ) {
 
+        $.log( 'ui.init start' );
+
         self.relayout();
 
         $( ".t_opt" ).each( function() {

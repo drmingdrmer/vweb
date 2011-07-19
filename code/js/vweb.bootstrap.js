@@ -1,7 +1,8 @@
-$( function() {
+$(document).ready( function() {
     if ( MODE == 'album' ) {
         $( '.nomode_album' ).remove();
     }
+
 
     $.vweb.backend.weibo.t_cmd( 'GET', 'account/verify_credentials', {}, undefined, {
         success:function( json ) {

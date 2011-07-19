@@ -51,8 +51,8 @@ $.extend( $.vweb, {
                 this._d = ids.length == 0
                     ? this._d
                     : $.grep( this._d, function( v, i ) {
-                        return ids.indexOf( v.id + "" ) < 0
-                            && ( !v.retweeted_status || ids.indexOf( v.retweeted_status.id + "" ) < 0  );
+                        return $.arrayIndexOf( ids, v.id + "" ) < 0
+                            && ( !v.retweeted_status || $.arrayIndexOf( ids, v.retweeted_status.id + "" ) < 0  );
                     } );
                 return this;
             },
@@ -133,7 +133,9 @@ $.extend( $.vweb, {
             var u = self[ k ];
             if ( u.init ) {
                 u._elt = $( "#" + k );
+                $.log( 'to  init_sub: ' + k );
                 u.init( u, u._elt );
+                $.log( 'end init_sub: ' + k );
             }
         } );
     },

@@ -108,7 +108,9 @@ $.extend( $.vweb.ui.t, { list: {
         .htmlLinks().get();
 
         this._elt.empty();
-        $( "#tmpl_msg[_mode=\"" + MODE + "\"]" ).tmpl( data ).appendTo( this._elt );
+        var t = $( "#tmpl_msg[_mode=\"" + MODE + "\"]" );
+        t = t.tmpl( data );
+        t.appendTo( this._elt );
 
         this.setup_draggable();
     },

@@ -1,6 +1,15 @@
 $.extend( $, {
+    arrayIndexOf: function( arr, obj ){
+        for(var i=0; i<arr.length; i++){
+            if(arr[i]==obj){
+                return i;
+            }
+        }
+        return -1;
+    },
     log: function(mes) {
-        console.log( mes );
+        $( '#debug' ).append( '<div>' + mes + '</div>' );
+        // console && console.log( mes );
     },
     evstop: function( ev ) {
         if ( ev ) {
@@ -35,11 +44,12 @@ $.extend( $, {
     }
 } );
 
+
 $.extend( $.fn, {
     to_json: function() {
         // TODO filter non-comment node
         var rst = [];
-        $( this ).each( function( i, v ){
+        $( this ).each( function( i, v ) {
             var e = $( this );
             var j, text;
             if ( this.nodeType == 3 ) {
@@ -49,7 +59,9 @@ $.extend( $.fn, {
                 }
             }
             else {
-                j = { node: { tag: this.tagName, id:e.id(), class: e.attr( 'class' ) } };
+
+                j = { node: { tag: this.tagName, id:e.id(), 'class': e.attr( 'class' ) } };
+
                 switch ( j.node.tag ) {
                 case 'IMG' :
                     j.node.src = e.attr( 'src' );
