@@ -91,7 +91,7 @@ $.extend( $.vweb.ui.t, { list: {
     },
 
     filter_existed : function ( data ) {
-        return data
+        return data;
     },
 
     msg_visible: function( id, visible ) {
