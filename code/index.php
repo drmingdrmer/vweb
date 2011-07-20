@@ -23,7 +23,7 @@ function load_user_to_sess() {
 }
 
 
-$defaultPage = 'm.html';
+$defaultPage = 'vlbum.html';
 
 $redirectPage = $_GET[ 'r' ] ? $_GET[ 'r' ] : $defaultPage;
 
@@ -57,12 +57,5 @@ else {
     $_SESSION['keys'] = $keys;
 
     header("Location: $aurl");
-
-/*
- * ?>
- * <a href="<?=$aurl?>">Use Oauth to login</a>
- * <?
- */
 }
-
 ?>
