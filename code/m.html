@@ -7,6 +7,7 @@
     <link rel="stylesheet" type="text/css" href="theme/trontastic/jquery-ui-1.8.9.custom.css" />
     <link rel="stylesheet" type="text/css" href="theme/trontastic/ext.css" />
     <link rel="stylesheet" type="text/css" href="css/vweb.css" />
+    <link rel="stylesheet" type="text/css" href="css/vlbum.css" />
 
     <script language="javascript" type="text/javascript">
         var MODE = 'album';
@@ -16,6 +17,7 @@
     <script language="javascript" type="text/javascript" src="js/jquery-ui-1.8.9.custom.min.js"></script>
     <script language="javascript" type="text/javascript" src="plugin/tmpl/jquery.tmpl.js"></script>
     <script language="javascript" type="text/javascript" src="js/jquery.form-defaults.js"></script>
+    <script language="javascript" type="text/javascript" src="js/json2.js"></script>
 
     <script language="javascript" type="text/javascript" src="js/core.js"></script>
     <script language="javascript" type="text/javascript" src="js/vweb.js"></script>
@@ -335,7 +337,7 @@
 
 
 
-<script id="tmpl_msg" _mode="" type="text/x-jquery-tmpl">
+<script id="tmpl_msg" class="" _mode="" type="text/x-jquery-tmpl">
 <div id="${id}" class="t_msg thumb ${status}">
     <div class="handle ui-corner-all hidden"></div>
     <div class="avatar">
@@ -360,7 +362,7 @@
 </script>
 
 
-<script id="tmpl_msg" _mode="album" type="text/x-jquery-tmpl">
+<script id="tmpl_msg" class="album" _mode="album" type="text/x-jquery-tmpl">
 <div id="${id}" class="t_msg thumb ${status}">
     <div class="handle ui-corner-all hidden"></div>
     <div class="avatar">
@@ -443,7 +445,7 @@
 <script id="tmpl_appmsg" type="text/x-jquery-tmpl">
 <div class="msg ${level}">${text}</div>
 </script>
-<div id="debug" style="position: absolute; top:0; left:0;">
+<div id="debug" style="position: absolute; top:0; left:0; display:none;">
 </div>
 
     </body>

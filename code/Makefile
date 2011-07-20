@@ -9,6 +9,7 @@ $(VLJS):
 	    js/jquery-ui-1.8.9.custom.min.js   \
 	    plugin/tmpl/jquery.tmpl.js   \
 	    js/jquery.form-defaults.js   \
+	    js/json2.js   \
 	    js/core.js   \
 	    js/vweb.js   \
 	    js/vweb.backend.weibo.js   \

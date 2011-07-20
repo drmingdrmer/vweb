@@ -133,9 +133,9 @@ $.extend( $.vweb, {
             var u = self[ k ];
             if ( u.init ) {
                 u._elt = $( "#" + k );
-                $.log( 'to  init_sub: ' + k );
+                // $.log( 'to  init_sub: ' + k );
                 u.init( u, u._elt );
-                $.log( 'end init_sub: ' + k );
+                // $.log( 'end init_sub: ' + k );
             }
         } );
     },

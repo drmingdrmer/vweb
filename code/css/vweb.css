@@ -12,6 +12,7 @@
 
 .cont_dark2 { background-color: #252525; }
 .cont_dark2 a { color: #bbb; }
+.cont_dark2 a:visited { color: #bbb; }
 .cont_dark_shad2 {
     background-image: -webkit-gradient(linear, 0 0, 0 8, from(#000), to(#252525));
     background-image: -moz-linear-gradient(top, #000, #252525 8px);
@@ -233,35 +234,6 @@ body { background: #ddd; }
             margin: 1px;
             padding: 0;
         }
-        #cont.album .t_msg .avatar { display: none; }
-        #cont.album .t_msg .cont { margin: 0; }
-        #cont.album .t_msg .cont .username { display: none; }
-        #cont.album .t_msg .cont .username_sep { display: none; }
-        #cont.album .t_msg .cont .msg { display: none; }
-        #cont.album .t_msg .cont .imgwrap { margin: 0; background: #000; }
-        #cont.album .t_msg .cont .imgwrap.thumb { width:120px; height:120px; text-align:center; }
-        #cont.album .t_msg .cont .msgimg { display: inline; float: none; }
-        #cont.album .t_msg .cont .msg_func { display: none; }
-
-        .ui-draggable-dragging.t_msg .avatar { display: none; }
-        .ui-draggable-dragging.t_msg .cont { margin: 0; }
-        .ui-draggable-dragging.t_msg .cont .username { display: none; }
-        .ui-draggable-dragging.t_msg .cont .username_sep { display: none; }
-        .ui-draggable-dragging.t_msg .cont .msg { display: none; }
-        .ui-draggable-dragging.t_msg .cont .imgwrap { margin: 0; background: #000; }
-        .ui-draggable-dragging.t_msg .cont .imgwrap.thumb { width:120px; height:120px; text-align:center; }
-        .ui-draggable-dragging.t_msg .cont .msgimg { display: inline; float: none; }
-        .ui-draggable-dragging.t_msg .cont .msg_func { display: none; }
-
-        .ui-sortable-helper.t_msg .avatar { display: none; }
-        .ui-sortable-helper.t_msg .cont { margin: 0; }
-        .ui-sortable-helper.t_msg .cont .username { display: none; }
-        .ui-sortable-helper.t_msg .cont .username_sep { display: none; }
-        .ui-sortable-helper.t_msg .cont .msg { display: none; }
-        .ui-sortable-helper.t_msg .cont .imgwrap { margin: 0; background: #000; }
-        .ui-sortable-helper.t_msg .cont .imgwrap.thumb { width:120px; height:120px; text-align:center; }
-        .ui-sortable-helper.t_msg .cont .msgimg { display: inline; float: none; }
-        .ui-sortable-helper.t_msg .cont .msg_func { display: none; }
 
             #page {
                 position: relative;
@@ -455,6 +427,7 @@ body { background: #ddd; }
 
     #list {
         overflow-y: scroll;
+        position: relative;
     }
 
     #vd { width: 100%; }
