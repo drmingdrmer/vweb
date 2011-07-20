@@ -427,7 +427,6 @@ body { background: #ddd; }
 
     #list {
         overflow-y: scroll;
-        position: relative;
     }
 
     #vd { width: 100%; }

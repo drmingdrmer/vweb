@@ -110,7 +110,7 @@ $.extend( $.vweb.ui.t, { list: {
         this._elt.empty();
         try {
             // var t = $( "#tmpl_msg." + MODE );
-            var t = $( "#tmpl_msg" );
+            var t = $( "#tmpl_msg_album" );
             $.log( "MODE=" + MODE );
             $.log( t.length );
             t = t.tmpl( data );

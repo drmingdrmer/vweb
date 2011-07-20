@@ -8,7 +8,7 @@ $.extend( $, {
         return -1;
     },
     log: function(mes) {
-        $( '#debug' ).append( '<div>' + mes + '</div>' );
+        // $( '#debug' ).append( '<div>' + mes + '</div>' );
         // console && console.log( mes );
     },
     evstop: function( ev ) {
