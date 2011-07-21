@@ -36,6 +36,7 @@ $(VL_CSS): $(cssfiles)
 	    | sed 's/^ *//' \
 	    | grep -v "/\*.*\*/" \
 	    >$(VL_CSS)
+	rm _tmp
 
 
 clean:
