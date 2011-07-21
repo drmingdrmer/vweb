@@ -16,7 +16,7 @@ make clean; make vlbum
 
 cat <<-END >../config.yaml
 name: vweb
-version: 2
+version: 1
 END
 
 
