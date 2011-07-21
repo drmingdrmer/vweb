@@ -14,6 +14,12 @@ git branch $releaseName \
 make clean; make vlbum
 
 
+cat <<-END >../config.yaml
+name: vweb
+version: 2
+END
+
+
 git commit -a -m "$releaseName"
 
 git branch release
