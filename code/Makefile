@@ -32,11 +32,11 @@ $(VL_CSS): $(cssfiles)
 	    echo "\n" >> _tmp; \
 	done
 	cat _tmp \
-	    | grep -v "^ *$$" \
-	    | sed 's/^ *//' \
-	    | grep -v "/\*.*\*/" \
 	    >$(VL_CSS)
 	rm _tmp
+	# | grep -v "^ *$$" \
+	    # | sed 's/^ *//' \
+	    # | grep -v "/\*.*\*/" \
 
 
 clean:
