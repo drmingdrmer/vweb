@@ -12,7 +12,7 @@ vlbum: $(VL_JS) $(VL_CSS)
 	    | grep -v "^ *<!--.*-->$$" \
 	    | awk '/^ *<!--/{ cmtStart = 1; } { if(!cmtStart) {print $$0} } /-->$$/{cmtStart=0}' \
 	    > _tmp
-	# mv _tmp vlbum.html
+	mv _tmp vlbum.html
 
 js: $(VL_JS)
 
