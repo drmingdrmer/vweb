@@ -2,6 +2,7 @@
 
 mb_internal_encoding( 'utf-8' );
 
+include_once( "lib/saeimg.php" );
 include_once( "util.php" );
 
 define( "TransGif", "\x47\x49\x46\x38\x39\x61\x01\x00\x01\x00\x80\xff\x00\xc0\xc0\xc0\x00\x00\x00\x21\xf9\x04\x01\x00\x00\x00\x00\x2c\x00\x00\x00\x00\x01\x00\x01\x00\x00\x01\x01\x32\x00\x3b" );
@@ -60,7 +61,30 @@ function fiximg( $src, $w, $h ) {
 
     return $img->exec( 'png' );
 }
-function mkimg( $data, $tp, $isout ) {
+
+function endsWith($haystack, $needle)
+{
+    $length = strlen($needle);
+    $start  = $length * -1; //negative
+    return (substr($haystack, $start) === $needle);
+}
+
+function img_by_url( $src ){ 
+    if ( endsWith( $src, '.jpg' ) ) {
+        $img = imagecreatefromjpeg( $src );
+    }
+    else if ( endsWith( $src, '.gif' ) ) {
+        $img = imagecreatefromgif( $src );
+    }
+    else if ( endsWith( $src, '.png' ) ) {
+        $img = imagecreatefrompng( $src );
+    }
+    else {
+        return false;
+    }
+    return $img;
+}
+function mkimg( $data, $tp, $fn ) {
     $FONT = array(
         "size" => 14,
         "color" => "black" );
@@ -71,18 +95,32 @@ function mkimg( $data, $tp, $isout ) {
     $bgcolor = $data[ 'bgcolor' ];
 
     $comp = array();
+    $info = array();
+
+
+    $bg = imagecreatetruecolor( $w, $h );
+    $bgcolor = imagecolorallocate( $bg,  255,  255,  255);
+    imagefill( $bg, 0, 0, $bgcolor );
+
     foreach ($d as $e) {
         if ( $e[ 'bgcolor' ] ) {
-            $img = square( $e[ 'w' ], $e[ 'h' ], $e[ 'bgcolor' ] );
-            $sub = array( $img, $e[ 'l' ], -$e[ 't' ], 1, SAE_TOP_LEFT );
-            array_push( $comp, $sub );
+            $img = imagecreatetruecolor( $e[ 'w' ], $e[ 'h' ] );
+            $r = imagecopy( $bg, $img,
+                $e[ 'l' ], $e[ 't' ], 0, 0,
+                $e[ 'w' ], $e[ 'h' ] );
         }
 
         if ( $e[ 'img' ] ) {
-            // $img = file_get_contents( $e[ 'img' ] );
-            $img = fiximg( $e[ 'img' ], $e[ 'w' ], $e[ 'h' ] );
-            $sub = array( $img, $e[ 'l' ], -$e[ 't' ], 1, SAE_TOP_LEFT );
-            array_push( $comp, $sub );
+
+            $img = img_by_url( $e[ 'img' ] );
+
+            $w = imagesx( $img );
+            $h = imagesy( $img );
+
+            $r = imagecopyresized( $bg, $img,
+                $e[ 'l' ], $e[ 't' ], 0, 0,
+                $e[ 'w' ], $e[ 'h' ], $w, $h );
+
         }
 
         if ( $e[ 'text' ] ) {
@@ -97,67 +135,35 @@ function mkimg( $data, $tp, $isout ) {
     }
 
 
-    $img = new SaeImage();
-    $img->clean();
-    $img->setData( $comp );
-    $img->composite( $w, $h, $bgcolor );
+    $r = imagejpeg( $bg, $fn );
 
-    return $img->exec( $tp, $isout );
+    return array( 'rst'=>'ok', 'data'=>'' );
 }
+
 function mkimg_local( $data, $tp ) {
-    $imgdata = mkimg( $data, $tp, false );
 
     $localTail = rand() . "__tmp__";
     $localfn = SAE_TMP_PATH . $localTail;
 
-    $r = file_put_contents( $localfn, $imgdata );
-    if ( $r ) {
-        return $localfn;
+    $r = mkimg( $data, $tp, $localfn );
+
+    return array( 'rst'=>'ok', 'data'=>$localfn );
+
+    if ( $r[ 'rst' ] == 'ok' ) {
+
+        $imgdata = $r[ 'data' ];
+
+        $r = file_put_contents( $localfn, $imgdata );
+        if ( $r ) {
+            return array( 'rst'=>'ok', 'data'=>$localfn );
+        }
+        else {
+            return array( 'rst'=>'writeLocalImage' );
+        }
     }
     else {
-        return false;
+        return $r;
     }
+
 }
-
-
-/*
- * // var_dump($img->errno(), $img->errmsg());
- * 
- * session_start();
- * 
- * 
- * $verb = $_SERVER[ 'REQUEST_METHOD' ];
- * 
- * if ( $verb == "POST" ) {
- * 
- *     $act = $_GET[ 'act' ];
- * 
- *     if ( $act == "mkimg" ) {
- * 
- *         $fnTail = $_GET[ 'path' ];
- *         !$fnTail && resmsg( "nopath", "nopath" );
- * 
- *         $data = file_get_contents("php://input");
- *         !$data && resmsg( "nodata", "nodata" );
- * 
- *         $data = unjson( $data );
- *         !$data && resmsg( "invalid", "invalid" );
- * 
- * 
- *         $tp = 'jpg';
- *         $imgdata = mkimg( $data, $tp, false );
- * 
- *         $uid = $_SESSION[ "last_key" ][ 'user_id' ];
- *         $fn = "$uid/$fnTail";
- * 
- *         $fn = "abc";
- * 
- *         $s = new SaeStorage();
- *         $url = $s->write( 'pub' , "$fn.$tp" , $imgdata );
- *         $url && resjson( array( "rst" => "ok", "url" => $url ) )
- *             || resmsg( 'save', $s->errmsg() );
- *     }
- * }
- */
-
 ?>

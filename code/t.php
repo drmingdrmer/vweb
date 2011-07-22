@@ -271,8 +271,12 @@ else if ( $verb == "POST" ) {
  *             !$url && resmsg( 'createalbum', 'createalbum' );
  */
 
-            $fn = mkimg_local( $layout, 'jpg' );
-            !$fn && resmsg( 'mkimg', 'mkimg' );
+            $r = mkimg_local( $layout, 'jpg' );
+            if ( $r[ 'rst' ] != 'ok' ) {
+                res_json( $r );
+            }
+
+            $fn = $r[ 'data' ];
 
             $sysMsg = " -- 建图集：" . LINK_VWEB;
 
