@@ -123,7 +123,7 @@ function mkimg( $data, $tp, $fn ) {
     }
 
 
-    $r = imagejpeg( $bg, $fn, 60 );
+    $r = imagejpeg( $bg, $fn, 80 );
 
     return array( 'rst'=>'ok' );
 }
