@@ -44,23 +44,6 @@ function textgif( $s, $w, $h, $font ) {
 
     return $img->exec( 'png' );
 }
-function square( $w, $h, $color ) {
-
-    $img = new SaeImage();
-    $img->setData( array( array( TransGif, 0, 0, 1, SAE_TOP_LEFT ) ) );
-    $img->composite( $w, $h, $color );
-
-    return $img->exec( 'png' );
-}
-
-function fiximg( $src, $w, $h ) {
-    $data = file_get_contents( $src );
-    $img = new SaeImage();
-    $img->setData( $data );
-    $img->resize( $w, $h );
-
-    return $img->exec( 'png' );
-}
 
 function endsWith($haystack, $needle)
 {
@@ -69,7 +52,7 @@ function endsWith($haystack, $needle)
     return (substr($haystack, $start) === $needle);
 }
 
-function img_by_url( $src ){ 
+function img_by_url( $src ){
     if ( endsWith( $src, '.jpg' ) ) {
         $img = imagecreatefromjpeg( $src );
     }
@@ -84,6 +67,7 @@ function img_by_url( $src ){
     }
     return $img;
 }
+
 function mkimg( $data, $tp, $fn ) {
     $FONT = array(
         "size" => 14,
@@ -99,8 +83,9 @@ function mkimg( $data, $tp, $fn ) {
 
 
     $bg = imagecreatetruecolor( $w, $h );
-    $bgcolor = imagecolorallocate( $bg,  255,  255,  255);
-    imagefill( $bg, 0, 0, $bgcolor );
+    $imgbgcolor = imagecolorallocate( $bg,  255,  255,  255);
+    $fontcolor = imagecolorallocate( $bg, 0, 0, 0 );
+    imagefill( $bg, 0, 0, $imgbgcolor );
 
     foreach ($d as $e) {
         if ( $e[ 'bgcolor' ] ) {
@@ -110,34 +95,38 @@ function mkimg( $data, $tp, $fn ) {
                 $e[ 'w' ], $e[ 'h' ] );
         }
 
+        if ( $e[ 'text' ] ) {
+            $s = wrap_text( $e[ 'text' ], $e[ 'w' ] / 14.0 * 2 );
+
+            // pixel to ponit convertion: 1.6667
+            imagettftext( $bg, 14 / 1.6667, 0,
+                $e[ 'l' ], $e[ 't' ] + 14, // x, y is the left-bottom point of the first char
+                $fontcolor, SAE_Font_Sun,
+                $s
+            );
+        }
+    }
+
+    foreach ($d as $e) {
+
         if ( $e[ 'img' ] ) {
 
             $img = img_by_url( $e[ 'img' ] );
 
-            $w = imagesx( $img );
-            $h = imagesy( $img );
+            $imgw = imagesx( $img );
+            $imgh = imagesy( $img );
 
             $r = imagecopyresized( $bg, $img,
                 $e[ 'l' ], $e[ 't' ], 0, 0,
-                $e[ 'w' ], $e[ 'h' ], $w, $h );
+                $e[ 'w' ], $e[ 'h' ], $imgw, $imgh );
 
-        }
-
-        if ( $e[ 'text' ] ) {
-            $font = $FONT;
-
-            // $e[ 'color' ] && $font[ 'color' ] = $e[ 'color' ];
-
-            $img = textgif( $e[ 'text' ], $e[ 'w' ] + $tPad, $e[ 'h' ], $font );
-            $sub = array( $img, $e[ 'l' ], -$e[ 't' ], 1, SAE_TOP_LEFT );
-            array_push( $comp, $sub );
         }
     }
 
 
-    $r = imagejpeg( $bg, $fn );
+    $r = imagejpeg( $bg, $fn, 60 );
 
-    return array( 'rst'=>'ok', 'data'=>'' );
+    return array( 'rst'=>'ok' );
 }
 
 function mkimg_local( $data, $tp ) {
@@ -148,22 +137,5 @@ function mkimg_local( $data, $tp ) {
     $r = mkimg( $data, $tp, $localfn );
 
     return array( 'rst'=>'ok', 'data'=>$localfn );
-
-    if ( $r[ 'rst' ] == 'ok' ) {
-
-        $imgdata = $r[ 'data' ];
-
-        $r = file_put_contents( $localfn, $imgdata );
-        if ( $r ) {
-            return array( 'rst'=>'ok', 'data'=>$localfn );
-        }
-        else {
-            return array( 'rst'=>'writeLocalImage' );
-        }
-    }
-    else {
-        return $r;
-    }
-
 }
 ?>
