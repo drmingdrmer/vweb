@@ -1,12 +1,11 @@
 $.extend( $.vweb.ui.t, { list: {
-    init : function () {
+    init : function ( self, e ) {
         this.last = {};
         $.vweb.setup_img_switch( this._elt.empty() );
-        this.setup_func();
+        this.setup_func( self, e );
     },
 
     repost_cb: function ( rst ) {
-        var e = this._elt;
         $.vweb.handle_json( { 'ok': function(){
             $( "#" + rst.info.id, e ).removeClass( 'in_repost' );
             $( "#" + rst.info.id + " .g_repost", e ).remove();
@@ -14,13 +13,12 @@ $.extend( $.vweb.ui.t, { list: {
     },
 
     comment_cb: function ( rst ) {
-        var e = this._elt;
         $.vweb.handle_json( { 'ok': function(){
             $( "#" + rst.info.id + " .g_comment", e ).remove();
         } }, rst );
     },
 
-    setup_func : function () {
+    setup_func : function ( self, e ) {
 
         var uldr = $.vweb.backend.weibo.create_loader(
             'statuses/user_timeline', {
@@ -47,8 +45,15 @@ $.extend( $.vweb.ui.t, { list: {
         .delegate( ".t_msg .cont.msg a.at", "click", atldr )
         .delegate( ".t_msg .f_destroy", "click", function( ev ){
             $.evstop( ev );
+            var msg = $( this ).p( ".t_msg" );
             $.vweb.backend.weibo.t_cmd( 'POST', "destroy", '',
-                { id: $( this ).p( ".t_msg" ).id() }, { } );
+                { id: msg.id() },
+                { 'success':function( json ){
+                    $.vweb.ui.appmsg.msg( '已删除' );
+                    msg.hide( 200, function(){
+                        msg.remove();
+                    } );
+                } } );
         } )
         .delegate( ".t_msg .f_retweet", "click", function( ev ){
             $.evstop( ev );

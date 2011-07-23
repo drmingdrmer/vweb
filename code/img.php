@@ -32,6 +32,7 @@ function wrap_text( $s, $nchar ) {
 
     return $rst;
 }
+
 function textgif( $s, $w, $h, $font ) {
 
     $s = wrap_text( $s, $w / $font[ "size" ] * 2 );
@@ -86,7 +87,9 @@ function mkimg( $data, $tp, $fn ) {
     $fontcolor = imagecolorallocate( $bg, 0, 0, 0 );
     imagefill( $bg, 0, 0, $imgbgcolor );
 
+
     foreach ($d as $e) {
+
         if ( $e[ 'bgcolor' ] ) {
             $img = imagecreatetruecolor( $e[ 'w' ], $e[ 'h' ] );
             $r = imagecopy( $bg, $img,

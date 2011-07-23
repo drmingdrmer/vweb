@@ -111,6 +111,9 @@ $.extend( $.vweb.ui.main, { maintool: {
                                 $.vweb.ui.appmsg.msg( "发布成功" );
                                 pubmsg.val( '' ).blur();
                             }
+                            else {
+                                $.vweb.ui.appmsg.alert( json.msg );
+                            }
                         }
                     } );
             }

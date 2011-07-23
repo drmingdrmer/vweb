@@ -119,7 +119,7 @@ $.extend( $.vweb.backend, { weibo: {
                     var t = trigger;
                     var cmd = { name: cmdname, args: args, cb:opt.cb };
 
-                    $.vweb.ui.appmsg.msg( "载入成功" );
+                    // $.vweb.ui.appmsg.msg( "载入成功" );
 
                     // TODO do not addhis after paging down/up
                     $.vweb.backend.weibo.addhis( json, cmd );

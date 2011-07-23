@@ -1,7 +1,7 @@
 $.extend( $.vweb.ui, { appmsg: {
     init: function( self, e ) {
         e.bind( 'ajaxSend', function(){
-            self.msg( 'Loading..' );
+            self.msg( '载入中..' );
         } )
         .bind( 'ajaxSuccess', function( ev, xhr, opts ){
             // ev is and event object
