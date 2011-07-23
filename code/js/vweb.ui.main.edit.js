@@ -31,6 +31,7 @@ $.extend( $.vweb.ui.main, { edit: {
                 $.evstop( ev );
                 $.log( ev );
                 $( '#pagehint' ).remove();
+
                 var msg = theui.item;
                 $.vweb.ui.t.list.msg_visible( msg.id(), false );
             },

@@ -101,9 +101,16 @@ $.extend( $.vweb.ui.t, { list: {
 
     msg_visible: function( id, visible ) {
         var e = $( '#' + id, this._elt );
-        var f = visible ? "show" : "hide";
 
-        e[ f ]().prev( '.retweeter' )[ f ]();
+        if ( e.length ) {
+            if ( visible ) {
+                e.show( 200 ).prev( '.retweeter' ).show( 200 );
+                // this._elt.scrollTo( e, { duration:0 } );
+            }
+            else {
+                e.hide( 200 ).prev( '.retweeter' ).hide( 200 );
+            }
+        }
     },
 
     show : function ( data ) {
