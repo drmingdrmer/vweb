@@ -53,6 +53,9 @@ $.extend( $.vweb.ui.t, { list: {
                     msg.hide( 200, function(){
                         msg.remove();
                     } );
+                    msg.next( '.retweet' ).hide( 200, function(){
+                        msg.next( '.retweet' ).remove();
+                    } );
                 } } );
         } )
         .delegate( ".t_msg .f_retweet", "click", function( ev ){
