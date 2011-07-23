@@ -53,18 +53,8 @@ function endsWith($haystack, $needle)
 }
 
 function img_by_url( $src ){
-    if ( endsWith( $src, '.jpg' ) ) {
-        $img = imagecreatefromjpeg( $src );
-    }
-    else if ( endsWith( $src, '.gif' ) ) {
-        $img = imagecreatefromgif( $src );
-    }
-    else if ( endsWith( $src, '.png' ) ) {
-        $img = imagecreatefrompng( $src );
-    }
-    else {
-        return false;
-    }
+    $img = file_get_contents( $src );
+    $img = imagecreatefromstring( $img );
     return $img;
 }
 
@@ -95,17 +85,23 @@ function mkimg( $data, $tp, $fn ) {
             $r = imagecopy( $bg, $img,
                 $e[ 'l' ], $e[ 't' ], 0, 0,
                 $e[ 'w' ], $e[ 'h' ] );
+            if ( !$r ) {
+                return array( 'rst'=>'mkImageBlock' );
+            }
         }
 
         if ( $e[ 'text' ] ) {
             $s = wrap_text( $e[ 'text' ], $e[ 'w' ] / 14.0 * 2 );
 
             // pixel to ponit convertion: 1.6667
-            imagettftext( $bg, 14 / 1.6667, 0,
+            $r = imagettftext( $bg, 14 / 1.6667, 0,
                 $e[ 'l' ], $e[ 't' ] + 14, // x, y is the left-bottom point of the first char
                 $fontcolor, SAE_Font_Sun,
                 $s
             );
+            if ( !$r ) {
+                return array( 'rst'=>'mkImageText' );
+            }
         }
     }
 
@@ -122,22 +118,36 @@ function mkimg( $data, $tp, $fn ) {
                 $e[ 'l' ], $e[ 't' ], 0, 0,
                 $e[ 'w' ], $e[ 'h' ], $imgw, $imgh );
 
+            if ( !$r ) {
+                return array( 'rst'=>'mkImageSub', 'data'=>$e[ 'img' ] );
+            }
+
         }
     }
 
 
-    $r = imagejpeg( $bg, $fn, 80 );
+    $r = imagejpeg( $bg, $fn );
+    if ( !$r ) {
+        return array( 'rst'=>'createJpeg' );
+    }
+
+    $cont = file_get_contents( $fn );
 
     return array( 'rst'=>'ok' );
 }
 
 function mkimg_local( $data, $tp ) {
 
-    $localTail = rand() . "__tmp__";
+    $localTail = rand() . ".jpg";
     $localfn = SAE_TMP_PATH . $localTail;
 
     $r = mkimg( $data, $tp, $localfn );
+    if ( $r[ 'rst' ] == 'ok' ) {
+        return array( 'rst'=>'ok', 'data'=>$localfn );
+    }
+    else {
+        return $r;
+    }
 
-    return array( 'rst'=>'ok', 'data'=>$localfn );
 }
 ?>
