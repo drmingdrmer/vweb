@@ -3,51 +3,15 @@
 <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
     <title>Vlbum</title>
-
     <script language="javascript" type="text/javascript">
         var MODE = 'album';
     </script>
-
     <link rel="stylesheet" type="text/css" href="css/vlbum_c.css" />
-
-    <link class="csscompact" rel="stylesheet" type="text/css" href="css/global.css" />
-    <link class="csscompact" rel="stylesheet" type="text/css" href="theme/trontastic/jquery-ui-1.8.9.custom.css" />
-    <!-- <link class="csscompact" rel="stylesheet" type="text/css" href="theme/trontastic/ext.css" /> -->
-    <link class="csscompact" rel="stylesheet" type="text/css" href="css/vweb.css" />
-    <link class="csscompact" rel="stylesheet" type="text/css" href="css/vlbum.css" />
-
-
     <script language="javascript" type="text/javascript" src="js/jquery-1.4.4.min.js"></script>
     <script language="javascript" type="text/javascript" src="js/jquery-ui-1.8.9.custom.min.js"></script>
-
     <script language="javascript" type="text/javascript" src="js/vlbum_c.js"></script>
-
-    <script class="jscompact" language="javascript" type="text/javascript" src="plugin/tmpl/jquery.tmpl.min.js"></script>
-    <script class="jscompact" language="javascript" type="text/javascript" src="js/jquery.form-defaults.js"></script>
-    <script class="jscompact" language="javascript" type="text/javascript" src="js/json2.js"></script>
-
-    <script class="jscompact" language="javascript" type="text/javascript" src="js/core.js"></script>
-    <script class="jscompact" language="javascript" type="text/javascript" src="js/vweb.js"></script>
-    <script class="jscompact" language="javascript" type="text/javascript" src="js/vweb.backend.weibo.js"></script>
-    <script class="jscompact" language="javascript" type="text/javascript" src="js/vweb.ui.js"></script>
-    <script class="jscompact" language="javascript" type="text/javascript" src="js/vweb.ui.appmsg.js"></script>
-    <script class="jscompact" language="javascript" type="text/javascript" src="js/vweb.ui.main.js"></script>
-    <script class="jscompact" language="javascript" type="text/javascript" src="js/vweb.ui.main.maintool.js"></script>
-
-    <script class="jscompact" language="javascript" type="text/javascript" src="js/vweb.ui.main.edit.js"></script>
-    <script class="jscompact" language="javascript" type="text/javascript" src="js/vweb.ui.t.js"></script>
-
-    <script class="jscompact" language="javascript" type="text/javascript" src="js/vweb.ui.t.list.js"></script>
-    <script class="jscompact" language="javascript" type="text/javascript" src="js/vweb.ui.t.my.js"></script>
-
-    <script class="jscompact" language="javascript" type="text/javascript" src="js/vweb.ui.t.my.friend.js"></script>
-    <script class="jscompact" language="javascript" type="text/javascript" src="js/vweb.ui.t.paging.js"></script>
-    <script class="jscompact" language="javascript" type="text/javascript" src="js/vweb.bootstrap.js"></script>
-
 </head>
-
 <body class="album">
-
 <table id="app" cellspacing=0> <tr>
 <td id="td_bd">
     <div id="bd">
@@ -61,14 +25,6 @@
                 <td id="td_pubmsg" colspan="1">
                     <textarea id="pubmsg" type="text" name="pubmsg"></textarea>
                 </td>
-                <!--
-                   - <td id="curfile" >
-                   -     <div class="wrap rel">
-                   -         <div id="path" class="hidden">/jfksdlf/f/fjds/f/fds/</div>
-                   -         <input id="fn" type="text" name="fn"/> <br />
-                   -     </div>
-                   - </td>
-                   -->
                 <td id="pubarea">
                     <div id="charleft"></div>
                     <button id="pub">发布</button>
@@ -76,24 +32,6 @@
             </tr>
         </table>
         <div id="appmsg"></div>
-        <!--
-           - <div id="menu">
-           -     <form class="f_args g_vdacc right">
-           -         <a href="javascript:$.vweb.ui.vdacc.save();">保存</a>
-           -         <a id="open" href="javascript:$.vweb.ui.vdacc.browse();">从微盘打开</a>
-           -     </form>
-           -     <form class="f_args g_mode left" >
-           -         <span id="edit_mode" class="t_opt grad_white1 t_btn_set" name="mode" _type="radio">
-           -             <a href="standard">标</a>
-           -             <a href="album">图</a>
-           -         </span>
-           -         <span id="screen_mode" class="t_opt grad_white1 t_btn_set" name="screen_mode" _type="radio">
-           -             <a href="0">全</a>
-           -             <a href="1">原</a>
-           -         </span>
-           -     </form>
-           - </div>
-           -->
         <div id="edit" class="">
             <div id="cont" class="album">
                 <div id="page">
@@ -106,14 +44,6 @@
 <td id="td_sidepad"></td>
 <td id="td_side">
 <div id="side">
-    <!--
-       - <div id="tabs">
-       -     <div id="product" class="t_opt grad_dark1 t_btn_set" name="product" _type="radio">
-       -         <a href="#">微盘</a>
-       -         <a href="#">微博</a>
-       -     </div>
-       - </div>
-       -->
     <div id="t" class="t-panel">
         <div id="update" class="compact cont_dark2">
             <form action="/t.php?act=upload&cb=$.vweb.ui.t.update.upload_cb"
@@ -125,22 +55,18 @@
             </form>
             <iframe name="update_target" class="hidden"></iframe>
         </div>
-
         <div id="func" class="cont_dark2 cont_dark_shad2">
             <div id="my" class="hideall but-friend">
                 <fieldset id="friend">
                     <legend class="">
                         <a href="#" class="f_idx">我的首页<span class="stat"></span></a>
                     </legend>
-
                     <div class="t_group g_other">
-                        <!-- 1. 评论数，2. @me数，3. 私信数，4. 关注数 -->
                         <a class="f_mine" href="#">我的微博</a>
                         <a class="f_at" _reset_type="2" href="#">@我的<span class="stat"></span></a>
                         <a class="f_comment" _reset_type="1" href="#">评论<span class="stat"></span></a>
                         <a class="f_message" _reset_type="3" target="_blank" href="http://t.sina.com.cn/messages?source=toptray">私信<span class="stat"></span></a>
                     </div>
-
                     <form class="f_args t_group g_simp left" >
                         <span id="fr_feature" class="t_opt grad_dark1 t_btn_set" name="feature" _type="radio">
                             <a href="0">全</a>
@@ -150,12 +76,10 @@
                             <a class="nomode_album" href="4">音</a>
                         </span>
                     </form>
-
                     <div id="paging" class="mode_album">
                         <a class="f_prev" href="#">上页</a>
                         <a class="f_next" href="#">下页</a>
                     </div>
-
                     <div class="t_group g_search left hidden">
                         <form class="f_args">
                             <p> <input class="search-keyword" type="text" name="s" value="search"> </p>
@@ -177,7 +101,6 @@
                             </p>
                         </form>
                     </div>
-
                 </fieldset>
                 <fieldset id="mine" class="t_ctrl highlight hidden">
                     <legend class="t_btn_set">
@@ -221,14 +144,7 @@
                 </div>
                 <div id="at" class="t_ctrl hidden">
                     提到我的:
-                    <!--
-                    - <span class="t_opt grad_white1">
-                        -     <input type="radio" id="at_all_p" checked name="at_range" value="img"/><label for="at_all_p">提到我的:</label>
-                        - </span>
-                    -->
-                    <!-- <br /> -->
                     <span class="t_opt grad_white1">
-                        <!-- <input type="radio" id="at_all_msg" name="at_type" value="img"/><label for="at_all_msg">全部微博</label> -->
                         <input type="checkbox" id="at_fo"  name="at_range" value="img"/><label for="at_fo">关注的人</label>
                         <input type="checkbox" id="at_ori" name="at_type" value="img"/><label for="at_ori">原创</label>
                     </span>
@@ -241,35 +157,8 @@
                     </span>
                     <input type="text" name="search" value="search"/>
                 </div>
-                <!--
-                   - <fieldset id="globalsearch" class="t_ctrl highlight">
-                   -     <legend class="">
-                   -         <input class="search-keyword" type="text" name="search" value="search">
-                   -         <button class="f_submit">搜</button>
-                   -     </legend>
-                   -     <form class="f_args t_group g_search" >
-                   -         <div class="t_line">
-                   -             <span id="global_search_ori" class="t_opt grad_white1" name="filter_ori" _type="radio">
-                   -                 <a href="0">全部</a>
-                   -                 <a href="5">原创</a>
-                   -                 [> <a href="gid">热</a> <]
-                   -             </span>
-                   -             <span id="global_search_media" class="t_opt grad_white1" name="filter_pic" _type="checkbox">
-                   -                 <a href="0">全部</a>
-                   -                 <a href="1">图</a>
-                   -             </span>
-                   -         </div>
-                   -         <div class="t_line">
-                   -             <input class="search-time" type="text" name="starttime" value=""/> -
-                   -             <input class="search-time" type="text" name="endtime" value=""/>
-                   -         </div>
-                   -     </form>
-                   - </fieldset>
-                   -->
             </div>
             <button id="expand" class="t_btn" _text="no" _icon="arrow-4-diag">Expand</button>
-            <!-- <button id="refresh" class="t_btn" _text="no" _icon="refresh">刷新</button> -->
-
         </div>
         <div id="paging" class="nomode_album">
             <input id="begindate" type="text" name="begindate" value="11-02-27 15:34"/>
@@ -290,12 +179,10 @@
                     <input id="vdisk_password" type="text" name="password" value="密码"/>
                     <input id="submit" type="submit" name="submit" value="登录微盘"/>
                 </form>
-
                 <span id="vdname" class="when loggedin">username</span>
                 <button id="upload" class="when loggedin ui-button ui-button-text-icon-primary ">
                     <span class="ui-icon vweb_icon icon_upload"></span>
                     <span class="ui-button-text">上传</span>
-                    <!-- <a href="javascript:$.vweb.ui.acc.pub();">发布</a> -->
                 </button>
             </div>
             <div id="vdpath">
@@ -331,7 +218,6 @@
             </ul>
         </div>
     </div>
-
 </div>
 </td>
 </tr>
@@ -342,9 +228,6 @@
     </td>
 </tr>
 </table>
-
-
-
 <script id="tmpl_msg" class="" _mode="" type="text/x-jquery-tmpl">
 <div id="${id}" class="t_msg thumb ${status}">
     <div class="handle ui-corner-all hidden"></div>
@@ -368,8 +251,6 @@
     </div>
 </div>
 </script>
-
-
 <script id="tmpl_msg_album" class="album" _mode="album" type="text/x-jquery-tmpl">
 <div id="${id}" class="t_msg thumb ${status}">
     <div class="handle ui-corner-all hidden"></div>
@@ -390,7 +271,6 @@
     </div>
 </div>
 </script>
-
 <script id="tmpl_hisrec" type="text/x-jquery-tmpl">
 <div id="${hisid}" class="t_msg t_his thumb">
     <span class="time" created_at="${created_at}">${time_forhis}:</span>
@@ -407,12 +287,10 @@
     <div class="f_del">删除</div>
 </div>
 </script>
-
 <script id="tmpl_opts" type="text/x-jquery-tmpl">
 <input type="${type}" id="${id}" name="${name}" value="${value}" />
 <label for="${id}">${label}</label>
 </script>
-
 <script id="tmpl_tree_item" type="text/x-jquery-tmpl">
 <li id="${id}" class="${class}">
     <button class="ui-button ui-button-h-small ui-button-text-icon-primary -ui-corner-left">
@@ -421,7 +299,6 @@
     </button>
 </li>
 </script>
-
 <script id="tmpl_repost" type="text/x-jquery-tmpl">
 <div class="g_repost">
 <form action="t.php?act=repost&cb=$.vweb.ui.t.list.repost_cb&id=${id}"
@@ -436,7 +313,6 @@
 <iframe name="ret_${id}" class="hidden"></iframe>
 </div>
 </script>
-
 <script id="tmpl_comment" type="text/x-jquery-tmpl">
 <div class="g_comment">
 <form action="t.php?act=comment&cb=$.vweb.ui.t.list.comment_cb&id=${id}"
@@ -449,12 +325,8 @@
 <iframe name="cmt_${id}" class="hidden"></iframe>
 </div>
 </script>
-
 <script id="tmpl_appmsg" type="text/x-jquery-tmpl">
 <div class="msg ${level}">${text}</div>
 </script>
-<!-- <div id="debug" style="position: absolute; top:0; left:0; display:none;"> -->
-<!-- </div> -->
-
     </body>
 </html>
