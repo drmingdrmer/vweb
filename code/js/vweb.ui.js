@@ -39,7 +39,6 @@ $.extend( $.vweb.ui, {
         $( ".t-panel" ).addClass( "ui-widget ui-corner-all" );
         $( ".t_ctrl" ).addClass( "ui-widget ui-corner-all" );
         $( ".t-group" ).addClass( "ui-widget ui-corner-all" );
-        $( "#func" ).addClass( "cont_dark2 cont_dark_shad2" );
         $( "#paging" ).addClass( "cont_dark0 cont_dark_shad0" );
 
 

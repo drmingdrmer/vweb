@@ -316,11 +316,24 @@ body { background: #ddd; }
         #my.hideall form { display: inline; }
 
 
+        #my a.f_idx,
+        #my a.f_mine,
+        #my a.f_at
+        {
+            color:#888;
+        }
         #my .f_idx .ui-button-icon-primary.ui-icon-idx {
             background-position: -64px -80px;
         }
         #my.hideall .f_idx .ui-button-icon-primary.ui-icon-idx {
             background-position: -16px -80px;
+        }
+
+
+
+
+        #my a.focused {
+            color:#ccc;
         }
 
         #my.hideall #friend,

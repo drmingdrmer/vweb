@@ -23,6 +23,11 @@ $.extend( $.vweb.ui.t.my, { friend : {
             { cb: [ '$.vweb.ui.t.my.friend.clearStat' ] });
 
 
+        var allLinks = $( '.f_idx, .f_mine, .f_at', e );
+        allLinks.click( function(){
+            allLinks.removeClass( 'focused' );
+            $( this ).addClass( 'focused' );
+        } );
         $( '.f_mine', e ).click( mineLoader );
 
         $( ".f_idx", e ).click( simpLoader );
