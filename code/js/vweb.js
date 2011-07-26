@@ -5,7 +5,8 @@ $.vweb = {
         loginPage: "http://" + window.location.host,
         appLink: 'http://t.cn/a0yUgu',  // vweb
         appLinkDev: 'http://t.cn/aOXV5H',  // 2.vweb
-        maxChar: 110
+        maxChar: 110,
+        fadeDuration: 200
     },
     account: undefined,
     ui : {

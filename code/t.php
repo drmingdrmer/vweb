@@ -278,7 +278,7 @@ else if ( $verb == "POST" ) {
 
             $fn = $r[ 'data' ];
 
-            $sysMsg = " -- 建图集：" . LINK_VWEB;
+            $sysMsg = " -- " . LINK_VWEB;
 
             // $msg = "《$albumname》-- $msg $url";
             // $msg = "《$albumname》-- $msg";

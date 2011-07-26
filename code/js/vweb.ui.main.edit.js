@@ -28,10 +28,10 @@ $.extend( $.vweb.ui.main, { edit: {
             appendTo:"body",
             zIndex:2000,
             receive : function ( ev, theui ) {
+                var msg = theui.item;
                 $.evstop( ev );
                 $.log( ev );
                 $( '#pagehint' ).remove();
-                var msg = theui.item;
                 $.vweb.ui.t.list.msg_visible( msg.id(), false );
             },
             // NOTE: helper setting to "clone" prevents click event to trigger

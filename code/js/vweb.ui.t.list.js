@@ -50,11 +50,8 @@ $.extend( $.vweb.ui.t, { list: {
                 { id: msg.id() },
                 { 'success':function( json ){
                     $.vweb.ui.appmsg.msg( '已删除' );
-                    msg.hide( 200, function(){
-                        msg.remove();
-                    } );
-                    msg.next( '.retweet' ).hide( 200, function(){
-                        msg.next( '.retweet' ).remove();
+                    msg.add( msg.next( '.retweet' ) ).hide( $.vweb.conf.fadeDuration, function(){
+                        $(this).remove();
                     } );
                 } } );
         } )
@@ -106,7 +103,7 @@ $.extend( $.vweb.ui.t, { list: {
         var e = $( '#' + id, this._elt );
         var f = visible ? "show" : "hide";
 
-        e[ f ]().prev( '.retweeter' )[ f ]();
+        e.add( e.prev( '.retweeter' ) )[ f ]( $.vweb.conf.fadeDuration );
     },
 
     show : function ( data ) {
