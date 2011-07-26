@@ -1,7 +1,2 @@
 name: vweb
-version: 2
-#cron:
-#    - description: cron test
-#      url: index.php
-#      schedule: every 43 mins
-#      timezone: Beijing
+version: 1
