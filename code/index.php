@@ -69,9 +69,9 @@ $_SESSION['keys'] = $keys;
         <div id="wrap" style="text-align:center;">
             <p style="font-size:18px; padding:24px;">将微博中喜欢的图片，整理成组图，分享给朋友。</p>
             <!-- <p>轻松收集，更多的分享。</p> -->
-            <img src="img/intro.jpg" alt=""/>
+            <img style="border:1px solid #ccc; padding:4px;" src="img/intro.jpg" alt=""/>
             <div id="auth" style="padding:40px;">
-                <a href="<?=$aurl?>"><img style="border:1px solid #ccc;" src="http://www.sinaimg.cn/blog/developer/wiki/32.png" alt="用微博账号登陆"/></a>
+                <a href="<?=$aurl?>"><img src="http://www.sinaimg.cn/blog/developer/wiki/32.png" alt="用微博账号登陆"/></a>
             </div>
         </div>
     </body>
