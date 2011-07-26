@@ -1,5 +1,6 @@
 
 $.extend( $.vweb.backend, { weibo: {
+    lastCommand : undefined,
     // TODO request not through t_cmd should also be handled like this
     t_cmd: function( verb, cmd, args, data, cbs ) {
 
@@ -134,10 +135,24 @@ $.extend( $.vweb.backend, { weibo: {
         );
     },
 
+    reload_last: function( addArgs ){
+        var l = this.lastCommand
+        if ( ! l ) {
+            return;
+        }
+
+        this.load( l.cmd.name, {
+            args: $.extend( {}, l.cmd.args, addArgs ),
+            cb:l.cmd.cb } );
+    }, 
+
     addhis: function ( json, cmd ) {
         if ( json.rst != 'ok' || ! json.data[ 0 ] ) {
             return;
         }
+
+        this.lastCommand = { json:json, cmd:cmd }
+
 
         $.vweb.ui.t.paging.addhis( json, cmd );
         $.vweb.ui.main.edit.addhis( json, cmd );

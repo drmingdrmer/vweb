@@ -355,7 +355,7 @@ body { background: #ddd; }
             }
             #friend legend {
                 padding: 8px 0 0 16px;
-                margin: 0 16px 0 0;
+                margin: 0 0 0 0;
             }
             #friend .f_args {
                 padding: 4px 0;
@@ -880,11 +880,12 @@ body { background: #ddd; }
 
 body.album #paging #begindate,
 body.album #paging #btnhis,
+body.album #my #friend .g_other .f_at,
 body.album #my #friend .g_other .f_comment,
 body.album #my #friend .g_other .f_message,
 body.album #update
 { display:none; }
 
 body.album #paging { display: block; position: static; padding: 6px; float:right; width:auto; }
-body.album #my #friend .g_other { display: block; position: static; padding: 6px; float:left; }
+body.album #my #friend .g_other { display: block; position: static; padding: 8px 6px 6px 6px; float:left; }
 

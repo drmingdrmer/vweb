@@ -1,16 +1,19 @@
 $.extend( $.vweb.ui.t.my, { friend : {
     init : function( self, e ){
-        self.formSimp = e.find( "form.g_simp" );
+        formSimp = e.find( "form.g_simp" );
         self.formSearch = e.find( "form.g_search" );
 
+        function filterArgs() {
+            return $.unparam( formSimp.serialize() );
+        }
         var simpLoader = $.vweb.backend.weibo.create_loader( 'statuses/friends_timeline', {
-            args: function() { return self.formSimp.serialize(); },
+            args: filterArgs,
             cb: [ '$.vweb.ui.t.list.show', '$.vweb.ui.t.my.friend.addLast', '$.vweb.ui.t.my.friend.clearStat']
         } );
 
         // option arg of all these 3 loader: since_id, max_id, count, page
         var mineLoader = $.vweb.backend.weibo.create_loader( 'statuses/user_timeline', {
-            args: function(){ return { user_id: $.vweb.account.id }; },
+            args: function(){ return $.extend( { user_id: $.vweb.account.id }, filterArgs() ); },
             cb: [ '$.vweb.ui.t.list.show' ]
         } );
         var atLoader = $.vweb.backend.weibo.create_loader( 'statuses/mentions',
@@ -28,10 +31,13 @@ $.extend( $.vweb.ui.t.my, { friend : {
             allLinks.removeClass( 'focused' );
             $( this ).addClass( 'focused' );
         } );
+
         $( '.f_mine', e ).click( mineLoader );
 
         $( ".f_idx", e ).click( simpLoader );
-        self.formSimp.find( "input" ).button().click( simpLoader );
+        formSimp.find( "input" ).button().click( function(){
+           $.vweb.backend.weibo.reload_last( filterArgs() );
+        } );
 
 
         $( ".f_at", e ).click( atLoader );
