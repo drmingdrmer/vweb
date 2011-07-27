@@ -27,7 +27,7 @@ $.extend( $.vweb.ui.main, { edit: {
             tolerance:'pointer',
             appendTo:"body",
             zIndex:2000,
-            opacity:0.6,
+            opacity:0.8,
             // placeholder:'border',
             // forcePlaceholderSize:true,
             start: function( ev, theui ){
@@ -40,7 +40,6 @@ $.extend( $.vweb.ui.main, { edit: {
             receive : function ( ev, theui ) {
                 var msg = theui.item, l = $.vweb.ui.t.list._elt;
 
-                $.evstop( ev );
                 $.log( ev );
                 $( '#pagehint' ).remove();
 

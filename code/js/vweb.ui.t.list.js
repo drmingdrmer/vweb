@@ -134,6 +134,7 @@ $.extend( $.vweb.ui.t, { list: {
             connectToSortable: "#page",
             handle : ".imgwrap",
             helper : "clone",
+            // helper : "original",
             revert : "invalid",
             zIndex : 2000,
             cursorAt:{ left:50, top:50 },
