@@ -41,6 +41,9 @@ $.extend( $, {
             return htmlNode.innerText; // IE
         }
         return htmlNode.textContent; // FF
+    },
+    'id': function( e ) {
+        return $( e ).id();
     }
 } );
 

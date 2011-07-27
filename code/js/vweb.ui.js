@@ -51,19 +51,7 @@ $.extend( $.vweb.ui, {
             if ( tagname != 'INPUT' && tagname != 'BUTTON' ) {
                 $( ".t-autoclose" ).hide();
             }
-        } )
-        .droppable( {
-            drop: function( ev, theui ) {
-                $.log( ev );
-                $.log( theui );
-                var msg = theui.draggable;
-                if ( $( msg ).parent( '#page' ).length ) {
-                    msg.remove();
-                    $.vweb.ui.t.list.msg_visible( msg.id(), true );
-                }
-            }
-        } )
-        ;
+        } );
 
     },
 

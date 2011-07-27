@@ -28,8 +28,6 @@ $.extend( $.vweb.ui.main, { edit: {
             appendTo:"body",
             zIndex:2000,
             opacity:0.8,
-            // placeholder:'border',
-            // forcePlaceholderSize:true,
             start: function( ev, theui ){
                 $( theui.placeholder )
                 .width( theui.helper.width() )
@@ -40,6 +38,8 @@ $.extend( $.vweb.ui.main, { edit: {
             receive : function ( ev, theui ) {
                 var msg = theui.item, l = $.vweb.ui.t.list._elt;
 
+                // do not stop event. Or the item would be placed at last.
+                // $.evstop( ev );
                 $.log( ev );
                 $( '#pagehint' ).remove();
 
@@ -50,19 +50,20 @@ $.extend( $.vweb.ui.main, { edit: {
             // NOTE: helper setting to "clone" prevents click event to trigger
             helper : "clone"
         })
-        .droppable( {
-            // doing nothing but prevent 'body' from receiving 'drop' event
+        .droppable( { drop: $.evstop } ); // prevent 'body' from receiving 'drop' event
+
+        $( 'body' ).droppable( {
             drop: function( ev, theui ) {
-                $.evstop( ev );
+                var msg = $( theui.draggable );
+                if ( msg.parent( '#page' ).length ) {
+                    msg.remove();
+                    $.vweb.ui.t.list.msg_visible( msg.id(), true );
+                }
             }
         } );
-        ;
-
     },
     ids : function () {
-        return $.map( $( '.t_msg', this.page ), function( v, i ){
-            return $( v ).id();
-        } );
+        return $.map( $( '.t_msg', this.page ), $.id );
     },
     pagedata: function(){
         return this.page.children( ".t_msg:not(.t_his)" ).to_json();
