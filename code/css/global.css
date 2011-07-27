@@ -17,3 +17,4 @@ a:hover,a:active,a:focus{color:#c00; text-decoration:underline;}
 .mustleft{float:left !important;}
 .mustright{float:right !important;}
 .rel{ position:relative; }
+.border { border:1px solid #aaa; }

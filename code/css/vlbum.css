@@ -8,6 +8,10 @@
 #cont .t_msg .cont .msgimg { display: inline; float: none; }
 #cont .t_msg .cont .msg_func { display: none; }
 
+#page .ui-sortable-placeholder {
+    background: #cfc;
+}
+
 .ui-draggable-dragging .avatar { display: none; }
 .ui-draggable-dragging .cont { margin: 0; }
 .ui-draggable-dragging .cont .username { display: none; }

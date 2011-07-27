@@ -27,6 +27,16 @@ $.extend( $.vweb.ui.main, { edit: {
             tolerance:'pointer',
             appendTo:"body",
             zIndex:2000,
+            opacity:0.6,
+            // placeholder:'border',
+            // forcePlaceholderSize:true,
+            start: function( ev, theui ){
+                $( theui.placeholder )
+                .width( theui.helper.width() )
+                .height( theui.helper.height() )
+                .css( { visibility:'visible' } )
+                ;
+            },
             receive : function ( ev, theui ) {
                 var msg = theui.item, l = $.vweb.ui.t.list._elt;
 
