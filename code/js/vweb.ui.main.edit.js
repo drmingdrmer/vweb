@@ -28,10 +28,14 @@ $.extend( $.vweb.ui.main, { edit: {
             appendTo:"body",
             zIndex:2000,
             receive : function ( ev, theui ) {
-                var msg = theui.item;
+                var msg = theui.item, l = $.vweb.ui.t.list._elt;
+
                 $.evstop( ev );
                 $.log( ev );
                 $( '#pagehint' ).remove();
+
+                msg.offset().top - l.scrollTop() < 40 && l.scrollTo( msg.add( msg.prev( '.retweeter' ) )[ 0 ], { duration: $.vweb.conf.fadeDuration, offset: -40 } );
+
                 $.vweb.ui.t.list.msg_visible( msg.id(), false );
             },
             // NOTE: helper setting to "clone" prevents click event to trigger
@@ -44,8 +48,6 @@ $.extend( $.vweb.ui.main, { edit: {
             }
         } );
         ;
-
-        // e.remove();
 
     },
     ids : function () {
