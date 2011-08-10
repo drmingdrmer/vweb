@@ -131,12 +131,13 @@ $.extend( $.vweb, {
     },
     init_sub: function( self ) {
         $.each( self, function( k, v ){
-            var u = self[ k ];
-            if ( u.init ) {
-                u._elt = $( "#" + k );
-                // $.log( 'to  init_sub: ' + k );
-                u.init( u, u._elt );
-                // $.log( 'end init_sub: ' + k );
+            $.log( 'k=' + k );
+
+            if ( v.init ) {
+                v._elt = $( '#' + k );
+                $.log( 'to  init_sub: ' + k );
+                v.init( v, v._elt );
+                $.log( 'end init_sub: ' + k );
             }
         } );
     },
