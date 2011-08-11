@@ -54,6 +54,9 @@ $.extend( $.vweb.ui.main, { edit: {
                 action.receive = true;
                 action.last = 'receive';
             },
+            update: function( ev, theui ) {
+                $.log( 'update' );
+            },
             out: function( ev, theui ) {
                 $.log( 'out' );
                 action.out = true;
@@ -67,8 +70,12 @@ $.extend( $.vweb.ui.main, { edit: {
             remove: function( ev, theui ) {
                 $.log( 'remove' );
             },
-            stop: function( ev, theui ){
+            // not stop. before stop an 'out' would be fired.
+            // stop: function( ev, theui ){
+            beforeStop: function( ev, theui ){
                 $.log( 'stop' );
+
+                $.log( theui );
 
                 if ( action.last =='out' && ! action.receive ) {
                     var msg = $( theui.item );
