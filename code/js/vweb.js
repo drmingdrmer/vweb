@@ -131,7 +131,10 @@ $.extend( $.vweb, {
     },
     init_sub: function( self ) {
         $.each( self, function( k, v ){
-            $.log( 'k=' + k );
+
+            if ( k == '_elt' ) {
+                return;
+            }
 
             if ( v.init ) {
                 v._elt = $( '#' + k );

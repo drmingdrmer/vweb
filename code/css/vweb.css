@@ -234,10 +234,16 @@ body { background: #ddd; }
             margin: 1px;
             padding: 0;
         }
+            #pageopt {
+                display: block;
+                position: absolute;
+                top: 30px;
+                left:20px;
+            }
 
             #page {
                 position: relative;
-                width: 367px;
+                width: 366px;
                 margin: 30px auto auto auto;
                 min-height: 400px;
                 overflow: hidden;
@@ -245,7 +251,23 @@ body { background: #ddd; }
                 padding: 0 0 40px 0;
 
                 background: #eee;
+            }
+            #page.thumbMode {
+                width: 366px;
+            }
+            #page.midpicMode {
+                width: 400px;
+            }
 
+            /* 400 / 4 = 100 */
+            /* 100 - 2( margin ) = 98 */
+            #page.midpicMode .t_msg .cont .imgwrap.thumb {
+                width: 98px;
+                height: 98px;
+            }
+            #page.midpicMode .t_msg .cont .imgwrap.thumb img {
+                max-width: 100%;
+                max-height: 100%;
             }
             #page .t_his { display: none; }
 
@@ -861,7 +883,6 @@ body { background: #ddd; }
 }
 .t_opt .ui-button.ui-state-active {
 
-    /* background: -webkit-gradient(linear, left top, left bottom, color-stop(0.2, #112), to(#336)); */
     background: -webkit-gradient(linear, left top, left bottom, color-stop(0.2, #147), to(#36c));
     background: -moz-linear-gradient(top, #147, #36c);
 

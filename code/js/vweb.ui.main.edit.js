@@ -1,27 +1,31 @@
 $.extend( $.vweb.ui.main, { edit: {
     init : function ( self, e ) {
-        this.cont = e.children( "#cont" );
-        this.page = this.cont.children( "#page" );
+        this._cont = e.children( "#cont" );
+        this.page = this._cont.children( "#page" );
 
-        this.setup_func();
+        this.setup_func( self, e );
 
 
         e.find( "#edit_mode input" ).button().click( function() {
             $( this ).parent().find( "input" ).each( function() {
-                self.cont.removeClass( $( this ).val() );
+                self._cont.removeClass( $( this ).val() );
             } );
-            self.cont.addClass( $( this ).val() );
+            self._cont.addClass( $( this ).val() );
         } );
 
         e.find( "#screen_mode input" ).button();
+
+        $.vweb.init_sub( this );
     },
-    setup_func : function () {
+    setup_func : function ( self, e ) {
         $.vweb.setup_img_switch( this.page );
-        var e = $( '<div class="t_msg"></div>' ).hide();
+        var emp = $( '<div class="t_msg"></div>' ).hide();
+
+        var action = {};
 
         // NOTE: jquery ui bug: if there is no item matches "items" option, no
         // sortable function would be set up. Thus first msg would be lost
-        this.page.append( e );
+        this.page.append( emp );
         this.page.sortable({
             items:".t_msg",
             tolerance:'pointer',
@@ -40,30 +44,50 @@ $.extend( $.vweb.ui.main, { edit: {
 
                 // do not stop event. Or the item would be placed at last.
                 // $.evstop( ev );
-                $.log( ev );
+                $.log( 'receive' );
                 $( '#pagehint' ).remove();
 
                 msg.offset().top - l.scrollTop() < 40 && l.scrollTo( msg.add( msg.prev( '.retweeter' ) )[ 0 ], { duration: $.vweb.conf.fadeDuration, offset: -40 } );
 
                 $.vweb.ui.t.list.msg_visible( msg.id(), false );
+
+                action.receive = true;
+                action.last = 'receive';
+            },
+            out: function( ev, theui ) {
+                $.log( 'out' );
+                action.out = true;
+                action.last = 'out';
+            },
+            over: function( ev, theui ) {
+                $.log( 'over' );
+                action.over = true;
+                action.last = 'over';
+            },
+            remove: function( ev, theui ) {
+                $.log( 'remove' );
+            },
+            stop: function( ev, theui ){
+                $.log( 'stop' );
+
+                if ( action.last =='out' && ! action.receive ) {
+                    var msg = $( theui.item );
+                    if ( msg.parent( '#page' ).length ) {
+                        msg.remove();
+                        $.vweb.ui.t.list.msg_visible( msg.id(), true );
+                    }
+                }
+                action = {};
             },
             // NOTE: helper setting to "clone" prevents click event to trigger
             helper : "clone"
-        })
-        .droppable( { drop: $.evstop } ); // prevent 'body' from receiving 'drop' event
+        });
 
-        $( 'body' ).droppable( {
-            drop: function( ev, theui ) {
-                var msg = $( theui.draggable );
-                if ( msg.parent( '#page' ).length ) {
-                    msg.remove();
-                    $.vweb.ui.t.list.msg_visible( msg.id(), true );
-                }
-            }
-        } );
     },
     ids : function () {
-        return $.map( $( '.t_msg', this.page ), $.id );
+        return $.map( $( '.t_msg', this.page ), function( v, i ){
+            return $( v ).id();
+        } );
     },
     pagedata: function(){
         return this.page.children( ".t_msg:not(.t_his)" ).to_json();
@@ -78,7 +102,7 @@ $.extend( $.vweb.ui.main, { edit: {
             return $.extend( attrs || {}, elt.offset_tl(), elt.size_wh( false ) );
         }
 
-        this.cont.find( ".t_msg" ).each( function() {
+        this._cont.find( ".t_msg" ).each( function() {
             var e = $( this );
             var thumb = $( "img.thumb:visible", e );
             var midpic = $( "img.midpic:visible", e);

@@ -9,7 +9,7 @@ $.extend( $, {
     },
     log: function(mes) {
         // $( '#debug' ).append( '<div>' + mes + '</div>' );
-        // console && console.log( mes );
+        console && console.log( mes );
     },
     evstop: function( ev ) {
         if ( ev ) {
@@ -42,7 +42,7 @@ $.extend( $, {
         }
         return htmlNode.textContent; // FF
     },
-    'id': function( e ) {
+    id: function( e ) {
         return $( e ).id();
     }
 } );
