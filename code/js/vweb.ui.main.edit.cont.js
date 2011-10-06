@@ -15,5 +15,7 @@ $.extend( $.vweb.ui.main.edit, { cont: {
             page.removeClass( 'thumbMode midpicMode' )
             .addClass( $( this ).val() );
         } );
+
+        $.vweb.init_sub( this );
     }
 } } );

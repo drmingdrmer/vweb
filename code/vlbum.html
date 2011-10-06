@@ -1,4 +1,5 @@
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<!doctype html>
+<!-- <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd"> -->
 <html>
 <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
@@ -37,6 +38,7 @@
 
     <script class="jscompact" language="javascript" type="text/javascript" src="js/vweb.ui.main.edit.js"></script>
     <script class="jscompact" language="javascript" type="text/javascript" src="js/vweb.ui.main.edit.cont.js"></script>
+    <script class="jscompact" language="javascript" type="text/javascript" src="js/vweb.ui.main.edit.cont.dropbox.js"></script>
     <script class="jscompact" language="javascript" type="text/javascript" src="js/vweb.ui.t.js"></script>
 
     <script class="jscompact" language="javascript" type="text/javascript" src="js/vweb.ui.t.list.js"></script>
@@ -98,6 +100,33 @@
            -->
         <div id="edit" class="">
             <div id="cont" class="album">
+
+
+
+                <div id="dropbox">
+                    <div id="body-container">
+                        <div id="browser-warning"> 只支持Chrome 8 or Firefox 3.6.8 </div>
+                        <div id="upload-box">
+                            <div>
+                                <p id="upload-status-text">
+                                将本地文件拖到这里上传...
+                                </p>
+                            </div>
+                            <div id="upload-status-progressbar"></div>
+                        </div>
+                    </div>
+                    <div id="upload-thumbnail-list">
+                        <div id="upload-header">
+                            <span id="upload-title">Uploads</span>
+                            <span id="upload-count"></span>
+                        </div>
+                    </div>
+                </div>
+                <div id="drop-box-overlay">
+                    <h1>Drop files anywhere to upload...</h1>
+                </div>
+
+
                 <div id="pageopt">
                     <div id="pagesize" name="pagesize" class="t_opt t_btn_set" _type="radio">
                         <a href="thumbMode">窄</a>
