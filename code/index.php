@@ -76,6 +76,4 @@ $_SESSION['keys'] = $keys;
         </div>
     </body>
 </html>
-<?
-?>
 

@@ -1,11 +1,84 @@
 <?php
 
-session_start();
 
 include_once( 'config.php' );
-include_once( 'lib/vDisk.class.php' );
+// include_once( 'lib/vDisk.class.php' );
+include_once( 'lib/vdex.php' );
 include_once( 'util.php' );
 
+class MyVDisk extends vDisk {
+    private $_pathcache = array();
+
+
+    public function __construct($app_key, $app_secret) {
+        parent::__construct( $app_key, $app_secret );
+        $this->_pathcache = array( '/'=>0 );
+    }
+
+    public function get_dirid_with_path( $path ) {
+
+        echo "cache is \n";
+        var_dump( $this->_pathcache );
+
+        if ( isset($this->_pathcache[ $path ]) ) {
+            return array(
+                'err_code'=>0,
+                'data' => array( 'id'=>$this->_pathcache[ $path ], )
+            );
+        }
+
+        $r = parent::get_dirid_with_path( $path );
+
+        if ( $r && $r[ 'err_code' ] == 0 ) {
+            $dirid = $r[ 'data' ][ 'id' ];
+            $this->_pathcache[ $path ] = $dirid;
+        }
+
+        return $r;
+    }
+
+    public function mkdir_p( $path, $dir_id = 0 ) {
+
+        if ( startsWith( $path, '/' ) ) {
+            $path = substr( $path, 1 );
+            $dir_id = 0;
+        }
+
+        $elts = explode( "/", $path );
+        $path = "";
+
+        foreach ($elts as $e) {
+
+            $path = "$path/$e";
+
+            $r = $this->get_dirid_with_path( $path );
+            if ( $r && $r[ 'err_code' ] == 0 ) {
+                $dir_id = $r[ 'data' ][ 'id' ];
+                echo "$path exists, $dir_id\n";
+                continue;
+            }
+
+            echo "to create $e at $dir_id\n";
+            $r = $this->create_dir( $e, $dir_id );
+            echo "create rc=\n";
+            var_dump( $r );
+            if ( $r && $r[ 'err_code' ] == 0 ) {
+                $dir_id = $r[ 'data' ][ 'dir_id' ];
+                $this->_pathcache[ $path ] = $dir_id;
+                continue;
+            }
+            else {
+                return $r;
+            }
+        }
+
+        // fix key name issue
+        if ( ! isset( $r[ 'data' ][ 'id' ] ) ) {
+            $r[ 'data' ][ 'id' ] = $r[ 'data' ][ 'dir_id' ];
+        }
+        return $r;
+    }
+}
 
 function keeptoken( &$vdisk ) {
     $r = $vdisk->keep_token( $_SESSION[ 'vd_token' ] );
@@ -59,11 +132,9 @@ function get_fid( &$vdisk, $path ) {
 
     return false;
 }
-function login( &$vdisk ) {
-    $username = $_POST[ 'username' ];
-    $password = $_POST[ 'password' ];
+function login( &$vdisk, $username, $password ) {
 
-    $r = $vdisk->get_token($username, $password);
+    $r = $vdisk->get_token($username, $password, 'sinat');
 
     /*
      * Expected $r:
@@ -84,21 +155,18 @@ function login( &$vdisk ) {
      *
      */
 
+    var_dump( $r );
     if ( $r && $r[ 'err_code' ] == 0 ) {
         $_SESSION['vd_token'] = $vdisk->token;
-        resmsg( "ok", "登录成功" );
+        return true;
     }
     else {
-        resmsg( "fail", $r[ 'err_msg' ] );
+        return false;
     }
-    
 }
-function putfile( &$vdisk ) {
-    $path = $_REQUEST[ 'path' ];
 
-    if ( !$path ) {
-        resmsg( "invalid_path", "不合法路径:'$path'" );
-    }
+
+function putfile( &$vdisk, $path, &$fdata ) {
 
     if ( $path[ 0 ] != "/" ) {
         $path = "/" . $path;
@@ -106,8 +174,17 @@ function putfile( &$vdisk ) {
 
     $elts = explode( "/", $path );
     $fn = array_pop( $elts );
-    $parent = implode( "/", $elts );
+    $parent = implode( '/', $elts );
 
+    $r = $vdisk->mkdir_p( $parent );
+    if ( $r && $r[ 'err_code' ] == 0 ) {
+        $dir_id = $r[ 'data' ][ 'id' ];
+    }
+    else {
+        return $r;
+    }
+
+    echo "dir_id = $dir_id";
     $localTail = rand() . "__tmp__";
 
 
@@ -115,12 +192,6 @@ function putfile( &$vdisk ) {
      * NOTE: SAE_TMP_PATH does not support sub-dir
      */
     $localfn = SAE_TMP_PATH . $localTail;
-    $fdata = file_get_contents("php://input");
-    if ( !$fdata ) {
-        echo "{\"rst\" : \"empty_body\", \"msg\" : \"不能保存空文件\"}";
-        exit();
-    }
-
 
     $r = file_put_contents( $localfn, $fdata );
     if ( !$r ) {
@@ -130,20 +201,20 @@ function putfile( &$vdisk ) {
 
 
 
-    $r = $vdisk->upload_file( $localfn, $parent, 'yes' );
+    $r = $vdisk->upload_file( $localfn, $dir_id, 'yes' );
     if ( $r && $r[ 'err_code' ] == 0 ) {
 
         $fid = $r[ 'data' ][ 'fid' ];
-        $dirid = $r[ 'data' ][ 'dir_id' ];
 
-        $r = $vdisk->move_file( $fid, $dirid, $fn );
+        var_dump($r);
+        $r = $vdisk->move_file( $fid, $dir_id, $fn );
 
         if ( $r && $r[ 'err_code' ] == 0 ) {
             unlink( $localfn );
             resjson( array(
                 "rst" => "ok",
                 "path" => "$path",
-                "fid" => "{$r['data']['fid']}", 
+                "fid" => "{$r['data']['fid']}",
                 "msg" => "成功保存到$path"
             ) );
         }
@@ -164,7 +235,7 @@ function putfile( &$vdisk ) {
                 resjson( array(
                     "rst" => "ok",
                     "path" => "$path",
-                    "fid" => "{$r['data']['fid']}", 
+                    "fid" => "{$r['data']['fid']}",
                     "msg" => "成功保存到$path"
                 ) );
             }
@@ -189,14 +260,12 @@ function putfile( &$vdisk ) {
     }
 
 }
-function listdir( &$vdisk ) {
+function listdir( &$vdisk, $relpath ) {
     if ( $_GET[ 'dirid' ] ) {
         $dirid = $_GET[ 'dirid' ];
     }
     else {
-        $root = '/vweb';
-        $relpath = $_GET[ 'path' ];
-        $path = "$root/$relpath";
+        $path = "$relpath";
 
         $r = $vdisk->get_dirid_with_path( $path );
         !$r && resmsg( "invalid_path", "非法路径:$path" );
@@ -215,7 +284,7 @@ function listdir( &$vdisk ) {
         resmsg( "list", $r[ 'err_msg' ] );
     }
 
-    resjson( array( "rst" => "ok", "data" => $r[ 'data' ] ) );
+    return array( "rst" => "ok", "data" => $r[ 'data' ] );
 }
 function load( &$vdisk ) {
     $fid = $_GET[ 'fid' ];
@@ -231,55 +300,11 @@ function load( &$vdisk ) {
     }
 }
 
-$vdisk = new vDisk(VWEB_VD_KEY, VWEB_VD_SEC);
-
-$verb = $_SERVER[ 'REQUEST_METHOD' ];
-
-if ( $verb == "POST" ) { login( $vdisk ); }
-
-$vdisk->keep_token( $_SESSION[ 'vd_token' ] )
-    || resmsg( "invalid_token", "请重新登录" );
-
-if ( $verb == "GET" ) {
-
-    $act = $_GET[ 'act' ];
-
-    switch ( $act ) {
-        case "keeptoken" :
-            keeptoken( $vdisk );
-            break;
-        case "list" :
-            listdir( $vdisk );
-            break;
-        case "load" :
-            load( $vdisk );
-            break;
-        default:
-            resmsg( "unknown_act", "非法act参数=$act" );
-    }
-}
-else if ( $verb == "PUT" ) {
-    putfile( $vdisk );
-}
-
 function move_file( &$vdisk, $fid, $desc ) {
-    
+
 }
 
 
 
-// $r = $vdisk->upload_share_file('文件.txt', 0);
-// $r = $vdisk->get_list(0);
-// $r = $vdisk->get_quota();
-// $r = $vdisk->upload_with_md5('测试.pdf', '03d5717869bb075e3bad73b527fabc8a');
-// $r = $vdisk->get_file_info(219379);
-// $r = $vdisk->create_dir('测试一下');
-// $r = $vdisk->delete_dir(35647);
-// $r = $vdisk->delete_file(123);
-// $r = $vdisk->copy_file(219379, 0, '副本.txt');
-// $r = $vdisk->move_file(219379, 0, '副本.txt');
-// $r = $vdisk->rename_file(219379, '新的新的新的.z');
-// $r = $vdisk->rename_dir(3929, '新的新的新的');
-// $r = $vdisk->move_dir(3929, "我的图片们", 0);
 
 ?>
