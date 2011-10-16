@@ -10,6 +10,8 @@ include_once( 'mob.php' );
 
 function dd( $msg ) {
     echo "$msg<br/>\n";
+    ob_flush();
+    flush();
 }
 
 function doit() {
@@ -40,7 +42,8 @@ function doit() {
 function save_tweet_links_to_vdisk( &$vdisk, $t ) {
 
     $text = $t[ 'text' ];
-    dd( "Processing: $text" );
+    dd( "Processing:" );
+    dd( "$text" );
 
     $urls = extract_urls( $text );
     dd( "OK: Extracted " . count( $urls ) . " urls" );
@@ -56,8 +59,8 @@ function save_tweet_links_to_vdisk( &$vdisk, $t ) {
 
 function vd_save_url( &$vdisk, $url ) {
 
-    $entry = mob_insta( $url );
-    if ( $entry[ 'err_code' ] != 0 ) {
+    $mob = new InstaMobilizer( $url );
+    if ( ! $mob->mobilize() ) {
         dd( "Error: Fetching $url" );
         // TODO more message
         return;
@@ -65,8 +68,8 @@ function vd_save_url( &$vdisk, $url ) {
 
     dd( "OK: fetched: $url" );
 
-    $title = $entry[ 'title' ];
-    $url = $entry[ 'url' ];
+    $title = $mob->title;
+    $url = $mob->realurl;
 
     $nowdate = date( "Y_m_d" );
     $nowtime = date( "His");
@@ -74,7 +77,7 @@ function vd_save_url( &$vdisk, $url ) {
     $path = "/V2V/$nowdate/$title.$nowtime.html";
     dd( "Saving: to $path" );
 
-    $r = putfile( $vdisk, $path, $entry[ 'html' ] );
+    $r = putfile( $vdisk, $path, $mob->content );
     if ( $r[ 'err_code' ] == 0 ) {
         dd( "OK: saved at vdisk.weibo.com: $path" );
     }

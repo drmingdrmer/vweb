@@ -3,19 +3,98 @@
 include_once( "lib/simple_html_dom.php" );
 include_once( "util.php" );
 
-function mob_insta( $url ) {
-    $f = new SaeFetchurl();
-    $f->setHeader( 'User-Agent', 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_6_8) AppleWebKit/535.1 (KHTML, like Gecko) Chrome/14.0.835.202 Safari/535.1' );
+class InstaMobilizer
+{
+    public $url;
+    public $realurl;
 
-    // urlencode
-    $cont = $f->fetch( "http://www.instapaper.com/m?u=$url" );
-    $code = $f->httpCode();
-    echo "httpCode=$code<br/>\n";
+    public $httpCode;
+    public $title;
+    public $content;
+
+    private $fetcher;
+    private $html;
 
 
-    $r = reformat_html_insta( $cont );
-    $r[ 'url' ] = $url;
-    return $r;
+    function __construct( $url ) {
+        $this->url = $url;
+        $this->realurl = $url;
+    }
+
+    function mobilize() {
+        if ( !$this->fetch() ) {
+            return false;
+        }
+        if ( !$this->processhtml() ) {
+            return false;
+        }
+        return true;
+    }
+
+    function fetch() {
+        $f = $this->fetcher = new SaeFetchurl();
+
+        $f->setHeader( 'User-Agent', 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_6_8) AppleWebKit/535.1 (KHTML, like Gecko) Chrome/14.0.835.202 Safari/535.1' );
+
+        // urlencode
+        $this->content = $f->fetch( "http://www.instapaper.com/m?u={$this->url}" );
+        $this->httpCode = $f->httpCode();
+
+        return true;
+    }
+
+    function processhtml() {
+
+        $html = $this->html = new simple_html_dom();
+
+        $html->load( $this->content );
+        $this->html_cleanup();
+
+        $this->extract_title();
+
+        html_embed_img( $html );
+
+        $this->html_finalize();
+
+        return true;
+    }
+
+    function html_finalize() {
+        $url = $this->realurl;
+
+        $content = $this->html->save();
+        $content = "<a style='margin:10px;' href='$url'>$url</a>" .$content;
+        $content .= <<<'EOT'
+<style>
+    img { max-width:100%; }
+</style>
+EOT;
+        $this->content = $content;
+        return true;
+    }
+
+    function html_cleanup() {
+        $html = $this->html;
+
+        html_remove( $html, "script,link,comment" );
+        html_remove( $html, "#text_controls_toggle,#text_controls,#editing_controls" );
+
+        $e = $html->find( ".top a", 0 );
+        $this->realurl = $e->getAttribute( 'href' );
+
+        html_remove( $html, ".top" );
+
+        return true;
+    }
+
+    function extract_title() {
+        $e = $this->html->find( "title", 0 );
+        $title = $e->innertext;
+        $this->title = preg_replace( '/[><\/:?*\\ \-_"]+/', '_', $title );
+        return true;
+    }
+
+
 }
 
 function byfetch( $url ) {
@@ -72,26 +151,6 @@ function url_redirect( $old, $url ) {
     return $url;
 }
 
-function reformat_html_insta( $text ) {
-    $html = new simple_html_dom();
-    $html->load( $text );
-
-    html_remove( $html, "script,link,comment" );
-    html_remove( $html, "#text_controls_toggle,#text_controls,#editing_controls" );
-
-    $title = html_extract_title( $html );
-
-    html_embed_img( $html );
-
-    $content = $html->save();
-    $content .= <<<'EOT'
-<style>
-    img { max-width:100%; }
-</style>
-EOT;
-
-    return array( 'err_code'=>0, 'title'=>$title, 'html'=>$content );
-}
 
 function html_remove( &$html, $selector ) {
     $es = $html->find( $selector );
@@ -101,11 +160,16 @@ function html_remove( &$html, $selector ) {
 }
 
 function html_embed_img( &$html ) {
+
     $es = $html->find( "img" );
+
     foreach ($es as $e) {
+
         $src=$e->getAttribute( 'src' );
+
         $f = newfetch();
         $cont = $f->fetch( $src );
+
         if ( $f->httpCode() == "200" ) {
 
             $mtype = "image/jpeg";
@@ -115,13 +179,6 @@ function html_embed_img( &$html ) {
     }
 }
 
-function html_extract_title( &$html ) {
-    $es = $html->find( "title" );
-    $e = $es[ 0 ];
-    $title = $e->innertext;
-    $title = preg_replace( '/[><\/:?*\\ -"]+/', '_', $title );
-    return $title;
-}
 
 function reformat_html( $text ) {
     $html = new simple_html_dom();
