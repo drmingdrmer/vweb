@@ -56,10 +56,10 @@ function save_tweet_links_to_vdisk( &$vdisk, $t ) {
     dinfo( "OK: Extracted " . count( $urls ) . " urls" );
 
     foreach ($urls as $url) {
-        if ( $url == "http://t.cn/asaazB" ) {
+        // if ( $url == "http://t.cn/asaazB" ) {
             dinfo( "Fetching url: $url" );
             $r = vd_save_url( $vdisk, $url );
-        }
+        // }
     }
 }
 
@@ -69,7 +69,10 @@ function vd_save_url( &$vdisk, $url ) {
     $mob = new InstaMobilizer( $url );
     if ( ! $mob->mobilize() ) {
         dinfo( "Error: Fetching $url" );
-        // TODO more message
+        dinfo( "httpCode:" . $mob->httpCode );
+        foreach ($mob->responseHeaders as $h=>$v) {
+            dinfo( "$h: $v" );
+        }
         return;
     }
 

@@ -13,6 +13,7 @@ class InstaMobilizer
     public $content;
 
     private $fetcher;
+    private $responseHeaders;
     private $html;
 
 
@@ -33,12 +34,17 @@ class InstaMobilizer
 
     function fetch() {
         $f = $this->fetcher = new SaeFetchurl();
-
         $f->setHeader( 'User-Agent', 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_6_8) AppleWebKit/535.1 (KHTML, like Gecko) Chrome/14.0.835.202 Safari/535.1' );
 
-        // urlencode
-        $this->content = $f->fetch( "http://www.instapaper.com/m?u={$this->url}" );
+        $url = urlencode( $this->url );
+        $this->content = $f->fetch( "http://www.instapaper.com/m?u=$url" );
+
         $this->httpCode = $f->httpCode();
+        $this->responseHeaders = $f->responseHeaders();
+
+        if ( $this->httpCode != '200' ) {
+            return false;
+        }
 
         return true;
     }
