@@ -17,8 +17,6 @@ class MyVDisk extends vDisk {
 
     public function get_dirid_with_path( $path ) {
 
-        echo "cache is \n";
-        var_dump( $this->_pathcache );
 
         if ( isset($this->_pathcache[ $path ]) ) {
             return array(
@@ -54,14 +52,10 @@ class MyVDisk extends vDisk {
             $r = $this->get_dirid_with_path( $path );
             if ( $r && $r[ 'err_code' ] == 0 ) {
                 $dir_id = $r[ 'data' ][ 'id' ];
-                echo "$path exists, $dir_id\n";
                 continue;
             }
 
-            echo "to create $e at $dir_id\n";
             $r = $this->create_dir( $e, $dir_id );
-            echo "create rc=\n";
-            var_dump( $r );
             if ( $r && $r[ 'err_code' ] == 0 ) {
                 $dir_id = $r[ 'data' ][ 'dir_id' ];
                 $this->_pathcache[ $path ] = $dir_id;
@@ -155,7 +149,6 @@ function login( &$vdisk, $username, $password ) {
      *
      */
 
-    var_dump( $r );
     if ( $r && $r[ 'err_code' ] == 0 ) {
         $_SESSION['vd_token'] = $vdisk->token;
         return true;
@@ -176,6 +169,8 @@ function putfile( &$vdisk, $path, &$fdata ) {
     $fn = array_pop( $elts );
     $parent = implode( '/', $elts );
 
+    echo "put file at $parent<br/>\n";
+
     $r = $vdisk->mkdir_p( $parent );
     if ( $r && $r[ 'err_code' ] == 0 ) {
         $dir_id = $r[ 'data' ][ 'id' ];
@@ -184,7 +179,6 @@ function putfile( &$vdisk, $path, &$fdata ) {
         return $r;
     }
 
-    echo "dir_id = $dir_id";
     $localTail = rand() . "__tmp__";
 
 
@@ -196,6 +190,8 @@ function putfile( &$vdisk, $path, &$fdata ) {
     $r = file_put_contents( $localfn, $fdata );
     if ( !$r ) {
         echo "{\"rst\" : \"fail\", \"msg\" : \"不能保存本地临时文件:'$localfn'\"}";
+        echo "data lennth=".strlen( $fdata );
+        var_dump( $r );
         exit();
     }
 
@@ -206,19 +202,16 @@ function putfile( &$vdisk, $path, &$fdata ) {
 
         $fid = $r[ 'data' ][ 'fid' ];
 
-        var_dump($r);
         $r = $vdisk->move_file( $fid, $dir_id, $fn );
 
         if ( $r && $r[ 'err_code' ] == 0 ) {
             unlink( $localfn );
-            resjson( array(
-                "rst" => "ok",
-                "path" => "$path",
-                "fid" => "{$r['data']['fid']}",
-                "msg" => "成功保存到$path"
-            ) );
+            return array( 'err_code' => 0 );
         }
         else {
+            var_dump( $r );
+            return array( 'err_code' => 1 );
+
             // existed. delete it first
             $oldfid = get_fid( $vdisk, $path );
             if ( $oldfid ) {

@@ -1,6 +1,7 @@
 <?
 include_once( 'config.php' );
 include_once( 'saet.ex.class.php' );
+// include_once( 'lib/saet.2.php' );
 include_once( 'util.php' );
 
 function gen_app_rst( $rst, $okmsg, $info = NULL ) {
@@ -34,9 +35,22 @@ class MySaeTClient extends SaeTClient
         def( $p, 'count', 20 );
 
         $url = "http://api.t.sina.com.cn/$cmd.json";
+        // $url = "http://api.weibo.com/2/$cmd.json";
         $rst = $this->oauth->get($url , $p );
         return gen_app_rst( $rst, $okmsg, $info );
     }
+}
+
+function extract_urls( $text ) {
+    $matches = array();
+    preg_match_all( '/http:\/\/(sinaurl|t)\.cn\/[a-zA-Z0-9_]+/', $text, $matches );
+
+    $urls = array();
+    foreach ($matches[ 0 ] as $m) {
+        array_push( $urls, $m );
+    }
+
+    return $urls;
 }
 
 

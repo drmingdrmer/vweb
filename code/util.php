@@ -1,28 +1,35 @@
 <?
-function json( $v ) {
+function json( $v )
+{
     return json_encode( $v );
 }
-function unjson( $s ) {
+function unjson( $s )
+{
     return json_decode( $s, true );
 }
-function resjson( $v ) {
+function resjson( $v )
+{
     res_json( $v );
 }
-function res_json( $v ) {
+function res_json( $v )
+{
     header('Content-Type:application/json; charset=utf-8');
     echo json( $v );
     exit();
 }
-function res_cb( $v, $cb ) {
+function res_cb( $v, $cb )
+{
     $v = json( $v );
     echo "<script>window.parent.$cb($v);</script>";
     exit();
 }
 
-function resmsg( $rst, $msg ) {
+function resmsg( $rst, $msg )
+{
     res_json( array( "rst" => $rst, "msg" => $msg ) );
 }
-function def( &$arr, $key, $val ) {
+function def( &$arr, $key, $val )
+{
     if ( !isset( $arr[ $key ] ) ) {
         $arr[ $key ] = $val;
     }
@@ -40,5 +47,10 @@ function endsWith($haystack, $needle)
     return (substr($haystack, $start) === $needle);
 }
 
+function data_uri($contents, $mime)
+{
+    $base64 = base64_encode($contents);
+    return "data:$mime;base64,$base64";
+}
 
 ?>

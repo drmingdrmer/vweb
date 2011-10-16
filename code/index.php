@@ -3,7 +3,6 @@
 session_start();
 
 include_once( 'config.php' );
-include_once( 'saet.ex.class.php' );
 include_once( 'util.php' );
 include_once( 'weibo_util.php' );
 
@@ -26,6 +25,11 @@ function load_user_to_sess() {
 $defaultPage = 'vlbum.html';
 
 $redirectPage = $_GET[ 'r' ] ? $_GET[ 'r' ] : $defaultPage;
+
+if ( $_GET[ 'acc' ] == 'flush' ) { 
+    unset($_SESSION[ 'last_key' ]);
+    unset($_SESSION[ 'keys' ]);
+}
 
 
 if( isset($_SESSION['last_key']) ) {
