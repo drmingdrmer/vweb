@@ -14,6 +14,12 @@ function dd( $msg ) {
     flush();
 }
 
+function dinfo( $msg ) {
+    echo "$msg<br/>\n";
+    ob_flush();
+    flush();
+}
+
 function doit() {
 
     $c = new MySaeTClient( WB_AKEY, WB_SKEY,
@@ -26,7 +32,7 @@ function doit() {
     $favs = $c->_load_cmd( 'favorites', array(), NULL, NULL );
     $favs = $favs[ 'data' ];
 
-    dd( "OK: Loaded favorites: " . count( $favs ) . " entries" );
+    dinfo( "OK: Loaded favorites: " . count( $favs ) . " entries" );
 
     foreach ($favs as $fav) {
 
@@ -42,15 +48,16 @@ function doit() {
 function save_tweet_links_to_vdisk( &$vdisk, $t ) {
 
     $text = $t[ 'text' ];
-    dd( "Processing:" );
-    dd( "$text" );
+    dd( '<hr />' );
+    dinfo( "Processing:" );
+    dinfo( "$text" );
 
     $urls = extract_urls( $text );
-    dd( "OK: Extracted " . count( $urls ) . " urls" );
+    dinfo( "OK: Extracted " . count( $urls ) . " urls" );
 
     foreach ($urls as $url) {
         if ( $url == "http://t.cn/asaazB" ) {
-            dd( "Fetching url: $url" );
+            dinfo( "Fetching url: $url" );
             $r = vd_save_url( $vdisk, $url );
         }
     }
@@ -61,12 +68,12 @@ function vd_save_url( &$vdisk, $url ) {
 
     $mob = new InstaMobilizer( $url );
     if ( ! $mob->mobilize() ) {
-        dd( "Error: Fetching $url" );
+        dinfo( "Error: Fetching $url" );
         // TODO more message
         return;
     }
 
-    dd( "OK: fetched: $url" );
+    dinfo( "OK: fetched: $url" );
 
     $title = $mob->title;
     $url = $mob->realurl;
@@ -75,14 +82,14 @@ function vd_save_url( &$vdisk, $url ) {
     $nowtime = date( "His");
 
     $path = "/V2V/$nowdate/$title.$nowtime.html";
-    dd( "Saving: to $path" );
+    dinfo( "Saving: to $path" );
 
     $r = putfile( $vdisk, $path, $mob->content );
     if ( $r[ 'err_code' ] == 0 ) {
-        dd( "OK: saved at vdisk.weibo.com: $path" );
+        dinfo( "OK: saved at vdisk.weibo.com: $path" );
     }
     else {
-        dd( "Failed: while saving $path" );
+        dinfo( "Failed: while saving $path" );
     }
 }
 

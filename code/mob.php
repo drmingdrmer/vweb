@@ -82,7 +82,7 @@ EOT;
         $e = $html->find( ".top a", 0 );
         $this->realurl = $e->getAttribute( 'href' );
 
-        html_remove( $html, ".top" );
+        html_remove( $html, ".top,.bottom" );
 
         return true;
     }
@@ -151,7 +151,6 @@ function url_redirect( $old, $url ) {
     return $url;
 }
 
-
 function html_remove( &$html, $selector ) {
     $es = $html->find( $selector );
     foreach ($es as $e) {
@@ -178,7 +177,6 @@ function html_embed_img( &$html ) {
 
     }
 }
-
 
 function reformat_html( $text ) {
     $html = new simple_html_dom();
