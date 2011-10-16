@@ -1,11 +1,10 @@
 <?
 session_start();
 
-include_once( 'config.php' );
-include_once( 'util.php' );
-include_once( 'weibo_util.php' );
-include_once( 'vdlib.php' );
-include_once( 'mob.php' );
+include_once( $_SERVER["DOCUMENT_ROOT"] . "/acc.php" );
+include_once( $_SERVER["DOCUMENT_ROOT"] . "/service/t/weibo_util.php" );
+include_once( $_SERVER["DOCUMENT_ROOT"] . "/service/mobilize/mob.php" );
+include_once( $_SERVER["DOCUMENT_ROOT"] . "/service/vd/vdlib.php" );
 
 
 function dd( $msg ) {
