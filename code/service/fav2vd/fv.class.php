@@ -1,7 +1,5 @@
 <?
-session_start();
 
-include_once( $_SERVER["DOCUMENT_ROOT"] . "/acc.php" );
 include_once( $_SERVER["DOCUMENT_ROOT"] . "/service/t/t.class.php" );
 include_once( $_SERVER["DOCUMENT_ROOT"] . "/service/t/weibo_util.php" );
 include_once( $_SERVER["DOCUMENT_ROOT"] . "/service/mobilizer/mob.php" );

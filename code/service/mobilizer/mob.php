@@ -223,7 +223,7 @@ function reformat_html( $text ) {
     $metas = $html->find( "meta" );
     foreach ($metas as $m) {
         if ( $m->getAttribute( 'http-equiv' ) == 'Content-Type' ) {
-            
+
             $c = $m->getAttribute( "content" );
             echo "content=$c<br/>\n";
             if ( $c == "text/html; charset=gb2312" ) {

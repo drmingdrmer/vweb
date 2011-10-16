@@ -5,7 +5,7 @@ include_once( $_SERVER["DOCUMENT_ROOT"] . "/vweb.php" );
 // include_once( 'lib/vDisk.class.php' );
 include_once( $_SERVER["DOCUMENT_ROOT"] . "/lib/vdex.php" );
 
-class MyVDisk extends vDisk {
+class VD extends vDisk {
     private $_pathcache = array();
 
 
