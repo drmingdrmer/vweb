@@ -1,7 +1,7 @@
 <?
 
 include_once( "lib/simple_html_dom.php" );
-include_once( "util.php" );
+include_once( "inc/util.php" );
 
 class InstaMobilizer
 {
