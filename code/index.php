@@ -4,15 +4,6 @@ session_start();
 
 include_once( $_SERVER["DOCUMENT_ROOT"] . "/acc.php" );
 
-function work( &$acc ) {
-    if ( $acc->t_to_sess() ) {
-        $acc->redirect();
-    }
-    else {
-        start_auth( $acc );
-    }
-}
-
 function start_auth( &$acc ) {
     $aurl = $acc->init_oauth();
     include( "oauthindex.php" );
@@ -33,10 +24,14 @@ function main() {
 
     if ( $verifier ) {
         $acc->verify( $verifier );
-        work();
+        if ( ! $acc->do_work() ) {
+            start_auth( $acc );
+        }
     }
     else if ( $acc->use_sess() ) {
-        work();
+        if ( ! $acc->do_work() ) {
+            start_auth( $acc );
+        }
     }
     else {
         start_auth( $acc );

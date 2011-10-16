@@ -28,6 +28,7 @@ class Account
         $r = $this->me();
         if ( isok( $r ) ) {
             $_SESSION[ 'user' ] = $r[ 'data' ];
+            // TODO error messages
             return true;
         }
         else {
@@ -64,15 +65,18 @@ class Account
     function verify( $verifier ) {
 
         $reqtoken = $_SESSION[ 'reqtoken' ];
-        generate_acctoken( $reqtoken, $verifier );
+        $this->generate_acctoken( $reqtoken, $verifier );
 
         $r = $this->me();
 
         if ( isok( $r ) ) {
 
             $user = $r[ 'data' ];
+
             $this->save_user( $user );
-            $this->save_acctoken( $user );
+
+            $r = $this->save_acctoken( $user );
+            // TODO error handling
 
         }
 
@@ -85,9 +89,8 @@ class Account
 
         $my = new My();
         $r = $my->t_acctoken( $u[ 'id' ], $this->acctoken );
-        var_dump( $r );
 
-        return $r
+        return $r;
     }
 
     function save_user( &$user ) {
@@ -97,7 +100,6 @@ class Account
         $my = new My();
         $u = array( 'id'=>$user[ 'id' ], );
         $r = $my->user_add( $u );
-        var_dump( $r );
 
         return $r;
     }
@@ -117,6 +119,16 @@ class Account
 
         $_SESSION['reqtoken'] = $reqtoken;
         return $url;
+    }
+
+    function do_work() {
+        if ( $this->t_to_sess() ) {
+            $this->redirect();
+            return true;
+        }
+        else {
+            return false;
+        }
     }
 
     function redirect() {

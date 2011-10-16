@@ -43,11 +43,16 @@ class MyRaw {
 
     function insert( $sql ) {
         $this->my->runSql( $sql );
-        return $this->isok() ? $this->r_insert() : $this->err();
+        return ( $this->isok() && $this->affected() )
+            ? $this->r_insert() : $this->err();
     }
 
     function isok() {
         return $this->my->errno() === 0;
+    }
+
+    function affected() {
+        return $this->my->affectedRows() > 0;
     }
 
     function err() {
@@ -105,7 +110,7 @@ class MyRaw {
 class My extends MyRaw {
 
     function user_add( &$user ) {
-        $sql = "INSERT INTO `user` " . sql_values( $mysql, $user );
+        $sql = "INSERT INTO `user` " . $this->sql_values( $user );
         return $this->insert( $sql );
     }
 

@@ -57,7 +57,7 @@ function isok( $r ) {
         return $r[ 'code' ] === 0;
     }
 
-    echo "unknown $r"
+    echo "unknown $r";
     throw new Exception( 'unrecognized ' . print_r( $r, true ) );
 
 }
