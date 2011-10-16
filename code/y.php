@@ -70,6 +70,7 @@ function vd_save_url( &$vdisk, $url ) {
     if ( ! $mob->mobilize() ) {
         dinfo( "Error: Fetching $url" );
         dinfo( "httpCode:" . $mob->httpCode );
+        dinfo( "error:" . $mob->error );
         foreach ($mob->responseHeaders as $h=>$v) {
             dinfo( "$h: $v" );
         }

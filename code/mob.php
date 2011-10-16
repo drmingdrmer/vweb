@@ -9,6 +9,7 @@ class InstaMobilizer
     public $realurl;
 
     public $httpCode;
+    public $error;
     public $title;
     public $content;
 
@@ -54,14 +55,25 @@ class InstaMobilizer
         $html = $this->html = new simple_html_dom();
 
         $html->load( $this->content );
-        $this->html_cleanup();
-
         $this->extract_title();
 
-        html_embed_img( $html );
+        if ( ! $this->check_valid() ) {
+            return false;
+        }
 
+        $this->html_cleanup();
+        html_embed_img( $html );
         $this->html_finalize();
 
+        return true;
+    }
+
+    function check_valid() {
+        // instapaper failed to fetch this url
+        if ( $this->title == 'Not available' ) {
+            $this->error = 'instaError';
+            return false;
+        }
         return true;
     }
 
