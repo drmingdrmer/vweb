@@ -121,6 +121,12 @@ class Account
         return $url;
     }
 
+    function start_auth() {
+        $aurl = $this->init_oauth();
+        include( "oauthindex.php" );
+        exit();
+    }
+
     function do_work() {
         if ( $this->t_to_sess() ) {
             $this->redirect();

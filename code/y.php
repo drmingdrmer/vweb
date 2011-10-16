@@ -2,8 +2,9 @@
 session_start();
 
 include_once( $_SERVER["DOCUMENT_ROOT"] . "/acc.php" );
+include_once( $_SERVER["DOCUMENT_ROOT"] . "/service/t/t.class.php" );
 include_once( $_SERVER["DOCUMENT_ROOT"] . "/service/t/weibo_util.php" );
-include_once( $_SERVER["DOCUMENT_ROOT"] . "/service/mobilize/mob.php" );
+include_once( $_SERVER["DOCUMENT_ROOT"] . "/service/mobilizer/mob.php" );
 include_once( $_SERVER["DOCUMENT_ROOT"] . "/service/vd/vdlib.php" );
 
 
@@ -21,27 +22,38 @@ function dinfo( $msg ) {
 
 function doit() {
 
-    $c = new MySaeTClient( WB_AKEY, WB_SKEY,
-        $_SESSION['last_key']['oauth_token'],
-        $_SESSION['last_key']['oauth_token_secret']  );
+    $acc = new Account();
+    $acc->redirect = "y.php";
 
-    $vdisk = new MyVDisk(VWEB_VD_KEY, VWEB_VD_SEC);
-    $r = login( $vdisk, 'drdr.xp@gmail.com', '748748' );
+    if ( $acc->use_sess() && $acc->t_to_sess() ) {
+        $acctoken = $acc->acctoken;
 
-    $favs = $c->_load_cmd( 'favorites', array(), NULL, NULL );
-    $favs = $favs[ 'data' ];
+        $c = new T( $acctoken );
 
-    dinfo( "OK: Loaded favorites: " . count( $favs ) . " entries" );
+        $vdisk = new MyVDisk();
+        $r = login( $vdisk, 'drdr.xp@gmail.com', '748748' );
 
-    foreach ($favs as $fav) {
+        $favs = $c->_load_cmd( 'favorites', array(), NULL, NULL );
+        // TODO check error
+        $favs = $favs[ 'data' ];
 
-        save_tweet_links_to_vdisk( $vdisk, $fav );
+        dinfo( "OK: Loaded favorites: " . count( $favs ) . " entries" );
 
-        if ( isset( $fav[ 'retweeted_status' ] ) ) {
-            save_tweet_links_to_vdisk( $vdisk, $fav[ 'retweeted_status' ] );
+        foreach ($favs as $fav) {
+
+            save_tweet_links_to_vdisk( $vdisk, $fav );
+
+            if ( isset( $fav[ 'retweeted_status' ] ) ) {
+                save_tweet_links_to_vdisk( $vdisk, $fav[ 'retweeted_status' ] );
+            }
+
         }
-
     }
+    else {
+        $acc->start_auth();
+    }
+
+
 }
 
 function save_tweet_links_to_vdisk( &$vdisk, $t ) {

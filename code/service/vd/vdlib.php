@@ -9,8 +9,8 @@ class MyVDisk extends vDisk {
     private $_pathcache = array();
 
 
-    public function __construct($app_key, $app_secret) {
-        parent::__construct( $app_key, $app_secret );
+    public function __construct() {
+        parent::__construct( VWEB_VD_KEY, VWEB_VD_SEC );
         $this->_pathcache = array( '/'=>0 );
     }
 
