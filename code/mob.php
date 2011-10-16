@@ -8,13 +8,14 @@ class InstaMobilizer
     public $url;
     public $realurl;
 
-    public $httpCode;
     public $error;
     public $title;
     public $content;
 
     private $fetcher;
-    private $responseHeaders;
+    public $httpCode;
+    public $responseHeaders;
+
     private $html;
 
 
