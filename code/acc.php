@@ -2,69 +2,135 @@
 
 session_start();
 
-include_once( 'config.php' );
-include_once( 'util.php' );
-include_once( 'weibo_util.php' );
-include_once( 'mysql.php' );
+include_once( $_SERVER["DOCUMENT_ROOT"] . "/vweb.php" );
+include_once( $_SERVER["DOCUMENT_ROOT"] . "/service/t/t.class.php" );
+include_once( $_SERVER["DOCUMENT_ROOT"] . "/mysql.php" );
 
+class Account
+{
+    public $acctoken;
+    public $redirect = DEFAULT_INDEX;
 
-function t_load_user( &$acctoken ) {
-    $c = new MySaeTClient( WB_AKEY, WB_SKEY,
-        $acctoken['oauth_token'],
-        $acctoken['oauth_token_secret']  );
-
-    $rst = $c->_load_cmd( 'account/verify_credentials', array() );
-
-    return $rst;
-}
-
-function load_user_to_sess( &$acctoken ) {
-
-    $rst = t_load_user( $acctoken );
-
-    if ( $rst[ 'rst' ] == 'ok' ) {
-        $_SESSION[ 'user' ] = $rst[ 'data' ];
-    }
-    return $rst;
-}
-
-function generate_acctoken( &$reqtoken, $verifier ) {
-    $o = new SaeTOAuth( WB_AKEY, WB_SKEY,
-        $reqtoken['oauth_token'],
-        $reqtoken['oauth_token_secret'] );
-
-    return $o->getAccessToken( $verifier ) ;
-}
-
-function sess_get_acctoken() {
-    return $_SESSION[ 'acctoken' ];
-}
-
-function do_verify( $verifier ) {
-    $reqtoken = $_SESSION[ 'reqtoken' ];
-    $acctoken = generate_acctoken( $reqtoken, $verifier );
-
-
-    $r = t_load_user( $acctoken );
-    if ( $r[ 'rst' ] == 'ok' ) {
-
-        $_SESSION['acctoken'] = $acctoken;
-
-        $user = $r[ 'data' ];
-        $u = array(
-            'id'=>$user[ 'id' ],
-        );
-
-        $r0 = add_user( $u );
-        var_dump( $r0 );
-        $r1 = update_t_acctoken( $u[ 'id' ], $acctoken );
-        var_dump( $r0 );
-
-        $_SESSION[ 'user' ] = $r[ 'data' ];
+    function __construct( &$acctoken = NULL ) {
+        $this->acctoken = $acctoken;
     }
 
-    return $r;
-}
+    function sess_flush() {
+        unset($_SESSION[ 'acctoken' ]);
+        unset($_SESSION[ 'reqtoken' ]);
+    }
 
+    function sess_has_acctoken() {
+        return isset( $_SESSION[ 'acctoken' ] );
+    }
+
+    function t_to_sess() {
+        $r = $this->me();
+        if ( isok( $r ) ) {
+            $_SESSION[ 'user' ] = $r[ 'data' ];
+            return true;
+        }
+        else {
+            return false;
+        }
+
+    }
+
+    function generate_acctoken( &$reqtoken, $verifier ) {
+
+        $o = new SaeTOAuth( WB_AKEY, WB_SKEY,
+            $reqtoken['oauth_token'],
+            $reqtoken['oauth_token_secret'] );
+
+        $this->acctoken = $o->getAccessToken( $verifier ) ;
+    }
+
+    function use_sess() {
+        if ( $this->sess_has_acctoken() ) {
+            $this->acctoken = $_SESSION[ 'acctoken' ];
+            return true;
+        }
+        else {
+            return false;
+        }
+    }
+
+    function use_db( $id ) {
+        $my = new My();
+        $this->acctoken = $my->t_acctoken( $id );
+        return true;
+    }
+
+    function verify( $verifier ) {
+
+        $reqtoken = $_SESSION[ 'reqtoken' ];
+        generate_acctoken( $reqtoken, $verifier );
+
+        $r = $this->me();
+
+        if ( isok( $r ) ) {
+
+            $user = $r[ 'data' ];
+            $this->save_user( $user );
+            $this->save_acctoken( $user );
+
+        }
+
+        return $r;
+    }
+
+    function save_acctoken( &$user ) {
+
+        $_SESSION['acctoken'] = $this->acctoken;
+
+        $my = new My();
+        $r = $my->t_acctoken( $u[ 'id' ], $this->acctoken );
+        var_dump( $r );
+
+        return $r
+    }
+
+    function save_user( &$user ) {
+
+        $_SESSION[ 'user' ] = $user;
+
+        $my = new My();
+        $u = array( 'id'=>$user[ 'id' ], );
+        $r = $my->user_add( $u );
+        var_dump( $r );
+
+        return $r;
+    }
+
+    function init_oauth() {
+
+        $o = new SaeTOAuth( WB_AKEY , WB_SKEY );
+
+        $proto = is_https() ? 'https://' : 'http://';
+
+        $reqtoken = $o->getRequestToken();
+
+        $redirect = $this->redirect;
+
+        $url = $o->getAuthorizeURL( $reqtoken['oauth_token'], false,
+            $proto . $_SERVER['HTTP_HOST'] . "/index.php?r=$redirect");
+
+        $_SESSION['reqtoken'] = $reqtoken;
+        return $url;
+    }
+
+    function redirect() {
+        $r = $this->redirect;
+        header("Location: $r");
+        exit();
+    }
+
+    function me() {
+        $c = new T( $this->acctoken );
+        $r = $c->me();
+        return $r;
+    }
+
+}
 
 ?>

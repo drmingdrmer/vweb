@@ -1,6 +1,9 @@
 <?
-include_once( 'vweb.php' );
+
 include_once( 'saet.ex.class.php' );
+
+include_once( $_SERVER["DOCUMENT_ROOT"] . "/vweb.php" );
+
 
 function gen_app_rst( $rst, $okmsg, $info = NULL ) {
     if ( $rst ) {
@@ -24,8 +27,19 @@ function gen_app_rst( $rst, $okmsg, $info = NULL ) {
     return $ret;
 }
 
-class MySaeTClient extends SaeTClient
+class T extends SaeTClient
 {
+    function __construct( &$acctoken )
+    {
+        parent::__construct( WB_AKEY, WB_SKEY,
+            $acctoken['oauth_token'],
+            $acctoken['oauth_token_secret'] );
+    }
+
+    function me() {
+        return $this->_load_cmd( 'account/verify_credentials', array() );
+    }
+
     // TODO rename it to _get_cmd because it handles only "GET" request. "POST" request hasnt been tested.
     function _load_cmd( $cmd, $p, $okmsg='No Message', $info=NULL ) {
         def( $p, 'page', 1 );

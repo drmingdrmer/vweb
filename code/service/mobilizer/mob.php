@@ -1,7 +1,7 @@
 <?
 
-include_once( "lib/simple_html_dom.php" );
-include_once( "inc/util.php" );
+include_once( $_SERVER["DOCUMENT_ROOT"] . "/lib/simple_html_dom.php" );
+include_once( $_SERVER["DOCUMENT_ROOT"] . "/inc/util.php" );
 
 class InstaMobilizer
 {

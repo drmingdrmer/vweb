@@ -1,12 +1,11 @@
 <?
 
-include_once( 'config.php' );
-include_once( 'util.php' );
+include_once( $_SERVER["DOCUMENT_ROOT"] . "/inc/config.php" );
+include_once( $_SERVER["DOCUMENT_ROOT"] . "/inc/util.php" );
 
 class VwebError extends Exception {};
 
 class NetworkError extends VwebError {};
-
 class OAuthError extends VwebError {};
 
 class TOAuthError extends OAuthError {};
@@ -36,5 +35,31 @@ function rdata( &$data, $msg = '', &$info = NULL ) {
     return rok( $data, $msg, $info );
 }
 
+
+function isok( $r ) {
+    if ( ! $r ) {
+        return false;
+    }
+
+    if ( isset( $r[ 'rst' ] ) ) {
+        return $r[ 'rst' ] == 'ok';
+    }
+
+    if ( isset( $r[ 'err_code' ] ) ) {
+        return $r[ 'err_code' ] === 0;
+    }
+
+    if ( isset( $r[ 'error_code' ] ) ) {
+        return $r[ 'error_code' ] === 0;
+    }
+
+    if ( isset( $r[ 'code' ] ) ) {
+        return $r[ 'code' ] === 0;
+    }
+
+    echo "unknown $r"
+    throw new Exception( 'unrecognized ' . print_r( $r, true ) );
+
+}
 
 ?>

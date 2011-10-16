@@ -1,6 +1,6 @@
 <?
 
-include_once( 'vweb.php' );
+include_once( $_SERVER["DOCUMENT_ROOT"] . "/vweb.php" );
 
 function extract_urls( $text ) {
     $matches = array();

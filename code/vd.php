@@ -2,9 +2,8 @@
 
 session_start();
 
-include_once( 'config.php' );
-include_once( 'lib/vDisk.class.php' );
-include_once( 'util.php' );
+include_once( $_SERVER["DOCUMENT_ROOT"] . "/vweb.php" );
+include_once( $_SERVER["DOCUMENT_ROOT"] . "/lib/vDisk.class.php" );
 
 
 function keeptoken( &$vdisk ) {

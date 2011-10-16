@@ -1,5 +1,144 @@
 <?
 
+function serialize_token( &$tok ) {
+    $t = "{$tok[ 'oauth_token' ]}:{$tok[ 'oauth_token_secret' ]}";
+    return $t;
+}
+
+function unserialize_token( $tok ) {
+    $tok = explode( ':', $tok );
+    return array( 'oauth_token'=>$tok[ 0 ], 'oauth_token_secret'=>$tok[ 1 ] );
+}
+
+class MyRaw {
+    private $my;
+
+    function __construct() {
+        $this->my = new SaeMysql();
+    }
+
+    function __destruct() {
+        $this->my->closeDb();
+    }
+
+    function one( $table, &$arr ) {
+
+        $id = $arr[ 'id' ];
+        $id = intval( $id );
+
+        $sql = "SELECT * FROM `$table` where `id`=" . $id . " LIMIT 1" ;
+
+        return $this->select( $sql );
+    }
+
+    function select( $sql ) {
+        $data = $this->my->getData( $sql );
+        return $this->isok() ? $this->r_select( $data ) : $this->err();
+    }
+
+    function update( $sql ) {
+        $this->my->runSql( $sql );
+        return $this->isok() ? $this->r_update() : $this->err();
+    }
+
+    function insert( $sql ) {
+        $this->my->runSql( $sql );
+        return $this->isok() ? $this->r_insert() : $this->err();
+    }
+
+    function isok() {
+        return $this->my->errno() === 0;
+    }
+
+    function err() {
+        $r = array( 'err_code'=>$this->my->errno(), 'msg'=>$this->my->errmsg() );
+        return $r;
+    }
+
+    function r_select( &$data ) {
+        $r = array( 'err_code'=>0, 'data'=>$data );
+        return $r;
+    }
+
+    function r_update() {
+        $r = array( 'err_code'=>0, 'affected_rows'=>$this->my->affectedRows() );
+        return $r;
+    }
+
+    function r_insert() {
+        $r = array( 'err_code'=>0, 'last_id'=>$this->my->lastId() );
+        return $r;
+    }
+
+    function escape_array( $arr ) {
+        $r = array();
+        foreach ($arr as $k=>$v) {
+            $r[ $k ] = $this->my->escape( $v );
+        }
+        return $r;
+    }
+
+    function sql_values( $arr ) {
+        $ks = "";
+        $vs = "";
+        foreach ($arr as $k=>$v) {
+
+            $ks .= ", `$k`";
+
+            if ( gettype( $v ) == 'integer' ) {
+                $vs .= ", $v";
+            }
+            else if ( gettype( $v ) == 'string' ) {
+                $v = $this->my->escape( $v );
+                $vs .= ", '$v'";
+            }
+        }
+
+        $ks = substr( $ks, 2 );
+        $vs = substr( $vs, 2 );
+
+        return "( $ks ) VALUES ( $vs )";
+    }
+
+}
+
+class My extends MyRaw {
+
+    function user_add( &$user ) {
+        $sql = "INSERT INTO `user` " . sql_values( $mysql, $user );
+        return $this->insert( $sql );
+    }
+
+    function user( $id ) {
+        $u = array( 'id'=>intval( $id ) );
+        $r = $this->one( 'user', $u );
+
+        if ( $this->isok() ) {
+            $r[ 'data' ][ 0 ][ 't_acctoken' ] = unserialize_token( $r[ 'data' ][ 0 ][ 't_acctoken' ] );
+        }
+
+        return $r;
+    }
+
+    function t_acctoken( $id, &$acctoken = NULL ) {
+        $id = intval( $id );
+
+        if ( $acctoken === NULL ) {
+            $r = $this->user( $id );
+            if ( isok( $r ) ) {
+                return $r[ 'data' ][ 0 ][ 'acctoken' ];
+            }
+        }
+        else {
+            $tok = serialize_token( $acctoken );
+            $sql = "UPDATE `user` SET `t_acctoken`='$tok' WHERE `id`=$id";
+            return $this->update( $sql );
+        }
+    }
+}
+
+
+
 function sample() {
     $mysql = new SaeMysql();
 
@@ -16,126 +155,5 @@ function sample() {
     }
 
     $mysql->closeDb();
-}
-
-function add_user( &$user ) {
-
-    $mysql = new SaeMysql();
-
-    $sql = "INSERT INTO `user` " . sql_values( $mysql, $user );
-    var_dump( $sql );
-    $mysql->runSql( $sql );
-
-    if( $mysql->errno() != 0 )
-    {
-        $r = array( 'err_code'=>$mysql->errno(), 'msg'=>$mysql->errmsg() );
-    }
-    else {
-        $r = array( 'err_code'=>0, 'last_id'=>$mysql->lastId() );
-    }
-
-    $mysql->closeDb();
-
-    return $r;
-}
-
-function _update( $sql ) {
-    $mysql = new SaeMysql();
-
-    $mysql->runSql( $sql );
-
-    if( $mysql->errno() != 0 )
-    {
-        $r = array( 'err_code'=>$mysql->errno(), 'msg'=>$mysql->errmsg() );
-    }
-    else {
-        $r = array( 'err_code'=>0, 'affected_rows'=>$mysql->affectedRows() );
-    }
-
-    $mysql->closeDb();
-
-    return $r;
-}
-
-function serialize_token( &$tok ) {
-    $t = "{$tok[ 'oauth_token' ]}:{$tok[ 'oauth_token_secret' ]}";
-    return $t;
-}
-
-function unserialize_token( $tok ) {
-    $tok = explode( ':', $tok );
-    return array( 'oauth_token'=>$tok[ 0 ], 'oauth_token_secret'=>$tok[ 1 ] );
-}
-
-function update_t_acctoken( $id, &$acctoken ) {
-    $id = intval( $id );
-    $tok = serialize_token( $acctoken );
-    $sql = "UPDATE `user` SET `t_acctoken`='$tok' WHERE `id`=$id";
-    return _update( $sql );
-}
-
-function _get1( $table, &$arr ) {
-
-    $mysql = new SaeMysql();
-
-    $id = $arr[ 'id' ];
-    $id = intval( $id );
-
-    $sql = "SELECT * FROM `$table` where `id`=" . $id . " LIMIT 1" ;
-    $data = $mysql->getData( $sql );
-
-
-    if ( $mysql->errno() == 0 && count( $data ) == 1 ) {
-        $r = array( 'err_code'=>0, 'data'=>$data );
-    }
-    else {
-        $r = array( 'err_code'=>$mysql->errno(), 'msg'=>$mysql->errmsg() );
-    }
-
-    $mysql->closeDb();
-
-    return $r;
-}
-
-function get_user( $id ) {
-
-    $u = array( 'id'=>intval( $id ) );
-    $r = _get1( 'user', $u );
-    if ( $r[ 'err_code' ] == 0 ) {
-        $r[ 'data' ][ 0 ][ 't_acctoken' ] = unserialize_token( $r[ 'data' ][ 0 ][ 't_acctoken' ] );
-    }
-
-    return $r;
-}
-
-function sql_values( &$mysql, $arr ) {
-    $ks = "";
-    $vs = "";
-    foreach ($arr as $k=>$v) {
-
-        $ks .= ", `$k`";
-
-        if ( gettype( $v ) == 'integer' ) {
-            $vs .= ", $v";
-        }
-        else if ( gettype( $v ) == 'string' ) {
-            $v = $mysql->escape( $v );
-            $vs .= ", '$v'";
-        }
-    }
-
-    $ks = substr( $ks, 2 );
-    $vs = substr( $vs, 2 );
-
-    return "( $ks ) VALUES ( $vs )";
-}
-
-function escape_array( &$mysql, $arr ) {
-    $r = array();
-    foreach ($arr as $k=>$v) {
-        $r[ $k ] = $mysql->escape( $v );
-    }
-
-    return $r;
 }
 ?>

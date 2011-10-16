@@ -1,11 +1,11 @@
 <?
 
 session_start();
-include_once( 'config.php' );
+
 include_once( 'saet.ex.class.php' );
-include_once( 'util.php' );
-include_once( 'weibo_util.php' );
-include_once( 'img.php' );
+include_once( $_SERVER["DOCUMENT_ROOT"] . "/vweb.php" );
+include_once( $_SERVER["DOCUMENT_ROOT"] . "/service/t/weibo_util.php" );
+include_once( $_SERVER["DOCUMENT_ROOT"] . "/img.php" );
 
 header('Content-Type:text/html; charset=utf-8');
 

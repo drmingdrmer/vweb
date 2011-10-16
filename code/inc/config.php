@@ -11,7 +11,7 @@ define( "VWEB_VD_SEC", "05ee2c6350a2ed432c7b41c06f9089e1" );
 define( "LINK_VWEB", "http://t.cn/a0yUgu" );
 define( "LINK_VWEB_DEV", "http://t.cn/aOXV5H" );
 
-define( "ROOT", _SERVER["DOCUMENT_ROOT"] )
+define( "DEFAULT_INDEX", "vlbum.html" );
 
 // vweb.sinaapp.com
 // http://t.cn/a0yUgu
