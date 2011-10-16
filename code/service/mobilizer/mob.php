@@ -37,6 +37,7 @@ class InstaMobilizer
     function fetch() {
         $f = $this->fetcher = new SaeFetchurl();
         $f->setHeader( 'User-Agent', 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_6_8) AppleWebKit/535.1 (KHTML, like Gecko) Chrome/14.0.835.202 Safari/535.1' );
+        $f->setAllowRedirect( false );
 
         $url = urlencode( $this->url );
         $this->content = $f->fetch( "http://www.instapaper.com/m?u=$url" );
@@ -99,7 +100,9 @@ EOT;
         html_remove( $html, "#text_controls_toggle,#text_controls,#editing_controls" );
 
         $e = $html->find( ".top a", 0 );
-        $this->realurl = $e->getAttribute( 'href' );
+        if ( $e ) {
+            $this->realurl = $e->getAttribute( 'href' );
+        }
 
         html_remove( $html, ".top,.bottom" );
 
