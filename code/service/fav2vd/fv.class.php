@@ -18,6 +18,89 @@ function dinfo( $msg ) {
     flush();
 }
 
+class FV {
+    public $t;
+    public $vd;
+
+    function __construct( &$t, &$vd, $todo = NULL ) {
+        $this->t = $t;
+        $this->vd = $vd;
+    }
+
+    function dump() {
+
+        $favs = $this->t->_load_cmd( 'favorites', array(), NULL, NULL );
+        // TODO check error
+        $favs = $favs[ 'data' ];
+
+        dinfo( "OK: Loaded favorites: " . count( $favs ) . " entries" );
+
+        foreach ($favs as $fav) {
+            var_dump( $fav );
+            exit();
+
+            $this->save_tweet_links_to_vdisk( $fav );
+
+            if ( isset( $fav[ 'retweeted_status' ] ) ) {
+                $this->save_tweet_links_to_vdisk( $fav[ 'retweeted_status' ] );
+            }
+
+        }
+
+    }
+
+    function save_tweet_links_to_vdisk( $tweet ) {
+
+        $text = $tweet[ 'text' ];
+        dd( '<hr />' );
+        dinfo( "Processing:" );
+        dinfo( "$text" );
+
+        $urls = extract_urls( $text );
+        dinfo( "OK: Extracted " . count( $urls ) . " urls" );
+
+        foreach ($urls as $url) {
+            // if ( $url == "http://t.cn/asaazB" ) {
+                dinfo( "Fetching url: $url" );
+                $r = $this->vd_save_url( $url );
+            // }
+        }
+    }
+    function vd_save_url( $url ) {
+
+        $mob = new InstaMobilizer( $url );
+        if ( ! $mob->mobilize() ) {
+            dinfo( "Error: Fetching $url" );
+            dinfo( "httpCode:" . $mob->httpCode );
+            dinfo( "error:" . $mob->error );
+            foreach ($mob->responseHeaders as $h=>$v) {
+                dinfo( "$h: $v" );
+            }
+            return;
+        }
+
+        dinfo( "OK: fetched: $url" );
+
+        $title = $mob->title;
+        $url = $mob->realurl;
+
+        $nowdate = date( "Y_m_d" );
+        $nowtime = date( "His");
+
+        $path = "/V2V/$nowdate/$title.$nowtime.html";
+        dinfo( "Saving: to $path" );
+
+        $r = putfile( $this->vd, $path, $mob->content );
+        if ( $r[ 'err_code' ] == 0 ) {
+            dinfo( "OK: saved at vdisk.weibo.com: $path" );
+        }
+        else {
+            dinfo( "Failed: while saving $path" );
+        }
+    }
+
+}
+
 function doit() {
 
     $acc = new Account();
@@ -31,81 +114,16 @@ function doit() {
         $vdisk = new VD();
         $r = login( $vdisk, 'drdr.xp@gmail.com', '748748' );
 
-        $favs = $c->_load_cmd( 'favorites', array(), NULL, NULL );
-        // TODO check error
-        $favs = $favs[ 'data' ];
+        $fv = new FV( $c, $vdisk );
 
-        dinfo( "OK: Loaded favorites: " . count( $favs ) . " entries" );
+        $r = $fv->dump();
 
-        foreach ($favs as $fav) {
-            var_dump( $fav );
-            exit();
-
-            save_tweet_links_to_vdisk( $vdisk, $fav );
-
-            if ( isset( $fav[ 'retweeted_status' ] ) ) {
-                save_tweet_links_to_vdisk( $vdisk, $fav[ 'retweeted_status' ] );
-            }
-
-        }
     }
     else {
         $acc->start_auth();
     }
 
 
-}
-
-function save_tweet_links_to_vdisk( &$vdisk, $t ) {
-
-    $text = $t[ 'text' ];
-    dd( '<hr />' );
-    dinfo( "Processing:" );
-    dinfo( "$text" );
-
-    $urls = extract_urls( $text );
-    dinfo( "OK: Extracted " . count( $urls ) . " urls" );
-
-    foreach ($urls as $url) {
-        // if ( $url == "http://t.cn/asaazB" ) {
-            dinfo( "Fetching url: $url" );
-            $r = vd_save_url( $vdisk, $url );
-        // }
-    }
-}
-
-
-function vd_save_url( &$vdisk, $url ) {
-
-    $mob = new InstaMobilizer( $url );
-    if ( ! $mob->mobilize() ) {
-        dinfo( "Error: Fetching $url" );
-        dinfo( "httpCode:" . $mob->httpCode );
-        dinfo( "error:" . $mob->error );
-        foreach ($mob->responseHeaders as $h=>$v) {
-            dinfo( "$h: $v" );
-        }
-        return;
-    }
-
-    dinfo( "OK: fetched: $url" );
-
-    $title = $mob->title;
-    $url = $mob->realurl;
-
-    $nowdate = date( "Y_m_d" );
-    $nowtime = date( "His");
-
-    $path = "/V2V/$nowdate/$title.$nowtime.html";
-    dinfo( "Saving: to $path" );
-
-    $r = putfile( $vdisk, $path, $mob->content );
-    if ( $r[ 'err_code' ] == 0 ) {
-        dinfo( "OK: saved at vdisk.weibo.com: $path" );
-    }
-    else {
-        dinfo( "Failed: while saving $path" );
-    }
 }
 
 doit();
