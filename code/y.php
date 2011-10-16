@@ -8,6 +8,10 @@ include_once( 'vdlib.php' );
 include_once( 'mob.php' );
 
 
+function dd( $msg ) {
+    echo "$msg<br/>\n";
+}
+
 function doit() {
 
     $c = new MySaeTClient( WB_AKEY, WB_SKEY,
@@ -20,6 +24,7 @@ function doit() {
     $favs = $c->_load_cmd( 'favorites', array(), NULL, NULL );
     $favs = $favs[ 'data' ];
 
+    dd( "OK: Loaded favorites: " . count( $favs ) . " entries" );
 
     foreach ($favs as $fav) {
 
@@ -33,43 +38,49 @@ function doit() {
 }
 
 function save_tweet_links_to_vdisk( &$vdisk, $t ) {
+
     $text = $t[ 'text' ];
+    dd( "Processing: $text" );
 
-    echo "$text<br />\n";
     $urls = extract_urls( $text );
-
-    var_dump( $urls );
-    echo "<br/>\n";
-    echo "<br/>\n";
+    dd( "OK: Extracted " . count( $urls ) . " urls" );
 
     foreach ($urls as $url) {
         if ( $url == "http://t.cn/asaazB" ) {
-            echo "$url<br/>\n";
-            $r = vd_save( $vdisk, $url );
+            dd( "Fetching url: $url" );
+            $r = vd_save_url( $vdisk, $url );
         }
     }
 }
 
 
-function vd_save( &$vdisk, $url ) {
+function vd_save_url( &$vdisk, $url ) {
 
     $entry = mob_insta( $url );
     if ( $entry[ 'err_code' ] != 0 ) {
-        echo "error fetching $url<br/>\n";
+        dd( "Error: Fetching $url" );
+        // TODO more message
         return;
     }
+
+    dd( "OK: fetched: $url" );
 
     $title = $entry[ 'title' ];
     $url = $entry[ 'url' ];
 
     $nowdate = date( "Y_m_d" );
     $nowtime = date( "His");
-    $path = "/V2V/$nowdate/$title.$nowtime.html";
-    echo $path . "<br/>\n";
-    $r = putfile( $vdisk, $path, $entry[ 'html' ] );
 
-    // echo $entry[ 'html' ];
-    // exit();
+    $path = "/V2V/$nowdate/$title.$nowtime.html";
+    dd( "Saving: to $path" );
+
+    $r = putfile( $vdisk, $path, $entry[ 'html' ] );
+    if ( $r[ 'err_code' ] == 0 ) {
+        dd( "OK: saved at vdisk.weibo.com: $path" );
+    }
+    else {
+        dd( "Failed: while saving $path" );
+    }
 }
 
 doit();
