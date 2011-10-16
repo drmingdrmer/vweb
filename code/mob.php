@@ -76,8 +76,8 @@ function reformat_html_insta( $text ) {
     $html = new simple_html_dom();
     $html->load( $text );
 
-    html_remove( "script,link,comment" );
-    html_remove( "#text_controls_toggle,#text_controls,#editing_controls" );
+    html_remove( $html, "script,link,comment" );
+    html_remove( $html, "#text_controls_toggle,#text_controls,#editing_controls" );
 
     $title = html_extract_title( $html );
 
