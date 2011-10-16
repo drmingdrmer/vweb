@@ -5,21 +5,8 @@ session_start();
 include_once( 'config.php' );
 include_once( 'util.php' );
 include_once( 'weibo_util.php' );
-
-
-
-function load_user_to_sess() {
-    $c = new MySaeTClient( WB_AKEY, WB_SKEY,
-        $_SESSION['last_key']['oauth_token'],
-        $_SESSION['last_key']['oauth_token_secret']  );
-
-    $rst = $c->_load_cmd( 'account/verify_credentials', array() );
-
-    if ( $rst[ 'rst' ] == 'ok' ) {
-        $_SESSION[ 'user' ] = $rst[ 'data' ];
-    }
-    return $rst;
-}
+include_once( 'mysql.php' );
+include_once( 'acc.php' );
 
 
 $defaultPage = 'vlbum.html';
@@ -27,13 +14,15 @@ $defaultPage = 'vlbum.html';
 $redirectPage = $_GET[ 'r' ] ? $_GET[ 'r' ] : $defaultPage;
 
 if ( $_GET[ 'acc' ] == 'flush' ) { 
-    unset($_SESSION[ 'last_key' ]);
-    unset($_SESSION[ 'keys' ]);
+    unset($_SESSION[ 'acctoken' ]);
+    unset($_SESSION[ 'reqtoken' ]);
 }
 
 
-if( isset($_SESSION['last_key']) ) {
-    load_user_to_sess();
+$acctoken = sess_get_acctoken();
+
+if( $acctoken ) {
+    load_user_to_sess( $acctoken );
     header("Location: $redirectPage");
     exit();
 }
@@ -41,26 +30,17 @@ if( isset($_SESSION['last_key']) ) {
 
 $verifier = $_REQUEST['oauth_verifier'];
 if ( $verifier ) {
-    $o = new SaeTOAuth( WB_AKEY, WB_SKEY,
-        $_SESSION['keys']['oauth_token'],
-        $_SESSION['keys']['oauth_token_secret'] );
-
-    $_SESSION['last_key'] = $o->getAccessToken( $verifier ) ;
-
-    load_user_to_sess();
-    header("Location: $redirectPage");
-    exit();
+    do_verify( $verifier );
 }
 
-
-$o = new SaeTOAuth( WB_AKEY , WB_SKEY  );
+$o = new SaeTOAuth( WB_AKEY , WB_SKEY );
 
 $proto = is_https() ? 'https://' : 'http://';
 $keys = $o->getRequestToken();
 $aurl = $o->getAuthorizeURL( $keys['oauth_token'], false,
     $proto . $_SERVER['HTTP_HOST'] . "/index.php?r=$redirectPage");
 
-$_SESSION['keys'] = $keys;
+$_SESSION['reqtoken'] = $keys;
 
 ?>
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">

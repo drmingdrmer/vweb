@@ -150,12 +150,12 @@ function json_to_html( &$d ) {
  * )
  */
 
-isset( $_SESSION['last_key'] ) || resmsg( 'auth', 'auth' );
+isset( $_SESSION['acctoken'] ) || resmsg( 'auth', 'auth' );
 
 
 $c = new MySaeTClient( WB_AKEY, WB_SKEY,
-    $_SESSION['last_key']['oauth_token'],
-    $_SESSION['last_key']['oauth_token_secret']  );
+    $_SESSION['acctoken']['oauth_token'],
+    $_SESSION['acctoken']['oauth_token_secret']  );
 
 
 $verb = $_SERVER[ 'REQUEST_METHOD' ];
