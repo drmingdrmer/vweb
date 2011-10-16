@@ -2,8 +2,7 @@
 
 session_start();
 
-include_once( 'config.php' );
-include_once( 'util.php' );
+include_once( 'inc/vweb.php' );
 include_once( 'weibo_util.php' );
 include_once( 'mysql.php' );
 include_once( 'acc.php' );
