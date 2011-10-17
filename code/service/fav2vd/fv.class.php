@@ -1,9 +1,6 @@
 <?
 
-include_once( $_SERVER["DOCUMENT_ROOT"] . "/service/t/t.class.php" );
-include_once( $_SERVER["DOCUMENT_ROOT"] . "/service/t/weibo_util.php" );
-include_once( $_SERVER["DOCUMENT_ROOT"] . "/service/mobilizer/mob.php" );
-include_once( $_SERVER["DOCUMENT_ROOT"] . "/service/vd/vd.class.php" );
+include_once( $_SERVER["DOCUMENT_ROOT"] . "/service/all.php" );
 
 
 function dd( $msg ) {
@@ -18,9 +15,11 @@ function dinfo( $msg ) {
     flush();
 }
 
-class FV {
+class Fav2VD {
     public $t;
     public $vd;
+    public $pages = Page();
+    public $imgs = Img();
 
     function __construct( &$t, &$vd, $todo = NULL ) {
         $this->t = $t;
@@ -29,44 +28,45 @@ class FV {
 
     function dump() {
 
-        $favs = $this->t->_load_cmd( 'favorites', array(), NULL, NULL );
+        $r = $this->t->_load_cmd( 'favorites', array(), NULL, NULL );
         // TODO check error
-        $favs = $favs[ 'data' ];
+        $favs = $r[ 'data' ];
 
         dinfo( "OK: Loaded favorites: " . count( $favs ) . " entries" );
 
         foreach ($favs as $fav) {
             var_dump( $fav );
+            dd( '' );
             exit();
 
-            $this->save_tweet_links_to_vdisk( $fav );
+            $this->save_tweet_urls( $fav );
 
             if ( isset( $fav[ 'retweeted_status' ] ) ) {
-                $this->save_tweet_links_to_vdisk( $fav[ 'retweeted_status' ] );
+                $this->save_tweet_urls( $fav[ 'retweeted_status' ] );
             }
 
         }
 
     }
 
-    function save_tweet_links_to_vdisk( $tweet ) {
+    function save_tweet_urls( $tweet ) {
 
         $text = $tweet[ 'text' ];
         dd( '<hr />' );
         dinfo( "Processing:" );
         dinfo( "$text" );
 
-        $urls = extract_urls( $text );
+        $urls = T::extract_urls( $text );
         dinfo( "OK: Extracted " . count( $urls ) . " urls" );
 
         foreach ($urls as $url) {
             // if ( $url == "http://t.cn/asaazB" ) {
                 dinfo( "Fetching url: $url" );
-                $r = $this->vd_save_url( $url );
+                $r = $this->save_url( $url );
             // }
         }
     }
-    function vd_save_url( $url ) {
+    function save_url( $url ) {
 
         $mob = new InstaMobilizer( $url );
         if ( ! $mob->mobilize() ) {
@@ -90,13 +90,16 @@ class FV {
         $path = "/V2V/$nowdate/$title.$nowtime.html";
         dinfo( "Saving: to $path" );
 
-        $r = putfile( $this->vd, $path, $mob->content );
-        if ( $r[ 'err_code' ] == 0 ) {
-            dinfo( "OK: saved at vdisk.weibo.com: $path" );
-        }
-        else {
-            dinfo( "Failed: while saving $path" );
-        }
+        $r = $this->vd->putfile( $path, $mob->content );
+        return $r;
+        /*
+         * if ( isok( $r ) ) {
+         *     dinfo( "OK: saved at vdisk.weibo.com: $path" );
+         * }
+         * else {
+         *     dinfo( "Failed: while saving $path" );
+         * }
+         */
     }
 
 }
@@ -112,7 +115,7 @@ function doit() {
         $c = new T( $acctoken );
 
         $vdisk = new VD();
-        $r = login( $vdisk, 'drdr.xp@gmail.com', '748748' );
+        $r = $vdisk->login( 'drdr.xp@gmail.com', '748748' );
 
         $fv = new FV( $c, $vdisk );
 

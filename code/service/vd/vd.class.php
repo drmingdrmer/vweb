@@ -2,11 +2,12 @@
 
 
 include_once( $_SERVER["DOCUMENT_ROOT"] . "/vweb.php" );
-// include_once( 'lib/vDisk.class.php' );
 include_once( $_SERVER["DOCUMENT_ROOT"] . "/lib/vdex.php" );
 
 class VD extends vDisk {
-    private $_pathcache = array();
+
+    private $_pathcache;
+    public $token;
 
 
     public function __construct() {
@@ -14,8 +15,107 @@ class VD extends vDisk {
         $this->_pathcache = array( '/'=>0 );
     }
 
-    public function get_dirid_with_path( $path ) {
+    function fix_path( $path ) {
+        if ( $path[ 0 ] != "/" ) {
+            $path = "/" . $path;
+        }
+        return $path;
+    }
 
+    function login( $username, $password ) {
+
+        $r = $this->get_token($username, $password, 'sinat');
+
+        /*
+         * Expected $r:
+         * Array
+         * (
+         *     [err_code] => 0
+         *     [err_msg] => success
+         *     [data] => Array
+         *         (
+         *             [token] => 173ed052044c6031e248471aa85617d4
+         *             [uid] => 102
+         *             [time] => 1295959811
+         *             [is_active] => 1
+         *             [appkey] => 202032
+         *         )
+         *
+         * )
+         *
+         */
+
+        return $r;
+    }
+
+    function write_local_tmp( &$cont ) {
+        $localTail = rand() . "__tmp__";
+        /*
+         * NOTE: SAE_TMP_PATH does not support sub-dir
+         */
+        $localfn = SAE_TMP_PATH . $localTail;
+
+        $r = file_put_contents( $localfn, $cont );
+        if ( $r ) {
+            return array( 'err_code'=>0, 'data'=>array( 'filename'=>$localfn ) );
+        }
+        else {
+            return array( 'err_code'=>'write_local_tmp',
+                'msg'=>"Failed to write to $localfn, size=" . count( $cont ) );
+        }
+    }
+
+    function putfile( $path, &$fdata ) {
+
+        $path = $this->fix_path( $path );
+
+        $elts = explode( "/", $path );
+        $fn = array_pop( $elts );
+        $parent = implode( '/', $elts );
+
+        echo "put file at $parent<br/>\n";
+
+        $r = $this->mkdir_p( $parent );
+        if ( ! isok( $r ) ) {
+            return $r;
+        }
+
+        $dir_id = $r[ 'data' ][ 'id' ];
+
+
+        $r = $this->write_local_tmp( $fdata );
+        if ( ! isok( $r ) ) {
+            return $r;
+        }
+
+        $locafn = $r[ 'data' ][ 'filename' ];
+
+
+        $r = $this->upload_file( $localfn, $dir_id, 'yes' );
+
+        if ( isok( $r ) ) {
+
+            $fid = $r[ 'data' ][ 'fid' ];
+
+            $r = $this->move_file( $fid, $dir_id, $fn );
+
+            unlink( $localfn );
+            return $r;
+        }
+/*
+ *         else if ( $r && $r[ 'err_code' ] == 702 ) {
+ *             // invalid token
+ *             // NOTE: actually vdisk SDK does not return 702, but False!
+ *             // Thus following statement will never be executed.
+ *             unlink( $localfn );
+ * 
+ *         }
+ */
+        unlink( $localfn );
+        return $r;
+
+    }
+    public function get_dirid_with_path( $path ) {
 
         if ( isset($this->_pathcache[ $path ]) ) {
             return array(
@@ -73,26 +173,6 @@ class VD extends vDisk {
     }
 }
 
-function keeptoken( &$vdisk ) {
-    $r = $vdisk->keep_token( $_SESSION[ 'vd_token' ] );
-
-    /*
-     * Expected error $r:
-     * Array
-     * (
-     *     [err_code] => 702
-     *     [err_msg] => invalid token:fff
-     * )
-     */
-
-    if ( $r && $r[ 'err_code' ] == 0 ) {
-        resmsg( "ok", "成功" );
-    }
-    else {
-        resmsg( "invalid_token", $r[ 'err_msg' ] );
-    }
-
-}
 function get_fid( &$vdisk, $path ) {
     $elts = explode( "/", $path );
     $fn = array_pop( $elts );
@@ -125,133 +205,9 @@ function get_fid( &$vdisk, $path ) {
 
     return false;
 }
-function login( &$vdisk, $username, $password ) {
-
-    $r = $vdisk->get_token($username, $password, 'sinat');
-
-    /*
-     * Expected $r:
-     * Array
-     * (
-     *     [err_code] => 0
-     *     [err_msg] => success
-     *     [data] => Array
-     *         (
-     *             [token] => 173ed052044c6031e248471aa85617d4
-     *             [uid] => 102
-     *             [time] => 1295959811
-     *             [is_active] => 1
-     *             [appkey] => 202032
-     *         )
-     *
-     * )
-     *
-     */
-
-    if ( $r && $r[ 'err_code' ] == 0 ) {
-        $_SESSION['vd_token'] = $vdisk->token;
-        return true;
-    }
-    else {
-        return false;
-    }
-}
-
-
-function putfile( &$vdisk, $path, &$fdata ) {
-
-    if ( $path[ 0 ] != "/" ) {
-        $path = "/" . $path;
-    }
-
-    $elts = explode( "/", $path );
-    $fn = array_pop( $elts );
-    $parent = implode( '/', $elts );
-
-    echo "put file at $parent<br/>\n";
-
-    $r = $vdisk->mkdir_p( $parent );
-    if ( $r && $r[ 'err_code' ] == 0 ) {
-        $dir_id = $r[ 'data' ][ 'id' ];
-    }
-    else {
-        return $r;
-    }
-
-    $localTail = rand() . "__tmp__";
-
-
-    /*
-     * NOTE: SAE_TMP_PATH does not support sub-dir
-     */
-    $localfn = SAE_TMP_PATH . $localTail;
-
-    $r = file_put_contents( $localfn, $fdata );
-    if ( !$r ) {
-        echo "{\"rst\" : \"fail\", \"msg\" : \"不能保存本地临时文件:'$localfn'\"}";
-        echo "data lennth=".strlen( $fdata );
-        var_dump( $r );
-        exit();
-    }
 
 
 
-    $r = $vdisk->upload_file( $localfn, $dir_id, 'yes' );
-    if ( $r && $r[ 'err_code' ] == 0 ) {
-
-        $fid = $r[ 'data' ][ 'fid' ];
-
-        $r = $vdisk->move_file( $fid, $dir_id, $fn );
-
-        if ( $r && $r[ 'err_code' ] == 0 ) {
-            unlink( $localfn );
-            return array( 'err_code' => 0 );
-        }
-        else {
-            var_dump( $r );
-            return array( 'err_code' => 1 );
-
-            // existed. delete it first
-            $oldfid = get_fid( $vdisk, $path );
-            if ( $oldfid ) {
-                $r = $vdisk->delete_file( $oldfid );
-                if ( $r && $r[ 'err_code' ] == 0 ) {
-                }
-            }
-
-
-            $r = $vdisk->move_file( $fid, $dirid, $fn );
-
-            if ( $r && $r[ 'err_code' ] == 0 ) {
-                unlink( $localfn );
-                resjson( array(
-                    "rst" => "ok",
-                    "path" => "$path",
-                    "fid" => "{$r['data']['fid']}",
-                    "msg" => "成功保存到$path"
-                ) );
-            }
-            else {
-                unlink( $localfn );
-                resmsg( "move", "{$r['err_msg']} 动作:重命名fid:'$fid'到'$fn'" );
-            }
-
-        }
-    }
-    else if ( $r && $r[ 'err_code' ] == 702 ) {
-        // invalid token
-        // NOTE: actually vdisk SDK does not return 702, but False!
-        // Thus following statement will never be executed.
-        unlink( $localfn );
-        resmsg( "invalid_token", "请重新登录" );
-
-    }
-    else {
-        unlink( $localfn );
-        resmsg( "upload", "{$r['err_msg']} 动作:上传'$localfn'到'$parent'" );
-    }
-
-}
 function listdir( &$vdisk, $relpath ) {
     if ( $_GET[ 'dirid' ] ) {
         $dirid = $_GET[ 'dirid' ];
@@ -291,12 +247,5 @@ function load( &$vdisk ) {
         }
     }
 }
-
-function move_file( &$vdisk, $fid, $desc ) {
-
-}
-
-
-
 
 ?>
