@@ -3,8 +3,9 @@
 include_once( $_SERVER["DOCUMENT_ROOT"] . "/lib/simple_html_dom.php" );
 include_once( $_SERVER["DOCUMENT_ROOT"] . "/inc/util.php" );
 
-class InstaMobilizer
-{
+
+class Mobilizer {
+
     public $url;
     public $realurl;
 
@@ -12,27 +13,124 @@ class InstaMobilizer
     public $title;
     public $content;
 
-    private $fetcher;
     public $httpCode;
     public $responseHeaders;
 
-    private $html;
+    protected $pagesto;
+    protected $pagemeta;
+    protected $html;
 
-
-    function __construct( $url ) {
+    function __construct( $url, &$pagesto = NULL, &$pagemeta = NULL ) {
         $this->url = $url;
         $this->realurl = $url;
+        $this->pagesto = $pagesto;
+        $this->pagemeta = $pagemeta;
     }
 
     function mobilize() {
+        if ( $this->cache_read() ) {
+            return true;
+        }
+
         if ( !$this->fetch() ) {
             return false;
         }
         if ( !$this->processhtml() ) {
             return false;
         }
+
+        $this->cache_write();
+
         return true;
     }
+
+    function cache_read() {
+        if ( $this->pagesto && $this->pagemeta ) {
+            $title = $this->pagemeta->read( $this->url );
+            if ( $title !== false ) {
+                $this->title = $title;
+                $cont = $this->pagesto->read( $this->url );
+                if ( $cont !== false ) {
+                    $this->content = $cont;
+                    $this->httpCode = 0;
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
+
+    function cache_write() {
+        if ( $this->pagesto && $this->pagemeta ) {
+            if ( $this->pagesto->write( $this->url, $this->content ) !== true ) {
+                return false;
+            }
+
+            if ( $this->pagemeta->write( $this->url, $this->titel ) !== true ) {
+                return false;
+            }
+
+            return true;
+        }
+        else {
+            return false;
+        }
+    }
+
+    function fetch() {
+    }
+
+    function processhtml() {
+
+        $html = $this->html = new simple_html_dom();
+
+        $html->load( $this->content );
+        $this->extract_title();
+
+        if ( ! $this->check_valid() ) {
+            return false;
+        }
+
+        $this->html_cleanup();
+        $this->html_embed_img();
+        $this->html_finalize();
+
+        return true;
+    }
+
+    function extract_title() {
+        $e = $this->html->find( "title", 0 );
+        $title = $e->innertext;
+        $this->title = preg_replace( '/[><\/:?*\\ \-_"]+/', '_', $title );
+        return true;
+    }
+
+    function html_embed_img() {
+
+        $es = $this->html->find( "img" );
+
+        foreach ($es as $e) {
+
+            $src=$e->getAttribute( 'src' );
+
+            $f = newfetch();
+            $cont = $f->fetch( $src );
+
+            if ( $f->httpCode() == "200" ) {
+
+                $mtype = "image/jpeg";
+                $e->setAttribute( 'src', data_uri( $cont, $mtype ) );
+            }
+
+        }
+    }
+}
+
+class InstaMobilizer extends Mobilizer
+{
+
+    private $fetcher;
+
 
     function fetch() {
         $f = $this->fetcher = new SaeFetchurl();
@@ -48,24 +146,6 @@ class InstaMobilizer
         if ( $this->httpCode != '200' ) {
             return false;
         }
-
-        return true;
-    }
-
-    function processhtml() {
-
-        $html = $this->html = new simple_html_dom();
-
-        $html->load( $this->content );
-        $this->extract_title();
-
-        if ( ! $this->check_valid() ) {
-            return false;
-        }
-
-        $this->html_cleanup();
-        html_embed_img( $html );
-        $this->html_finalize();
 
         return true;
     }
@@ -109,12 +189,6 @@ EOT;
         return true;
     }
 
-    function extract_title() {
-        $e = $this->html->find( "title", 0 );
-        $title = $e->innertext;
-        $this->title = preg_replace( '/[><\/:?*\\ \-_"]+/', '_', $title );
-        return true;
-    }
 
 
 }
@@ -180,25 +254,6 @@ function html_remove( &$html, $selector ) {
     }
 }
 
-function html_embed_img( &$html ) {
-
-    $es = $html->find( "img" );
-
-    foreach ($es as $e) {
-
-        $src=$e->getAttribute( 'src' );
-
-        $f = newfetch();
-        $cont = $f->fetch( $src );
-
-        if ( $f->httpCode() == "200" ) {
-
-            $mtype = "image/jpeg";
-            $e->setAttribute( 'src', data_uri( $cont, $mtype ) );
-        }
-
-    }
-}
 
 function reformat_html( $text ) {
     $html = new simple_html_dom();

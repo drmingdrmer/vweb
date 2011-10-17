@@ -26,7 +26,19 @@ class MyRaw {
         $id = $arr[ 'id' ];
         $id = intval( $id );
 
-        $sql = "SELECT * FROM `$table` where `id`=" . $id . " LIMIT 1" ;
+        $cond = "";
+        foreach ($arr as $k=>$v) {
+            if ( gettype( $v ) == 'integer' ) {
+                $cond .= "AND `$k`=$v";
+            }
+            else if ( gettype( $v ) == 'string' ) {
+                $cond .= "AND `$k`=" . $this->my->escape( $v );
+            }
+        }
+
+        $cond = substr( $cond, 4 );
+
+        $sql = "SELECT * FROM `$table` where $cond LIMIT 1" ;
 
         return $this->select( $sql );
     }
@@ -139,6 +151,20 @@ class My extends MyRaw {
             $sql = "UPDATE `user` SET `t_acctoken`='$tok' WHERE `id`=$id";
             return $this->update( $sql );
         }
+    }
+
+    function page_add( $url, $title, $realurl ) {
+        $sql = "INSERT INTO `page` " . $this->sql_values(
+            array(
+                'url'=>$url,
+                'title'=>$title,
+                'realurl'=>$realurl,
+            ) );
+        return $this->insert( $sql );
+    }
+
+    function page_get( $url ) {
+        return $this->one( 'page', array( 'url'=>$url ) );
     }
 }
 

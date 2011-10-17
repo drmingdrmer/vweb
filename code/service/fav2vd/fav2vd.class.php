@@ -1,6 +1,7 @@
 <?
 
 include_once( $_SERVER["DOCUMENT_ROOT"] . "/service/all.php" );
+include_once( $_SERVER["DOCUMENT_ROOT"] . "/mysql.php" );
 
 
 function dd( $msg ) {
@@ -20,6 +21,7 @@ class Fav2VD {
     public $vd;
     public $pages = Page();
     public $imgs = Img();
+    public 
 
     function __construct( &$t, &$vd, $todo = NULL ) {
         $this->t = $t;
@@ -68,7 +70,7 @@ class Fav2VD {
     }
     function save_url( $url ) {
 
-        $mob = new InstaMobilizer( $url );
+        $mob = new InstaMobilizer( $url, new StoVisitor( Page ), new MetaVisitor() );
         if ( ! $mob->mobilize() ) {
             dinfo( "Error: Fetching $url" );
             dinfo( "httpCode:" . $mob->httpCode );
