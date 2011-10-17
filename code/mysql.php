@@ -1,5 +1,7 @@
 <?
 
+include_once( $_SERVER["DOCUMENT_ROOT"] . "/inc/debug.php" );
+
 function serialize_token( &$tok ) {
     $t = "{$tok[ 'oauth_token' ]}:{$tok[ 'oauth_token_secret' ]}";
     return $t;
@@ -32,7 +34,7 @@ class MyRaw {
                 $cond .= "AND `$k`=$v";
             }
             else if ( gettype( $v ) == 'string' ) {
-                $cond .= "AND `$k`=" . $this->my->escape( $v );
+                $cond .= "AND `$k`='" . $this->my->escape( $v ) . "'";
             }
         }
 
@@ -40,12 +42,16 @@ class MyRaw {
 
         $sql = "SELECT * FROM `$table` where $cond LIMIT 1" ;
 
+        dd( "sql for 'one' is $sql" );
+
         return $this->select( $sql );
     }
 
     function select( $sql ) {
         $data = $this->my->getData( $sql );
-        return $this->isok() ? $this->r_select( $data ) : $this->err();
+        dd( "select result set size=" . count( $data ) );
+        return $this->isok()
+            ? $this->r_select( $data ) : $this->err();
     }
 
     function update( $sql ) {
@@ -164,7 +170,8 @@ class My extends MyRaw {
     }
 
     function page_get( $url ) {
-        return $this->one( 'page', array( 'url'=>$url ) );
+        $arr = array( 'url'=>$url );
+        return $this->one( 'page', $arr );
     }
 }
 

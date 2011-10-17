@@ -2,6 +2,7 @@
 
 
 include_once( $_SERVER["DOCUMENT_ROOT"] . "/vweb.php" );
+include_once( $_SERVER["DOCUMENT_ROOT"] . "/inc/debug.php" );
 include_once( $_SERVER["DOCUMENT_ROOT"] . "/lib/vdex.php" );
 
 class VD extends vDisk {
@@ -57,6 +58,7 @@ class VD extends vDisk {
 
         $r = file_put_contents( $localfn, $cont );
         if ( $r ) {
+            dinfo( "OK: written to local temp file: $localfn" );
             return array( 'err_code'=>0, 'data'=>array( 'filename'=>$localfn ) );
         }
         else {
@@ -68,19 +70,23 @@ class VD extends vDisk {
     function putfile( $path, &$fdata ) {
 
         $path = $this->fix_path( $path );
+        dinfo( "VD write path=$path" );
 
         $elts = explode( "/", $path );
         $fn = array_pop( $elts );
         $parent = implode( '/', $elts );
 
-        echo "put file at $parent<br/>\n";
+        dinfo("put file at $parent");
 
         $r = $this->mkdir_p( $parent );
         if ( ! isok( $r ) ) {
+            derror( "Failed to create parent dir:$parent" );
             return $r;
         }
 
         $dir_id = $r[ 'data' ][ 'id' ];
+
+        dinfo( "OK: parent dir $parent, id=$dir_id" );
 
 
         $r = $this->write_local_tmp( $fdata );
@@ -88,7 +94,9 @@ class VD extends vDisk {
             return $r;
         }
 
-        $locafn = $r[ 'data' ][ 'filename' ];
+        $localfn = $r[ 'data' ][ 'filename' ];
+
+        dd( "localfn=$localfn" );
 
 
         $r = $this->upload_file( $localfn, $dir_id, 'yes' );

@@ -2,6 +2,7 @@
 
 include_once( $_SERVER["DOCUMENT_ROOT"] . "/lib/simple_html_dom.php" );
 include_once( $_SERVER["DOCUMENT_ROOT"] . "/inc/util.php" );
+include_once( $_SERVER["DOCUMENT_ROOT"] . "/inc/debug.php" );
 
 
 class Mobilizer {
@@ -46,29 +47,61 @@ class Mobilizer {
 
     function cache_read() {
         if ( $this->pagesto && $this->pagemeta ) {
-            $title = $this->pagemeta->read( $this->url );
-            if ( $title !== false ) {
-                $this->title = $title;
-                $cont = $this->pagesto->read( $this->url );
-                if ( $cont !== false ) {
-                    $this->content = $cont;
-                    $this->httpCode = 0;
-                    return true;
-                }
+
+            dd( "OK: pagesto and pagemeta for read" );
+
+            $arr = $this->pagemeta->read( $this->url );
+            if ( $arr === false ) {
+                dinfo( "Failed read meta from cache:{$this->url}" );
+                return false;
             }
+
+            dinfo( "OK read meta:" . print_r( $arr, true ) );
+
+            $this->title = $arr[ 'title' ];
+            $this->realurl = $arr[ 'realurl' ];
+
+            dinfo( "title={$this->title}" );
+            dinfo( "realurl={$this->realurl}" );
+
+            $cont = $this->pagesto->read( $this->url );
+            if ( $cont === false ) {
+                dinfo( "Failed read sto from cache:{$this->url}" );
+                return false;
+            }
+
+            dinfo( 'OK read page content from cache, length=' . strlen( $cont ) );
+
+            $this->content = $cont;
+            $this->httpCode = 0;
+
+            return true;
         }
         return false;
     }
 
     function cache_write() {
+
         if ( $this->pagesto && $this->pagemeta ) {
+
+            dd( "OK: pagesto and pagemeta for write" );
+
+            dd( "To write {$this->url}, length=" . strlen( $this->content ) );
             if ( $this->pagesto->write( $this->url, $this->content ) !== true ) {
                 return false;
             }
 
-            if ( $this->pagemeta->write( $this->url, $this->titel ) !== true ) {
+            dinfo( "OK: written page to sto, length=" . strlen( $this->content ) );
+
+            $meta = array(
+                    'title'=>$this->title,
+                    'realurl'=>$this->realurl );
+            if ( $this->pagemeta->write(
+                $this->url, $meta ) !== true ) {
                 return false;
             }
+
+            dinfo( "OK: written page meta " . print_r( $meta, true ) );
 
             return true;
         }
@@ -101,7 +134,13 @@ class Mobilizer {
     function extract_title() {
         $e = $this->html->find( "title", 0 );
         $title = $e->innertext;
+
+        dinfo( "Raw title=$title" );
+
         $this->title = preg_replace( '/[><\/:?*\\ \-_"]+/', '_', $title );
+
+        dinfo( "Stripped title=$title" );
+
         return true;
     }
 
@@ -120,6 +159,11 @@ class Mobilizer {
 
                 $mtype = "image/jpeg";
                 $e->setAttribute( 'src', data_uri( $cont, $mtype ) );
+
+                dinfo( "OK: image embedded:$src" );
+            }
+            else {
+                dinfo( "Error: fetching image:$src httpCode=" . $f->httpCode()  );
             }
 
         }
@@ -154,8 +198,10 @@ class InstaMobilizer extends Mobilizer
         // instapaper failed to fetch this url
         if ( $this->title == 'Not available' ) {
             $this->error = 'instaError';
+            dinfo( "title seem to be invalid doc:{$this->title}" );
             return false;
         }
+        dinfo( "OK: title: {$this->title}" );
         return true;
     }
 
@@ -182,6 +228,7 @@ EOT;
         $e = $html->find( ".top a", 0 );
         if ( $e ) {
             $this->realurl = $e->getAttribute( 'href' );
+            dinfo( "OK: extracted realurl from html={$this->realurl}" );
         }
 
         html_remove( $html, ".top,.bottom" );

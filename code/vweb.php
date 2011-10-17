@@ -62,4 +62,8 @@ function isok( $r ) {
 
 }
 
+function hasdata( $r ) {
+    return isok( $r ) && count( $r[ 'data' ] ) > 0;
+}
+
 ?>

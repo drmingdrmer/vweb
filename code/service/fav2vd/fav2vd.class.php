@@ -2,26 +2,20 @@
 
 include_once( $_SERVER["DOCUMENT_ROOT"] . "/service/all.php" );
 include_once( $_SERVER["DOCUMENT_ROOT"] . "/mysql.php" );
+include_once( $_SERVER["DOCUMENT_ROOT"] . "/inc/debug.php" );
 
-
-function dd( $msg ) {
-    echo "$msg<br/>\n";
-    ob_flush();
-    flush();
-}
-
-function dinfo( $msg ) {
-    echo "$msg<br/>\n";
-    ob_flush();
-    flush();
-}
 
 class Fav2VD {
     public $t;
     public $vd;
-    public $pages = Page();
-    public $imgs = Img();
-    public 
+
+    public $policy = array(
+        'img' => 'img',
+        'video' => "ignore end",
+        'music' => "music remove end",
+        'img -links' => "img remove end",
+        '*' => "links",
+    );
 
     function __construct( &$t, &$vd, $todo = NULL ) {
         $this->t = $t;
@@ -37,10 +31,6 @@ class Fav2VD {
         dinfo( "OK: Loaded favorites: " . count( $favs ) . " entries" );
 
         foreach ($favs as $fav) {
-            var_dump( $fav );
-            dd( '' );
-            exit();
-
             $this->save_tweet_urls( $fav );
 
             if ( isset( $fav[ 'retweeted_status' ] ) ) {
@@ -53,9 +43,9 @@ class Fav2VD {
 
     function save_tweet_urls( $tweet ) {
 
+        dinfo( "fav=" . print_r( $tweet, true ) );
         $text = $tweet[ 'text' ];
         dd( '<hr />' );
-        dinfo( "Processing:" );
         dinfo( "$text" );
 
         $urls = T::extract_urls( $text );
@@ -67,10 +57,11 @@ class Fav2VD {
                 $r = $this->save_url( $url );
             // }
         }
+
     }
     function save_url( $url ) {
 
-        $mob = new InstaMobilizer( $url, new StoVisitor( Page ), new MetaVisitor() );
+        $mob = new InstaMobilizer( $url, new StoVisitor( new Page() ), new MetaVisitor() );
         if ( ! $mob->mobilize() ) {
             dinfo( "Error: Fetching $url" );
             dinfo( "httpCode:" . $mob->httpCode );
@@ -81,7 +72,8 @@ class Fav2VD {
             return;
         }
 
-        dinfo( "OK: fetched: $url" );
+        dinfo( "OK: mobilized: $url" );
+
 
         $title = $mob->title;
         $url = $mob->realurl;
@@ -93,6 +85,9 @@ class Fav2VD {
         dinfo( "Saving: to $path" );
 
         $r = $this->vd->putfile( $path, $mob->content );
+
+        // exit();
+
         return $r;
         /*
          * if ( isok( $r ) ) {
@@ -105,32 +100,5 @@ class Fav2VD {
     }
 
 }
-
-function doit() {
-
-    $acc = new Account();
-    $acc->redirect = "y.php";
-
-    if ( $acc->use_sess() && $acc->t_to_sess() ) {
-        $acctoken = $acc->acctoken;
-
-        $c = new T( $acctoken );
-
-        $vdisk = new VD();
-        $r = $vdisk->login( 'drdr.xp@gmail.com', '748748' );
-
-        $fv = new FV( $c, $vdisk );
-
-        $r = $fv->dump();
-
-    }
-    else {
-        $acc->start_auth();
-    }
-
-
-}
-
-doit();
 
 ?>
