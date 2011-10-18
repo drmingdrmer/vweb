@@ -2,7 +2,7 @@
 
 include_once( $_SERVER["DOCUMENT_ROOT"] . "/inc/debug.php" );
 
-class Fav2VDVisitor {
+class Visitor {
 
     function get_key( $key ) {
         dd( "key is:$key" );
@@ -28,16 +28,44 @@ class Fav2VDVisitor {
     }
 }
 
-class StoVisitor extends Fav2VDVisitor{
+
+class EngineVisitor extends Visitor{
 
     public $engine;
+    public $child
 
-    function __construct( &$o ) {
-        $this->engine = $o;
+    function __construct( &$engine, &$child = NULL ) {
+        $this->engine = $engine;
+        $this->child = $child;
+    }
+
+    function write( $key, &$cont ) {
+        $r = parent::write( $key, $cont );
+        if ( $r ) {
+            $this->child->write( $key, $cont );
+        }
+
+        return $r;
+    }
+
+    function read( $key ) {
+        $r = parent::read( $key );
+        if ( $r === false ) {
+            $r = $this->child->read( $key );
+            if ( $r === false ) {
+                return false;
+            }
+            else {
+                parent::write( $key, $r );
+                return $r;
+            }
+        }
+        else {
+            return $r;
+        }
     }
 
     function do_write( $key, &$cont ) {
-
         return $this->engine->write( $key, $cont );
     }
 
@@ -47,7 +75,7 @@ class StoVisitor extends Fav2VDVisitor{
 
 }
 
-class MetaVisitor extends Fav2VDVisitor{
+class MetaVisitor extends Visitor{
 
     function do_write( $key, $arr ) {
         $my = new My();

@@ -28,4 +28,8 @@ class LocalFs
     }
 }
 
+class LocalImg extends LocalFs {
+    $pref = "img:";
+}
+
 ?>
