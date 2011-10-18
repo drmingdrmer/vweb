@@ -1,4 +1,17 @@
 <?
+
+function len( $what ) {
+    if ( gettype( $what ) == 'string' ) {
+        return strlen( $what );
+    }
+    else if ( gettype( $what ) == 'array' ) {
+        return count( $what );
+    }
+
+    return false;
+}
+
+
 function json( $v )
 {
     return json_encode( $v );

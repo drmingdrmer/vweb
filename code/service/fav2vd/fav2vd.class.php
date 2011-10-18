@@ -9,6 +9,8 @@ class Fav2VD {
     public $t;
     public $vd;
 
+    public $cache;
+
     public $policy = array(
         'img' => 'img',
         'video' => "ignore end",
@@ -20,6 +22,11 @@ class Fav2VD {
     function __construct( &$t, &$vd, $todo = NULL ) {
         $this->t = $t;
         $this->vd = $vd;
+        $this->cache = array(
+            'imgs'  => new StoVisitor( new Img() ),
+            'pages' => new StoVisitor( new Page() ),
+            'meta'  => new MetaVisitor(),
+        );
     }
 
     function dump() {
@@ -61,7 +68,7 @@ class Fav2VD {
     }
     function save_url( $url ) {
 
-        $mob = new InstaMobilizer( $url, new StoVisitor( new Page() ), new MetaVisitor() );
+        $mob = new InstaMobilizer( $url, $this->cache );
         if ( ! $mob->mobilize() ) {
             dinfo( "Error: Fetching $url" );
             dinfo( "httpCode:" . $mob->httpCode );

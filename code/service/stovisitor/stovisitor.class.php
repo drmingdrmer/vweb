@@ -1,9 +1,8 @@
 <?
-// include_once( $_SERVER["DOCUMENT_ROOT"] . "/vweb.php" );
 
 include_once( $_SERVER["DOCUMENT_ROOT"] . "/inc/debug.php" );
 
-class Visitor {
+class Fav2VDVisitor {
 
     function get_key( $key ) {
         dd( "key is:$key" );
@@ -28,7 +27,8 @@ class Visitor {
         return $this->do_read( $key );
     }
 }
-class StoVisitor extends Visitor{
+
+class StoVisitor extends Fav2VDVisitor{
 
     public $engine;
 
@@ -47,7 +47,7 @@ class StoVisitor extends Visitor{
 
 }
 
-class MetaVisitor extends Visitor{
+class MetaVisitor extends Fav2VDVisitor{
 
     function do_write( $key, $arr ) {
         $my = new My();

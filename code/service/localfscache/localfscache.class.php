@@ -1,6 +1,6 @@
 <?
 
-class LocalFsCache
+class LocalFs
 {
     $pref = "any";
 
