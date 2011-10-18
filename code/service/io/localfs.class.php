@@ -2,10 +2,12 @@
 
 class LocalFs
 {
-    $pref = "any";
+    public $pref = "any";
 
-    function __construct( $pref ) {
-        $this->pref = $pref;
+    function __construct( $pref = NULL ) {
+        if ( $pref !== NULL ) {
+            $this->pref = $pref;
+        }
     }
 
     function _key( $key ) {
@@ -18,7 +20,12 @@ class LocalFs
 
     function read( $key ) {
         $localfn = $this->path( $key );
-        return file_get_contents( $localfn );
+        if ( file_exists( $localfn ) ) {
+            return file_get_contents( $localfn );
+        }
+        else {
+            return false;
+        }
     }
 
     function write( $key, $cont ) {
@@ -29,11 +36,11 @@ class LocalFs
 }
 
 class LocalPage extends LocalFs {
-    $pref = "page:";
+    public $pref = "page:";
 }
 
 class LocalImg extends LocalFs {
-    $pref = "img:";
+    public $pref = "img:";
 }
 
 ?>

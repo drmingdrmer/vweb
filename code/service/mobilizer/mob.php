@@ -17,15 +17,13 @@ class Mobilizer {
     public $httpCode;
     public $responseHeaders;
 
-    protected $pagesto;
-    protected $pagemeta;
+    protected $cache;
     protected $html;
 
-    function __construct( $url, &$pagesto = NULL, &$pagemeta = NULL ) {
+    function __construct( $url, &$cache = NULL ) {
         $this->url = $url;
         $this->realurl = $url;
-        $this->pagesto = $pagesto;
-        $this->pagemeta = $pagemeta;
+        $this->cache = $cache;
     }
 
     function mobilize() {
@@ -46,68 +44,69 @@ class Mobilizer {
     }
 
     function cache_read() {
-        if ( $this->pagesto && $this->pagemeta ) {
-
-            dd( "OK: pagesto and pagemeta for read" );
-
-            $arr = $this->pagemeta->read( $this->url );
-            if ( $arr === false ) {
-                dinfo( "Failed read meta from cache:{$this->url}" );
-                return false;
-            }
-
-            dinfo( "OK read meta:" . print_r( $arr, true ) );
-
-            $this->title = $arr[ 'title' ];
-            $this->realurl = $arr[ 'realurl' ];
-
-            dinfo( "title={$this->title}" );
-            dinfo( "realurl={$this->realurl}" );
-
-            $cont = $this->pagesto->read( $this->url );
-            if ( $cont === false ) {
-                dinfo( "Failed read sto from cache:{$this->url}" );
-                return false;
-            }
-
-            dinfo( 'OK read page content from cache, length=' . strlen( $cont ) );
-
-            $this->content = $cont;
-            $this->httpCode = 0;
-
-            return true;
+        if ( ! $this->cache ) {
+            return false;
         }
-        return false;
+
+        dd( "OK: try read cache" );
+
+        dd( "cache.meata is" );
+        dd( print_r( $this->cache->meta, true ) );
+        $arr = $this->cache->meta->read( $this->url );
+        if ( $arr === false ) {
+            dinfo( "Failed read meta from cache:{$this->url}" );
+            return false;
+        }
+
+        dinfo( "OK read meta:" . print_r( $arr, true ) );
+
+        $this->title = $arr[ 'title' ];
+        $this->realurl = $arr[ 'realurl' ];
+
+        dinfo( "title={$this->title}" );
+        dinfo( "realurl={$this->realurl}" );
+
+        $cont = $this->cache->page->read( $this->url );
+        if ( $cont === false ) {
+            dinfo( "Failed read sto from cache:{$this->url}" );
+            return false;
+        }
+
+        dinfo( 'OK read page content from cache, length=' . strlen( $cont ) );
+
+        $this->content = $cont;
+        $this->httpCode = "200";
+
+        return true;
     }
 
     function cache_write() {
 
-        if ( $this->pagesto && $this->pagemeta ) {
-
-            dd( "OK: pagesto and pagemeta for write" );
-
-            dd( "To write {$this->url}, length=" . strlen( $this->content ) );
-            if ( $this->pagesto->write( $this->url, $this->content ) !== true ) {
-                return false;
-            }
-
-            dinfo( "OK: written page to sto, length=" . strlen( $this->content ) );
-
-            $meta = array(
-                    'title'=>$this->title,
-                    'realurl'=>$this->realurl );
-            if ( $this->pagemeta->write(
-                $this->url, $meta ) !== true ) {
-                return false;
-            }
-
-            dinfo( "OK: written page meta " . print_r( $meta, true ) );
-
-            return true;
-        }
-        else {
+        if ( ! $this->cache ) {
             return false;
         }
+
+        dd( "OK: write cache" );
+
+        dd( "To write {$this->url}, length=" . strlen( $this->content ) );
+        if ( $this->cache->page->write( $this->url, $this->content ) !== true ) {
+            return false;
+        }
+
+        dinfo( "OK: written page to sto, length=" . strlen( $this->content ) );
+
+        $meta = array(
+                'title'=>$this->title,
+                'realurl'=>$this->realurl );
+        if ( $this->cache->meta->write(
+            $this->url, $meta ) !== true ) {
+            return false;
+        }
+
+        dinfo( "OK: written page meta " . print_r( $meta, true ) );
+
+        return true;
+
     }
 
     function fetch() {
@@ -152,18 +151,38 @@ class Mobilizer {
 
             $src=$e->getAttribute( 'src' );
 
-            $f = newfetch();
-            $cont = $f->fetch( $src );
+            $cont = NULL;
+            $mtype = NULL;
 
-            if ( $f->httpCode() == "200" ) {
+            if ( $this->cache ) {
+                $r = $this->cache->img->read( $src );
+                if ( $r !== false ) {
+                    dinfo( "read image from cache:$src" );
+                    $cont = $r;
+                    $mtype = "image/jpeg";
+                }
+            }
 
-                $mtype = "image/jpeg";
+            if ( ! $mtype ) {
+                $f = newfetch();
+                $cont = $f->fetch( $src );
+
+                if ( $f->httpCode() == "200" ) {
+                    $mtype = "image/jpeg";
+                    $this->cache->img->write( $src, $cont );
+                }
+                else {
+                    dinfo( "Error: fetching image:$src httpCode=" . $f->httpCode()  );
+                }
+            }
+
+
+            if ( $mtype ) {
                 $e->setAttribute( 'src', data_uri( $cont, $mtype ) );
-
                 dinfo( "OK: image embedded:$src" );
             }
             else {
-                dinfo( "Error: fetching image:$src httpCode=" . $f->httpCode()  );
+                derror( "Failed to fetch image from $src" );
             }
 
         }
@@ -233,7 +252,63 @@ EOT;
 
         html_remove( $html, ".top,.bottom" );
 
+
+        $this->cleanup( $html->find( '#story', 0 ), '' );
+
         return true;
+    }
+
+    function cleanup( &$e, $stk ) {
+
+        $arr = array();
+        $max = 0;
+
+        $cs = $e->children();
+        if ( count( $cs ) == 0 ) {
+            return;
+        }
+
+        foreach ($cs as $c) {
+            $it = $c->innertext;
+            $l = strlen( $it );
+            array_push( $arr, array(
+                'e' => $c, 
+                'len'=>$l, 
+            ) );
+
+            if ( $max < $l ) {
+                $max = $l;
+            }
+        }
+
+        $thre = $max / 10;
+
+        $n = count( $arr );
+
+        foreach ($arr as $entry) {
+            if ( $entry[ 'len' ] < $thre ) {
+                dd( "[ $stk ] Removed: " . $entry[ 'e' ]->innertext );
+                $entry[ 'e' ]->outertext = '';
+                $entry[ 'removed' ] = true;
+                $n -= 1;
+            }
+            else {
+                break;
+            }
+        }
+
+        dd( "[ $stk ] n=$n" );
+
+        if ( $n <= 3 ) {
+            foreach ($arr as $entry) {
+                if ( $entry[ 'removed' ] !== true ) {
+                    $this->cleanup( $entry[ 'e' ], $stk . " > {$entry[ 'e' ]->tag}" );
+                }
+            }
+        }
+        else {
+            dd( "[ $stk ] Stop striping with more than 3 big part" );
+        }
     }
 
 

@@ -1,9 +1,20 @@
 <?
 
-include_once( $_SERVER["DOCUMENT_ROOT"] . "/service/all.php" );
 include_once( $_SERVER["DOCUMENT_ROOT"] . "/mysql.php" );
+include_once( $_SERVER["DOCUMENT_ROOT"] . "/service/all.php" );
 include_once( $_SERVER["DOCUMENT_ROOT"] . "/inc/debug.php" );
 
+
+class Cache {
+    public $page;
+    public $img;
+    public $meta;
+    function __construct( $p, $i, $m ) {
+        $this->page = $p;
+        $this->img = $i;
+        $this->meta = $m;
+    }
+}
 
 class Fav2VD {
     public $t;
@@ -22,11 +33,18 @@ class Fav2VD {
     function __construct( &$t, &$vd, $todo = NULL ) {
         $this->t = $t;
         $this->vd = $vd;
-        $this->cache = array(
-            'imgs'  => new StoVisitor( new Img() ),
-            'pages' => new StoVisitor( new Page() ),
-            'meta'  => new MetaVisitor(),
-        );
+
+        $localpage = new LocalPage();
+        $page = new EngineVisitor( $localpage, new EngineVisitor( new Page() ) );
+
+        $localimg = new LocalImg();
+        $img = new EngineVisitor( $localimg, new EngineVisitor( new Img() ) );
+
+        $meta = new MetaVisitor();
+
+        $this->cache = new Cache( $page, $img, $meta );
+        dd( "this.cache.meta" );
+        dd( print_r( $this->cache->meta, true ) );
     }
 
     function dump() {
@@ -50,6 +68,12 @@ class Fav2VD {
 
     function save_tweet_urls( $tweet ) {
 
+        /*
+         * if ( $tweet[ 'id' ] != '10741346747' ) {
+         *     return;
+         * }
+         */
+
         dinfo( "fav=" . print_r( $tweet, true ) );
         $text = $tweet[ 'text' ];
         dd( '<hr />' );
@@ -59,9 +83,10 @@ class Fav2VD {
         dinfo( "OK: Extracted " . count( $urls ) . " urls" );
 
         foreach ($urls as $url) {
-            // if ( $url == "http://t.cn/asaazB" ) {
+            // if ( $url == "http://t.cn/heIjkx" ) {
                 dinfo( "Fetching url: $url" );
                 $r = $this->save_url( $url );
+                // exit();
             // }
         }
 
@@ -93,17 +118,12 @@ class Fav2VD {
 
         $r = $this->vd->putfile( $path, $mob->content );
 
-        // exit();
+        /*
+         * echo $mob->content;
+         * exit();
+         */
 
         return $r;
-        /*
-         * if ( isok( $r ) ) {
-         *     dinfo( "OK: saved at vdisk.weibo.com: $path" );
-         * }
-         * else {
-         *     dinfo( "Failed: while saving $path" );
-         * }
-         */
     }
 
 }

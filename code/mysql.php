@@ -59,6 +59,10 @@ class MyRaw {
         return $this->isok() ? $this->r_update() : $this->err();
     }
 
+    function delete( $sql ) {
+        $this->my->runSql( $sql );
+        return $this->isok() ? $this->r_delete() : $this->err();
+    }
     function insert( $sql ) {
         $this->my->runSql( $sql );
         return ( $this->isok() && $this->affected() )
@@ -84,6 +88,11 @@ class MyRaw {
     }
 
     function r_update() {
+        $r = array( 'err_code'=>0, 'affected_rows'=>$this->my->affectedRows() );
+        return $r;
+    }
+
+    function r_delete() {
         $r = array( 'err_code'=>0, 'affected_rows'=>$this->my->affectedRows() );
         return $r;
     }
@@ -159,7 +168,12 @@ class My extends MyRaw {
         }
     }
 
-    function page_add( $url, $title, $realurl ) {
+}
+
+class MyPage extends My {
+    public $table = 'page';
+
+    function add( $url, $title, $realurl ) {
         $sql = "INSERT INTO `page` " . $this->sql_values(
             array(
                 'url'=>$url,
@@ -169,11 +183,22 @@ class My extends MyRaw {
         return $this->insert( $sql );
     }
 
-    function page_get( $url ) {
+    function del( $url ) {
+        $sql = "DELETE FROM `{$this->table}` where `url`='" . $this->my->escape( $url ) . "'";
+        return $this->delete( $sql );
+    }
+
+    function flush() {
+        $sql = "DELETE FROM `{$this->table}`";
+        return $this->delete( $sql );
+    }
+
+    function get( $url ) {
         $arr = array( 'url'=>$url );
         return $this->one( 'page', $arr );
     }
 }
+
 
 
 
