@@ -27,6 +27,7 @@ class Mobilizer {
     }
 
     function mobilize() {
+        dd( '--------------------------start---------------------------' );
         if ( $this->cache_read() ) {
             return true;
         }
@@ -48,23 +49,19 @@ class Mobilizer {
             return false;
         }
 
-        dd( "OK: try read cache" );
-
-        dd( "cache.meata is" );
-        dd( print_r( $this->cache->meta, true ) );
         $arr = $this->cache->meta->read( $this->url );
         if ( $arr === false ) {
-            dinfo( "Failed read meta from cache:{$this->url}" );
+            dinfo( "No meta in cache:{$this->url}" );
             return false;
         }
 
-        dinfo( "OK read meta:" . print_r( $arr, true ) );
+        dinfo( "OK read from meta:" . print_r( $arr, true ) );
 
         $this->title = $arr[ 'title' ];
         $this->realurl = $arr[ 'realurl' ];
 
-        dinfo( "title={$this->title}" );
-        dinfo( "realurl={$this->realurl}" );
+        dinfo( "title: {$this->title}" );
+        dinfo( "realurl: {$this->realurl}" );
 
         $cont = $this->cache->page->read( $this->url );
         if ( $cont === false ) {
@@ -89,7 +86,9 @@ class Mobilizer {
         dd( "OK: write cache" );
 
         dd( "To write {$this->url}, length=" . strlen( $this->content ) );
-        if ( $this->cache->page->write( $this->url, $this->content ) !== true ) {
+        $r = $this->cache->page->write( $this->url, $this->content );
+        if ( $r === false ) {
+            dd( "Failed to write page to pagecache=" . print_r( $r ) );
             return false;
         }
 
@@ -99,8 +98,9 @@ class Mobilizer {
                 'title'=>$this->title,
                 'realurl'=>$this->realurl );
         if ( $this->cache->meta->write(
-            $this->url, $meta ) !== true ) {
-            return false;
+            $this->url, $meta ) === false ) {
+                derror( "Failed to write to meta" );
+                return false;
         }
 
         dinfo( "OK: written page meta " . print_r( $meta, true ) );
@@ -134,11 +134,11 @@ class Mobilizer {
         $e = $this->html->find( "title", 0 );
         $title = $e->innertext;
 
-        dinfo( "Raw title=$title" );
+        dd( "Raw title=$title" );
 
         $this->title = preg_replace( '/[><\/:?*\\ \-_"]+/', '_', $title );
 
-        dinfo( "Stripped title=$title" );
+        dinfo( "Title: $title" );
 
         return true;
     }
@@ -157,7 +157,7 @@ class Mobilizer {
             if ( $this->cache ) {
                 $r = $this->cache->img->read( $src );
                 if ( $r !== false ) {
-                    dinfo( "read image from cache:$src" );
+                    dinfo( "read cached image: $src" );
                     $cont = $r;
                     $mtype = "image/jpeg";
                 }
@@ -215,47 +215,188 @@ class InstaMobilizer extends Mobilizer
 
     function check_valid() {
         // instapaper failed to fetch this url
-        if ( $this->title == 'Not available' ) {
+        if ( $this->title == 'Not_available' ) {
             $this->error = 'instaError';
-            dinfo( "title seem to be invalid doc:{$this->title}" );
+            dd( "title seem to be invalid doc:{$this->title}" );
             return false;
         }
-        dinfo( "OK: title: {$this->title}" );
+        dd( "OK: title: {$this->title}" );
         return true;
     }
 
     function html_finalize() {
         $url = $this->realurl;
+        if ( strlen( $url ) > 40 ) {
+            $u = parse_url( $url );
+            $urltext = $u[ 'host' ] . '/...';
+        }
+        else {
+            $urltext = $url;
+        }
 
         $content = $this->html->save();
-        $content = "<a style='margin:10px;' href='$url'>$url</a>" .$content;
-        $content .= <<<'EOT'
+
+        $prepand = <<<EOT
 <style>
-    img { max-width:100%; }
+* { font-family: sans-serif; font-size:16px; }
+img { max-width:100%; }
+a { text-decoration:none; }
+h1, h2, h3, h4, h5 { font-weight:bold; }
+h1 { font-size:20px; }
+h2 { font-size:18px; }
+h3 { font-size:16px; }
+h4 { font-size:14px; }
+blockquote{ margin:0 0 0 10px; }
+
 </style>
+<p style='font-size:14px;'>原文：<a style='margin:10px;' href='$url'>$urltext</a></p>
 EOT;
-        $this->content = $content;
+
+        $append = <<<EOT
+<p>Powered by </p>
+EOT;
+
+        $this->content = $prepand . $content;
         return true;
     }
 
     function html_cleanup() {
         $html = $this->html;
 
-        html_remove( $html, "script,link,comment" );
+        html_remove( $html, "script,link,comment,style" );
         html_remove( $html, "#text_controls_toggle,#text_controls,#editing_controls" );
 
         $e = $html->find( ".top a", 0 );
         if ( $e ) {
             $this->realurl = $e->getAttribute( 'href' );
-            dinfo( "OK: extracted realurl from html={$this->realurl}" );
+            dinfo( "realurl: {$this->realurl}" );
         }
 
         html_remove( $html, ".top,.bottom" );
 
+        $t = 'http://www.instapaper.com/m?u=';
+        $es = $html->find( "a" );
+        foreach ($es as $e) {
+            $href = $e->getAttribute( "href" );
 
-        $this->cleanup( $html->find( '#story', 0 ), '' );
+            if ( startsWith( $href, $t ) ) {
+                $href = substr( $href, strlen( $t ) );
+                $href = urldecode( $href );
+                $e->setAttribute( 'href', $href );
+            }
+
+        }
+
+
+        $main = $this->main_part_node( $html->find( '#story', 0 ) );
+
+        $e = $html->find( 'body', 0 );
+        $e->innertext = $main->outertext;
 
         return true;
+    }
+
+    function main_part_node( &$node, $stk = "" ) {
+
+        $maxes = $this->largest_leaves( $node );
+
+        $maxsize = $maxes[ count( $maxes ) - 1 ][ 'size' ];
+
+        $articles = array();
+
+        foreach ($maxes as $o) {
+            if ( $o[ 'size' ] < $maxsize / 5 ) {
+                continue;
+            }
+            else {
+                dd( "Chapter: {$o['size']}; " .  firstline( $o[ 'e' ]->innertext ) );
+                array_push( $articles, $o );
+            }
+        }
+
+        $parent = $this->common_ancestor( $articles, $node );
+
+        dd( "Common ancestor: " . firstline( $parent->innertext ) );
+
+        return $parent;
+
+        $node->innertext = $parent->innertext;
+
+    }
+
+    function largest_leaves( &$node ) {
+        $es = $node->find( "div,span,p,h1,h2,h3,h4,h5,h6,pre,blockquote" );
+
+        dd( "Nodes found: " . count( $es ) );
+
+        $arr = array();
+        $maxes = array();
+        foreach ($es as $e) {
+
+            $text = $e->innertext;
+            $len = strlen( $text );
+            $children = $e->children();
+
+            // $x = array( 'e'=> $e, 'text'=> $text, 'size'=> $len, 'leaf'=> (count( $children ) == 0) );
+            $x = array( 'e'=> $e, 'size'=> $len, 'leaf'=> (count( $children ) == 0) );
+
+            if ( $x[ 'leaf' ] ) {
+                array_push( $maxes, $x );
+                usort( $maxes, '_cmp' );
+                if ( count( $maxes ) > 3 ) {
+                    array_shift( $maxes );
+                }
+            }
+
+            array_push( $arr, $x );
+        }
+
+        foreach ($maxes as $o) {
+            dd( "Largest parts: {$o['size']}; " .  firstline( $o[ 'e' ]->innertext ) );
+        }
+
+        return $maxes;
+    }
+
+    function common_ancestor( &$articles, &$root ) {
+
+        if ( count( $articles ) > 1 ) {
+            $paths = array();
+            foreach ($articles as $o) {
+                $path = array();
+                $e = $o[ 'e' ];
+                while ( $e != $root ) {
+                    array_unshift( $path, $e );
+                    $e = $e->parent();
+                };
+
+                array_push( $paths, $path );
+            }
+
+            $root = $this->common_path_ancestor( $paths );
+        }
+        else {
+            $root = $articles[ 0 ][ 'e' ];
+        }
+
+        return $root;
+    }
+
+    function common_path_ancestor( &$paths ) {
+
+        for ( $i = 0; $i < 100; $i++ ) {
+            $p = $paths[ 0 ][ $i ];
+            foreach ($paths as $path) {
+                // dd( "$i" );
+                // dd( count( $path ) );
+                if ( $i >= count( $path ) || $p !== $path[ $i ] ) {
+                    return $path[ $i-1 ];
+                }
+            }
+        }
+
+        // shouldn't arrive here
+        return false;
     }
 
     function cleanup( &$e, $stk ) {
@@ -272,8 +413,8 @@ EOT;
             $it = $c->innertext;
             $l = strlen( $it );
             array_push( $arr, array(
-                'e' => $c, 
-                'len'=>$l, 
+                'e' => $c,
+                'len'=>$l,
             ) );
 
             if ( $max < $l ) {
@@ -342,6 +483,10 @@ function byfetch( $url ) {
     $r = reformat_html( $cont );
     $r[ 'url' ] = $url;
     return $r;
+}
+
+function _cmp( $a, $b ) {
+    return $a[ 'size' ] - $b[ 'size' ];
 }
 
 function newfetch() {

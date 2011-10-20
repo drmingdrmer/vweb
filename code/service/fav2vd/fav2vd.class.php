@@ -74,17 +74,23 @@ class Fav2VD {
          * }
          */
 
-        dinfo( "fav=" . print_r( $tweet, true ) );
+        // dinfo( "fav=" . print_r( $tweet, true ) );
+
         $text = $tweet[ 'text' ];
+
         dd( '<hr />' );
-        dinfo( "$text" );
+        dinfo( $text );
 
         $urls = T::extract_urls( $text );
+
         dinfo( "OK: Extracted " . count( $urls ) . " urls" );
+        foreach ($urls as $url) {
+            dinfo( "$url" );
+        }
 
         foreach ($urls as $url) {
             // if ( $url == "http://t.cn/heIjkx" ) {
-                dinfo( "Fetching url: $url" );
+                dinfo( "Processing: $url" );
                 $r = $this->save_url( $url );
                 // exit();
             // }
@@ -95,16 +101,16 @@ class Fav2VD {
 
         $mob = new InstaMobilizer( $url, $this->cache );
         if ( ! $mob->mobilize() ) {
-            dinfo( "Error: Fetching $url" );
-            dinfo( "httpCode:" . $mob->httpCode );
-            dinfo( "error:" . $mob->error );
+            dinfo( "Error: Processing: $url" );
+            dinfo( "httpCode: " . $mob->httpCode );
+            dinfo( "Error: " . $mob->error );
             foreach ($mob->responseHeaders as $h=>$v) {
                 dinfo( "$h: $v" );
             }
             return;
         }
 
-        dinfo( "OK: mobilized: $url" );
+        dinfo( "Mobilized: $url" );
 
 
         $title = $mob->title;
@@ -114,7 +120,6 @@ class Fav2VD {
         $nowtime = date( "His");
 
         $path = "/V2V/$nowdate/$title.$nowtime.html";
-        dinfo( "Saving: to $path" );
 
         $r = $this->vd->putfile( $path, $mob->content );
 

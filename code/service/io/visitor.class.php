@@ -9,16 +9,15 @@ class Visitor {
     }
 
     function get_key( $key ) {
-        dd( "key is:$key" );
         $r = md5( $key );
-        dd( "md5 key=$r" );
+        dd( "$key = $r" );
         return $r;
     }
 
     function write( $key, &$cont ) {
         $key = $this->get_key( $key );
         if ( gettype( $cont ) == 'string' ) {
-            dd( "To write $key, " . strlen( $cont ) );
+            dd( "To write $key, len=" . strlen( $cont ) );
         }
         else if ( gettype( $cont ) == 'array' ) {
             dd( "To write $key, " . print_r( $cont, true ) );

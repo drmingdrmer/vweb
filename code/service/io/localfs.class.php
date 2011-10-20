@@ -21,7 +21,9 @@ class LocalFs
     function read( $key ) {
         $localfn = $this->path( $key );
         if ( file_exists( $localfn ) ) {
-            return file_get_contents( $localfn );
+            $r = file_get_contents( $localfn );
+            dd( "read from local fs: $key" );
+            return $r;
         }
         else {
             return false;

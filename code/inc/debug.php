@@ -19,6 +19,7 @@ function _write( $msg ) {
 }
 
 function dd( $msg ) {
+    // return;
     _pos();
     _write( "[ DEBUG ] $msg" );
 }

@@ -58,35 +58,36 @@ class VD extends vDisk {
 
         $r = file_put_contents( $localfn, $cont );
         if ( $r ) {
-            dinfo( "OK: written to local temp file: $localfn" );
+            dinfo( "Written temp file: $localfn" );
             return array( 'err_code'=>0, 'data'=>array( 'filename'=>$localfn ) );
         }
         else {
-            return array( 'err_code'=>'write_local_tmp',
-                'msg'=>"Failed to write to $localfn, size=" . count( $cont ) );
+            $msg = "Failed writing temp file: $localfn size=" . strlen( $cont );
+            derror( $msg );
+            return array( 'err_code'=>'write_local_tmp', 'msg'=>$msg );
         }
     }
 
     function putfile( $path, &$fdata ) {
 
+        dinfo( "Saving: to $path" );
+
         $path = $this->fix_path( $path );
+
         dinfo( "VD write path=$path" );
+
 
         $elts = explode( "/", $path );
         $fn = array_pop( $elts );
         $parent = implode( '/', $elts );
 
-        dinfo("put file at $parent");
 
         $r = $this->mkdir_p( $parent );
         if ( ! isok( $r ) ) {
-            derror( "Failed to create parent dir:$parent" );
             return $r;
         }
 
         $dir_id = $r[ 'data' ][ 'id' ];
-
-        dinfo( "OK: parent dir $parent, id=$dir_id" );
 
 
         $r = $this->write_local_tmp( $fdata );
@@ -96,9 +97,6 @@ class VD extends vDisk {
 
         $localfn = $r[ 'data' ][ 'filename' ];
 
-        dd( "localfn=$localfn" );
-
-
         $r = $this->upload_file( $localfn, $dir_id, 'yes' );
 
         if ( isok( $r ) ) {
@@ -106,23 +104,15 @@ class VD extends vDisk {
             $fid = $r[ 'data' ][ 'fid' ];
 
             $r = $this->move_file( $fid, $dir_id, $fn );
-
-            unlink( $localfn );
-            return $r;
+            if ( isok( $r ) ) {
+                dinfo( "Uploaded to $path" );
+            }
         }
-/*
- *         else if ( $r && $r[ 'err_code' ] == 702 ) {
- *             // invalid token
- *             // NOTE: actually vdisk SDK does not return 702, but False!
- *             // Thus following statement will never be executed.
- *             unlink( $localfn );
- * 
- *         }
- */
+
         unlink( $localfn );
         return $r;
-
     }
+
     public function get_dirid_with_path( $path ) {
 
         if ( isset($this->_pathcache[ $path ]) ) {
@@ -157,18 +147,19 @@ class VD extends vDisk {
             $path = "$path/$e";
 
             $r = $this->get_dirid_with_path( $path );
-            if ( $r && $r[ 'err_code' ] == 0 ) {
+            if ( isok( $r ) ) {
                 $dir_id = $r[ 'data' ][ 'id' ];
                 continue;
             }
 
             $r = $this->create_dir( $e, $dir_id );
-            if ( $r && $r[ 'err_code' ] == 0 ) {
+            if ( isok( $r ) ) {
                 $dir_id = $r[ 'data' ][ 'dir_id' ];
                 $this->_pathcache[ $path ] = $dir_id;
                 continue;
             }
             else {
+                derror( "Failed creating dir $e at dir_id=$dir_id" );
                 return $r;
             }
         }
@@ -177,6 +168,8 @@ class VD extends vDisk {
         if ( ! isset( $r[ 'data' ][ 'id' ] ) ) {
             $r[ 'data' ][ 'id' ] = $r[ 'data' ][ 'dir_id' ];
         }
+
+        dinfo( "Dir created: $path dir_id={$r[ 'data' ][ 'id' ]}" );
         return $r;
     }
 }

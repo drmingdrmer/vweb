@@ -11,6 +11,10 @@ function len( $what ) {
     return false;
 }
 
+function firstline( &$text ) {
+    return mb_substr( $text, 0, 40 );
+}
+
 
 function json( $v )
 {
