@@ -30,9 +30,10 @@ class Fav2VD {
         '*' => "links",
     );
 
-    function __construct( &$t, &$vd, $todo = NULL ) {
+    function __construct( &$t, &$vd, $only = NULL ) {
         $this->t = $t;
         $this->vd = $vd;
+        $this->only = $only;
 
         $localpage = new LocalPage();
         $page = new EngineVisitor( $localpage, new EngineVisitor( new Page() ) );
@@ -79,14 +80,11 @@ class Fav2VD {
         $text = $tweet[ 'text' ];
 
         dd( '<hr />' );
-        dinfo( $text );
+        dinfo( "favorite: $text" );
 
         $urls = T::extract_urls( $text );
 
         dinfo( "OK: Extracted " . count( $urls ) . " urls" );
-        foreach ($urls as $url) {
-            dinfo( "$url" );
-        }
 
         foreach ($urls as $url) {
             // if ( $url == "http://t.cn/heIjkx" ) {
@@ -99,7 +97,18 @@ class Fav2VD {
     }
     function save_url( $url ) {
 
-        $mob = new InstaMobilizer( $url, $this->cache );
+        if ( $this->only ) {
+            if ( $this->only == $url ) {
+                $mob = new InstaMobilizer( $url );
+            }
+            else {
+                return;
+            }
+        }
+        else {
+            $mob = new InstaMobilizer( $url, $this->cache );
+        }
+
         if ( ! $mob->mobilize() ) {
             dinfo( "Error: Processing: $url" );
             dinfo( "httpCode: " . $mob->httpCode );

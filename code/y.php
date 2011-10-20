@@ -33,7 +33,12 @@ function doit() {
         $vdisk = new VD();
         $r = $vdisk->login( 'drdr.xp@gmail.com', '748748' );
 
-        $fv = new Fav2VD( $t, $vdisk );
+        if ( $_GET[ 'only' ] ) {
+            $fv = new Fav2VD( $t, $vdisk, $_GET[ 'only' ] );
+        }
+        else {
+            $fv = new Fav2VD( $t, $vdisk );
+        }
 
         $r = $fv->dump();
 
