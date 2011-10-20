@@ -112,6 +112,53 @@ class HtmlProcessor {
     }
 }
 
+class ImgFetcher {
+
+    public $cache;
+
+    function __construct( &$cache = NULL ) {
+        $this->cache = $cache;
+    }
+
+    function fetch( $url ) {
+
+        dd( "fetch url: $url" );
+
+        $cont = NULL;
+        $mtype = NULL;
+
+        if ( $this->cache ) {
+
+            $r = $this->cache->img->read( $url );
+            if ( $r !== false ) {
+                dinfo( "read cached image: $url" );
+                $cont = $r;
+                $mtype = "image/jpeg";
+            }
+        }
+
+        if ( ! $mtype ) {
+
+            $f = no_redirect_fetch();
+            $cont = $f->fetch( $url );
+
+            if ( $f->httpCode() == "200" ) {
+                $mtype = "image/jpeg";
+                if ( $this->cache ) {
+                    $this->cache->img->write( $url, $cont );
+                }
+            }
+            else {
+                derror( "Error: fetching image:$url httpCode=" . $f->httpCode()  );
+            }
+        }
+
+        return array( 'mtype'=>$mtype, 'content'=>$cont );
+    }
+}
+
+
+
 class Mobilizer {
 
     public $url;
@@ -295,34 +342,10 @@ class Mobilizer {
 
             $src=$e->getAttribute( 'src' );
 
-            $cont = NULL;
-            $mtype = NULL;
-
-            if ( $this->cache ) {
-
-                $r = $this->cache->img->read( $src );
-                if ( $r !== false ) {
-                    dinfo( "read cached image: $src" );
-                    $cont = $r;
-                    $mtype = "image/jpeg";
-                }
-            }
-
-            if ( ! $mtype ) {
-
-                $f = no_redirect_fetch();
-                $cont = $f->fetch( $src );
-
-                if ( $f->httpCode() == "200" ) {
-                    $mtype = "image/jpeg";
-                    if ( $this->cache ) {
-                        $this->cache->img->write( $src, $cont );
-                    }
-                }
-                else {
-                    derror( "Error: fetching image:$src httpCode=" . $f->httpCode()  );
-                }
-            }
+            $f = new ImgFetcher( $this->cache );
+            $r = $f->fetch( $src );
+            $mtype = $r[ 'mtype' ];
+            $cont = $r[ 'content' ];
 
 
             if ( $mtype ) {

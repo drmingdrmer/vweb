@@ -24,9 +24,9 @@ class Fav2VD {
 
     public $policy = array(
         'img' => 'img',
-        'video' => "ignore end",
-        'music' => "music remove end",
-        'img -links' => "img remove end",
+        // 'video' => "ignore end",
+        // 'music' => "music remove end",
+        // 'img -links' => "img remove end",
         '*' => "links",
     );
 
@@ -51,38 +51,98 @@ class Fav2VD {
     function dump() {
 
         $r = $this->t->_load_cmd( 'favorites', array(), NULL, NULL );
+
         // TODO check error
         $favs = $r[ 'data' ];
 
         dinfo( "OK: Loaded favorites: " . count( $favs ) . " entries" );
 
         foreach ($favs as $fav) {
+
             $this->save_tweet_urls( $fav );
 
             if ( isset( $fav[ 'retweeted_status' ] ) ) {
                 $this->save_tweet_urls( $fav[ 'retweeted_status' ] );
             }
-
         }
-
     }
 
     function save_tweet_urls( $tweet ) {
 
-        /*
-         * if ( $tweet[ 'id' ] != '10741346747' ) {
-         *     return;
-         * }
-         */
-
         // dinfo( "fav=" . print_r( $tweet, true ) );
+
+        $urls = T::extract_urls( $text );
+
+        $cond = array(
+            'img' => isset( $tweet[ 'bmiddle_pic' ] ),
+            'links' => count( $urls ) > 0,
+        );
+
+        foreach ($cond as $c=>$v) {
+            $cond[ "-$c" ] = !$v;
+        }
+
+
+        $pol = $this->policy;
+        foreach ($pol as $p=>$acts) {
+
+            $ps = explode( ' ', $p );
+
+            $satisfied = true;
+            foreach ($ps as $what) {
+                $satisfied = $satisfied && $cond[ $what ];
+            }
+
+            if ( ! $satisfied ) {
+                continue;
+            }
+
+            $acts = explode( ' ', $acts );
+
+            foreach ($acts as $a) {
+
+                $meth = "execute_$a";
+                $continue = $this->$meth( $tweet );
+                if ( $continue ) {
+                    continue;
+                }
+            }
+        }
+    }
+
+    function execute_img( &$tweet ) {
+        dd( "tweet: " . print_r( $tweet, true ) );
+        $m = new ImgFetcher( $this->cache );
+        $url = $tweet[ 'bmiddle_pic' ];
+        dd( "url: $url" );
+
+        $r = $m->fetch( $url );
+        if ( $r[ 'mtype' ] ) {
+
+            $fn = parse_url( $url );
+            $fn = $fn[ 'path' ];
+            $fn = explode( "/", $url );
+            $fn = $fn[ count( $fn ) - 1 ];
+
+            $nowdate = date( "Y_m_d" );
+            $nowtime = date( "His");
+
+            $path = "/V2V/photo/$nowdate/$nowtime.$fn";
+
+            $r = $this->vd->putfile( $path, $r[ 'content' ] );
+        }
+        else {
+            // TODO error
+        }
+    }
+
+    function execute_links( $tweet ) {
 
         $text = $tweet[ 'text' ];
 
         dd( '<hr />' );
         dinfo( "favorite: $text" );
 
-        $urls = T::extract_urls( $text );
 
         dinfo( "OK: Extracted " . count( $urls ) . " urls" );
 
@@ -94,8 +154,12 @@ class Fav2VD {
             // }
         }
 
+        return true;
     }
+
     function save_url( $url ) {
+
+        // bmiddle_pic
 
         if ( $this->only ) {
             if ( $this->only == $url ) {
@@ -110,11 +174,11 @@ class Fav2VD {
         }
 
         if ( ! $mob->mobilize() ) {
-            dinfo( "Error: Processing: $url" );
-            dinfo( "httpCode: " . $mob->httpCode );
-            dinfo( "Error: " . $mob->error );
+            derror( "Error: Processing: $url" );
+            derror( "httpCode: " . $mob->httpCode );
+            derror( "Error: " . $mob->error );
             foreach ($mob->responseHeaders as $h=>$v) {
-                dinfo( "$h: $v" );
+                derror( "$h: $v" );
             }
             return;
         }
