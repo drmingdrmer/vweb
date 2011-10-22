@@ -1,5 +1,18 @@
 <?
 
+$levels = array(
+    'debug'=>10,
+    'info'=>8,
+    'warn'=>6,
+    'error'=>4,
+);
+$_debugLevel = 'debug';
+
+if ( $_GET[ 'level' ] ) {
+    $_debugLevel = $_GET[ 'level' ];
+}
+
+$_debugLevel = $levels[ $_debugLevel ];
 
 function _pos() {
     $bt = debug_backtrace();
@@ -19,12 +32,19 @@ function _write( $msg ) {
 }
 
 function dd( $msg ) {
-    // return;
+    global $_debugLevel;
+    global $levels;
+    if ( $_debugLevel < $levels[ 'debug' ] ) {
+        return;
+    }
     _pos();
     _write( "[ DEBUG ] $msg" );
 }
 
 function dinfo( $msg ) {
+    if ( $_debugLevel < $levels[ 'info' ] ) {
+        return;
+    }
     _pos();
     _write( "[ INFO ] $msg" );
 }

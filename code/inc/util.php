@@ -15,6 +15,10 @@ function firstline( &$text ) {
     return mb_substr( $text, 0, 40 );
 }
 
+function arr_clone( $a ) {
+    return $a;
+}
+
 
 function json( $v )
 {

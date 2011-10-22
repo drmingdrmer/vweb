@@ -14,12 +14,6 @@ include_once( $_SERVER["DOCUMENT_ROOT"] . "/service/all.php" );
 include_once( $_SERVER["DOCUMENT_ROOT"] . "/service/fav2vd/fav2vd.class.php" );
 
 
-/*
- * include_once( $_SERVER["DOCUMENT_ROOT"] . "/mysql.php" );
- * print_r( new MetaVisitor() );
- * exit();
- */
-
 function doit() {
 
     $acc = new Account();
@@ -30,23 +24,12 @@ function doit() {
 
         $t = new T( $acctoken );
 
-        $vdisk = new VD();
-        $r = $vdisk->login( 'drdr.xp@gmail.com', '748748' );
+        $r = $t->_load_cmd( 'favorites', array(), NULL, NULL );
+        $favs = $r[ 'data' ];
 
-        if ( $_GET[ 'only' ] ) {
-            $fv = new Fav2VD( $t, $vdisk, $_GET[ 'only' ] );
+        foreach ($favs as $fav) {
+            var_dump( $fav );
         }
-        else if ( $_GET[ 'dump' ] ) {
-            $fv = new Fav2VD( $t, $vdisk, $_GET[ 'dump' ] );
-            $r = $fv->save_url( $_GET[ 'dump' ] );
-            echo $r[ 'mob' ]->content;
-            return;
-        }
-        else {
-            $fv = new Fav2VD( $t, $vdisk );
-        }
-
-        $r = $fv->dump();
 
     }
     else {

@@ -2,6 +2,7 @@
 
 include_once( $_SERVER["DOCUMENT_ROOT"] . "/inc/config.php" );
 include_once( $_SERVER["DOCUMENT_ROOT"] . "/inc/util.php" );
+include_once( $_SERVER["DOCUMENT_ROOT"] . "/inc/filetype.php" );
 
 class VwebError extends Exception {};
 

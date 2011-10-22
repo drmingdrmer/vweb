@@ -15,21 +15,37 @@ class S2 extends SaeS3 {
 
     function write( $path, &$cont ) {
         $path = $this->path( $path );
-        dd( "To write to S2:$path length=" . strlen( $cont ) );
+
+
         $url = parent::write( $this->dom, $path, $cont );
         if ( $url !== false ) {
+            dd( "Written to S2:$path length=" . strlen( $cont ) );
             return true;
         }
         else {
+            dd( "Failed to S2:$path length=" . strlen( $cont ) );
             return false;
         }
     }
 
     function read( $path ) {
+
         $path = $this->path( $path );
-        $url = $this->getUrl( $this->dom, $path );
-        $cont = file_get_contents( $url );
-        return $cont;
+
+        $attr = $this->getAttr( $this->dom, $path );
+        dd( "s2 file attr: " . print_r( $attr, true ) );
+
+        if ( $attr ) {
+            $url = $this->getUrl( $this->dom, $path );
+            $cont = file_get_contents( $url );
+            dd( "Read from s2: $path: " . strlen( $cont ) );
+            return $cont;
+        }
+        else {
+            dd( "Failed reading from s2: $path" );
+            return false;
+        }
+
     }
 }
 

@@ -3,18 +3,7 @@
 include_once( $_SERVER["DOCUMENT_ROOT"] . "/mysql.php" );
 include_once( $_SERVER["DOCUMENT_ROOT"] . "/service/all.php" );
 include_once( $_SERVER["DOCUMENT_ROOT"] . "/inc/debug.php" );
-
-
-class Cache {
-    public $page;
-    public $img;
-    public $meta;
-    function __construct( $p, $i, $m ) {
-        $this->page = $p;
-        $this->img = $i;
-        $this->meta = $m;
-    }
-}
+include_once( $_SERVER["DOCUMENT_ROOT"] . "/inc/filetype.php" );
 
 class Fav2VD {
     public $t;
@@ -24,10 +13,10 @@ class Fav2VD {
 
     public $policy = array(
         'img' => 'img',
+        'links' => "links",
         // 'video' => "ignore end",
         // 'music' => "music remove end",
         // 'img -links' => "img remove end",
-        '*' => "links",
     );
 
     function __construct( &$t, &$vd, $only = NULL ) {
@@ -35,13 +24,17 @@ class Fav2VD {
         $this->vd = $vd;
         $this->only = $only;
 
-        $localpage = new LocalPage();
-        $page = new EngineVisitor( $localpage, new EngineVisitor( new Page() ) );
+        $page = new EngineVisitor( new LocalPage(),
+                                   new EngineVisitor(
+                                       new Page() ) );
 
-        $localimg = new LocalImg();
-        $img = new EngineVisitor( $localimg, new EngineVisitor( new Img() ) );
+        $img = new EngineVisitor( new LocalImg(),
+                                  new EngineVisitor(
+                                      new Img() ) );
 
-        $meta = new MetaVisitor();
+        $meta = new EngineVisitor( new Mem(),
+                                   new EngineVisitor(
+                                      new Meta() ) );
 
         $this->cache = new Cache( $page, $img, $meta );
         dd( "this.cache.meta" );
@@ -51,83 +44,98 @@ class Fav2VD {
     function dump() {
 
         $r = $this->t->_load_cmd( 'favorites', array(), NULL, NULL );
-
         // TODO check error
-        $favs = $r[ 'data' ];
 
+        $favs = $r[ 'data' ];
         dinfo( "OK: Loaded favorites: " . count( $favs ) . " entries" );
 
         foreach ($favs as $fav) {
 
-            $this->save_tweet_urls( $fav );
+            $this->process_tweet( $fav );
 
             if ( isset( $fav[ 'retweeted_status' ] ) ) {
-                $this->save_tweet_urls( $fav[ 'retweeted_status' ] );
+                $this->process_tweet( $fav[ 'retweeted_status' ] );
             }
         }
     }
 
-    function save_tweet_urls( $tweet ) {
+    function process_tweet( &$tweet ) {
 
         // dinfo( "fav=" . print_r( $tweet, true ) );
 
-        $urls = T::extract_urls( $text );
+        $text = $tweet[ 'text' ];
+        $urls = $tweet[ '_urls' ] = T::extract_urls( $text );
 
-        $cond = array(
+        $props = array(
             'img' => isset( $tweet[ 'bmiddle_pic' ] ),
             'links' => count( $urls ) > 0,
+            'any' => true,
         );
-
-        foreach ($cond as $c=>$v) {
-            $cond[ "-$c" ] = !$v;
+        $presen = "";
+        foreach ($props as $n=>$v) {
+            if ( $v ) {
+                $presen .= " $n";
+            }
+            $props[ "-$n" ] = !$v;
         }
 
+        dinfo( "props: $presen" );
+        dinfo( "policy: " . print_r( $this->policy, true ) );
 
-        $pol = $this->policy;
-        foreach ($pol as $p=>$acts) {
 
-            $ps = explode( ' ', $p );
+        foreach ( $this->policy as $expStr=>$acts ) {
 
-            $satisfied = true;
-            foreach ($ps as $what) {
-                $satisfied = $satisfied && $cond[ $what ];
-            }
-
-            if ( ! $satisfied ) {
+            if ( ! $this->is_satisfied( $props, $expStr ) ) {
+                dinfo( "Expectance failed: $expStr" );
                 continue;
             }
 
             $acts = explode( ' ', $acts );
-
             foreach ($acts as $a) {
+                dinfo( "Execute action: $a on tweet id={$tweet[ 'id' ]}" );
 
                 $meth = "execute_$a";
-                $continue = $this->$meth( $tweet );
-                if ( $continue ) {
-                    continue;
+                if ( ! $this->$meth( $tweet ) ) {
+                    return;
                 }
             }
         }
     }
 
+    function is_satisfied( &$props, $expStr ) {
+
+        $expected = explode( ' ', $expStr );
+
+        foreach ($expected as $exp) {
+
+            if ( ! $props[ $exp ] ) {
+                dd( "Expectance not satisified: $exp" );
+                return false;
+            }
+        }
+
+        dinfo( "Satisfied: " . $expStr );
+        return true;
+    }
+
     function execute_img( &$tweet ) {
-        dd( "tweet: " . print_r( $tweet, true ) );
+
+        dd( "execute_img on tweet: " . print_r( $tweet, true ) );
+
         $m = new ImgFetcher( $this->cache );
         $url = $tweet[ 'bmiddle_pic' ];
-        dd( "url: $url" );
+
+        dd( "Image url: $url" );
 
         $r = $m->fetch( $url );
-        if ( $r[ 'mtype' ] ) {
-
-            $fn = parse_url( $url );
-            $fn = $fn[ 'path' ];
-            $fn = explode( "/", $url );
-            $fn = $fn[ count( $fn ) - 1 ];
+        if ( $r[ 'meta' ][ 'mimetype' ] ) {
 
             $nowdate = date( "Y_m_d" );
             $nowtime = date( "His");
 
-            $path = "/V2V/photo/$nowdate/$nowtime.$fn";
+            dd( "{$r[ 'meta' ][ 'mimetype' ]}" );
+            $fn = firstline( $tweet[ 'text' ] ) . ".$nowtime." . get_ext( $r[ 'meta' ][ 'mimetype' ] );
+            $path = "/V2V/photo_$nowdate/$fn";
 
             $r = $this->vd->putfile( $path, $r[ 'content' ] );
         }
@@ -136,9 +144,10 @@ class Fav2VD {
         }
     }
 
-    function execute_links( $tweet ) {
+    function execute_links( &$tweet ) {
 
         $text = $tweet[ 'text' ];
+        $urls = $tweet[ '_urls' ];
 
         dd( '<hr />' );
         dinfo( "favorite: $text" );
@@ -192,7 +201,7 @@ class Fav2VD {
         $nowdate = date( "Y_m_d" );
         $nowtime = date( "His");
 
-        $path = "/V2V/$nowdate/$title.$nowtime.html";
+        $path = "/V2V/article_$nowdate/$title.$nowtime.html";
 
         $r = $this->vd->putfile( $path, $mob->content );
 
@@ -201,6 +210,7 @@ class Fav2VD {
          * exit();
          */
 
+        $r[ 'mob' ] = $mob;
         return $r;
     }
 

@@ -22,7 +22,7 @@ class LocalFs
         $localfn = $this->path( $key );
         if ( file_exists( $localfn ) ) {
             $r = file_get_contents( $localfn );
-            dd( "read from local fs: $key" );
+            dd( "Read from local fs: $key" );
             return $r;
         }
         else {
@@ -33,6 +33,7 @@ class LocalFs
     function write( $key, $cont ) {
         $localfn = $this->path( $key );
         $r = file_put_contents( $localfn, $cont );
+        dd( "Written to local fs: $key" );
         return $r;
     }
 }

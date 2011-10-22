@@ -70,16 +70,13 @@ class VD extends vDisk {
 
     function putfile( $path, &$fdata ) {
 
-        dinfo( "Saving: to $path" );
-
         $path = $this->fix_path( $path );
 
-        dinfo( "VD write path=$path" );
+        dinfo( "VD path=$path" );
 
 
-        $elts = explode( "/", $path );
-        $fn = array_pop( $elts );
-        $parent = implode( '/', $elts );
+        $parent = dirname( $path );
+        $fn = substr( $path, strlen( $parent ) + 1 );
 
 
         $r = $this->mkdir_p( $parent );
@@ -88,6 +85,15 @@ class VD extends vDisk {
         }
 
         $dir_id = $r[ 'data' ][ 'id' ];
+
+        $sha1 = hash( 'sha1', $fdata );
+        $r = $this->upload_with_sha1( $fn, $sha1, $dir_id );
+        dd( "Upload with sha1: " . print_r( $r, true ) );
+
+        if ( isok( $r ) ) {
+            dinfo( "Uploaded with sha1: $path" );
+            return $r;
+        }
 
 
         $r = $this->write_local_tmp( $fdata );
@@ -102,6 +108,7 @@ class VD extends vDisk {
         if ( isok( $r ) ) {
 
             $fid = $r[ 'data' ][ 'fid' ];
+            dinfo( "fid: $fid" );
 
             $r = $this->move_file( $fid, $dir_id, $fn );
             if ( isok( $r ) ) {
@@ -113,24 +120,26 @@ class VD extends vDisk {
         return $r;
     }
 
-    public function get_dirid_with_path( $path ) {
-
-        if ( isset($this->_pathcache[ $path ]) ) {
-            return array(
-                'err_code'=>0,
-                'data' => array( 'id'=>$this->_pathcache[ $path ], )
-            );
-        }
-
-        $r = parent::get_dirid_with_path( $path );
-
-        if ( $r && $r[ 'err_code' ] == 0 ) {
-            $dirid = $r[ 'data' ][ 'id' ];
-            $this->_pathcache[ $path ] = $dirid;
-        }
-
-        return $r;
-    }
+/*
+ *     public function get_dirid_with_path( $path ) {
+ * 
+ *         if ( isset($this->_pathcache[ $path ]) ) {
+ *             return array(
+ *                 'err_code'=>0,
+ *                 'data' => array( 'id'=>$this->_pathcache[ $path ], )
+ *             );
+ *         }
+ * 
+ *         $r = parent::get_dirid_with_path( $path );
+ * 
+ *         if ( $r && $r[ 'err_code' ] == 0 ) {
+ *             $dirid = $r[ 'data' ][ 'id' ];
+ *             $this->_pathcache[ $path ] = $dirid;
+ *         }
+ * 
+ *         return $r;
+ *     }
+ */
 
     public function mkdir_p( $path, $dir_id = 0 ) {
 
@@ -147,7 +156,9 @@ class VD extends vDisk {
             $path = "$path/$e";
 
             $r = $this->get_dirid_with_path( $path );
+            dd( print_r( $r, true ) );
             if ( isok( $r ) ) {
+                dd( "got $path at dir_id: " . $r[ 'data' ][ 'id' ]  );
                 $dir_id = $r[ 'data' ][ 'id' ];
                 continue;
             }

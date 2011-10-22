@@ -5,7 +5,9 @@ include_once( $_SERVER["DOCUMENT_ROOT"] . "/inc/util.php" );
 include_once( $_SERVER["DOCUMENT_ROOT"] . "/inc/debug.php" );
 
 class HtmlProcessor {
+
     public $html;
+
     function __construct( &$html ) {
         $this->html = $html;
     }
@@ -13,7 +15,6 @@ class HtmlProcessor {
     function article_as_body() {
 
         $main = $this->major_node( $this->html->find( 'body', 0 ) );
-
         $e = $this->html->find( 'body', 0 );
 
         $e->innertext = $main->outertext;
@@ -112,51 +113,117 @@ class HtmlProcessor {
     }
 }
 
-class ImgFetcher {
+class CachedFetcher {
 
-    public $cache;
+    public $metaCache;
+    public $contCache;
 
-    function __construct( &$cache = NULL ) {
-        $this->cache = $cache;
+    function __construct( &$metaCache, &$contCache ) {
+        $this->metaCache = $metaCache;
+        $this->contCache = $contCache;
     }
 
-    function fetch( $url ) {
+    function fetch( $key ) {
 
-        dd( "fetch url: $url" );
+        if ( $this->metaCache ) {
 
-        $cont = NULL;
-        $mtype = NULL;
+            $rmeta = $this->metaCache->read( $key );
 
-        if ( $this->cache ) {
+            if ( $rmeta && $this->contCache ) {
 
-            $r = $this->cache->img->read( $url );
-            if ( $r !== false ) {
-                dinfo( "read cached image: $url" );
-                $cont = $r;
-                $mtype = "image/jpeg";
-            }
-        }
+                $rcont = $this->contCache->read( $key );
 
-        if ( ! $mtype ) {
-
-            $f = no_redirect_fetch();
-            $cont = $f->fetch( $url );
-
-            if ( $f->httpCode() == "200" ) {
-                $mtype = "image/jpeg";
-                if ( $this->cache ) {
-                    $this->cache->img->write( $url, $cont );
+                if ( $rmeta && $cont ) {
+                    dinfo( "Read from cache: $key: " . print_r( $rmeta ) );
+                    return array( 'meta'=>$rmeta, 'content'=>$rcont );
                 }
             }
-            else {
-                derror( "Error: fetching image:$url httpCode=" . $f->httpCode()  );
+        }
+
+
+        dd( "Fetching: $key" );
+
+        $r = $this->do_fetch( $key );
+
+        if ( $r[ 'meta' ] && $r[ 'content' ] ) {
+
+            if ( $this->contCache ) {
+
+                $rw = $this->contCache->write( $key, $r[ 'content' ] );
+
+                if ( $rw && $this->metaCache ) {
+                    $this->metaCache->write( $key, $r[ 'meta' ] );
+                }
             }
         }
 
-        return array( 'mtype'=>$mtype, 'content'=>$cont );
+        return $r;
+    }
+
+    function do_fetch( $key ) {
     }
 }
 
+class ImgFetcher extends CachedFetcher {
+
+    function __construct( &$cache = NULL ) {
+        if ( $cache ) {
+            parent::__construct( $cache->meta, $cache->img );
+        }
+        else {
+            parent::__construct( NULL, NULL );
+        }
+    }
+
+    function do_fetch( $url ) {
+
+
+        $f = no_redirect_fetch();
+        $cont = $f->fetch( $url );
+
+        if ( $f->httpCode() == "200" ) {
+            $headers = $f->responseHeaders();
+            $mt = $headers[ 'Content-Type' ];
+            dinfo( "Fetched: $url mimetyp: $mt" );
+            return array( 'meta'=>array( 'mimetype'=>$mt ), 'content'=>$cont );
+        }
+        else {
+            derror( "Error: fetching image:$url httpCode=" . $f->httpCode()  );
+            return array();
+        }
+    }
+}
+
+/*
+ * class PageFetch extends CachedFetcher {
+ * 
+ *     function __construct( &$cache = NULL ) {
+ *         if ( $cache ) {
+ *             parent::__construct( $cache->meta, $cache->page );
+ *         }
+ *         else {
+ *             parent::__construct( NULL, NULL );
+ *         }
+ *     }
+ * 
+ *     function do_fetch( $url ) {
+ * 
+ *         $f = no_redirect_fetch();
+ *         $cont = $f->fetch( $url );
+ * 
+ *         if ( $f->httpCode() == "200" ) {
+ *             $headers = $f->responseHeaders();
+ *             $mt = $headers[ 'Content-Type' ];
+ *             dinfo( "Fetched: $url mimetyp: $mt" );
+ *             return array( 'meta'=>array( 'mimetype'=>$mt ), 'content'=>$cont );
+ *         }
+ *         else {
+ *             derror( "Error: fetching image:$url httpCode=" . $f->httpCode()  );
+ *             return array();
+ *         }
+ *     }
+ * }
+ */
 
 
 class Mobilizer {
@@ -272,8 +339,9 @@ class Mobilizer {
     function processhtml() {
 
         $html = $this->html = new simple_html_dom();
+        // echo $this->content;
 
-        $html->load( $this->content );
+        $html->load( $this->content, true, false );
         $this->detect_enc();
         $this->extract_title();
 
@@ -344,12 +412,12 @@ class Mobilizer {
 
             $f = new ImgFetcher( $this->cache );
             $r = $f->fetch( $src );
-            $mtype = $r[ 'mtype' ];
+            $mt = $r[ 'meta' ][ 'mimetype' ];
             $cont = $r[ 'content' ];
 
 
-            if ( $mtype ) {
-                $e->setAttribute( 'src', data_uri( $cont, $mtype ) );
+            if ( $mt ) {
+                $e->setAttribute( 'src', data_uri( $cont, $mt ) );
                 dinfo( "OK: image embedded:$src" );
             }
             else {
@@ -391,7 +459,6 @@ h2 { font-size:18px; }
 h3 { font-size:16px; }
 h4 { font-size:14px; }
 blockquote{ margin:0 0 0 10px; }
-pre { white-space: normal; }
 </style>
 <p style='font-size:14px;'>原文：<a style='margin:10px;' href='$url'>$urltext</a></p>
 EOT;
@@ -485,7 +552,7 @@ class InstaMobilizer extends Mobilizer
         $this->responseHeaders = $f->responseHeaders();
 
         if ( $this->httpCode != '200' ) {
-            derror( "Fetching page: $url" );
+            derror( "Fetching page: {$this->url}" );
             return false;
         }
 

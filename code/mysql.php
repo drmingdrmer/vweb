@@ -136,8 +136,15 @@ class MyRaw {
 
 class My extends MyRaw {
 
+    public $table = '';
+
     function user_add( &$user ) {
         $sql = "INSERT INTO `user` " . $this->sql_values( $user );
+        return $this->insert( $sql );
+    }
+
+    function add( &$arr ) {
+        $sql = "INSERT INTO `{$this->table}` " . $this->sql_values( $arr );
         return $this->insert( $sql );
     }
 
@@ -173,14 +180,14 @@ class My extends MyRaw {
 class MyPage extends My {
     public $table = 'page';
 
-    function add( $url, $title, $realurl ) {
-        $sql = "INSERT INTO `page` " . $this->sql_values(
-            array(
+    function add( $url, $title, $realurl, $mimetype ) {
+        $arr = array(
                 'url'=>$url,
                 'title'=>$title,
                 'realurl'=>$realurl,
-            ) );
-        return $this->insert( $sql );
+                'mimetype'=>$mimetype,
+            );
+        return parent::add( $arr );
     }
 
     function del( $url ) {
@@ -199,6 +206,24 @@ class MyPage extends My {
     }
 }
 
+class Log extends My {
+
+    public $table = 'fav2vdlog';
+
+    function add( $userid, $level, $text ) {
+        $arr = array(
+            'userid'=>$userid,
+            'level'=>$level,
+            'text'=>$text,
+        );
+        return parent::add( $arr );
+    }
+
+    function select( $userid ) {
+        $sql = "SELECT * FROM `{$this->table}` where `userid`=$userid";
+        return parent::select( $sql );
+    }
+}
 
 
 
