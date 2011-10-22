@@ -267,23 +267,10 @@ class Mobilizer {
 
     function cache_read() {
 
-        if ( ! $this->cache ) {
+        if ( $this->cache_read_meta() === false ) {
             return false;
         }
 
-        $meta = $this->cache->meta->read( $this->url );
-        if ( $meta === false ) {
-            dinfo( "No meta in cache:{$this->url}" );
-            return false;
-        }
-
-        dinfo( "Success read from meta:" . print_r( $meta, true ) );
-
-        $this->meta[ 'title' ] = $meta[ 'title' ];
-        $this->meta[ 'realurl' ] = $meta[ 'realurl' ];
-
-        dinfo( "title: {$this->meta[ 'title' ]}" );
-        dinfo( "realurl: {$this->meta[ 'realurl' ]}" );
 
         $cont = $this->cache->page->read( $this->url );
         if ( $cont === false ) {
@@ -296,6 +283,25 @@ class Mobilizer {
         $this->content = $cont;
         $this->httpCode = "200";
 
+        return true;
+    }
+
+    function cache_read_meta() {
+        if ( ! $this->cache ) {
+            return false;
+        }
+
+        $meta = $this->cache->meta->read( $this->url );
+        if ( $meta === false ) {
+            dinfo( "No meta in cache:{$this->url}" );
+            return false;
+        }
+
+        dinfo( "Success read from meta:" . print_r( $meta, true ) );
+        $this->meta = $meta;
+
+        dinfo( "cached title: {$this->meta[ 'title' ]}" );
+        dinfo( "cached realurl: {$this->meta[ 'realurl' ]}" );
         return true;
     }
 
@@ -334,7 +340,6 @@ class Mobilizer {
     function processhtml() {
 
         $html = $this->html = new simple_html_dom();
-        // echo $this->content;
 
         $html->load( $this->content, true, false );
         $this->detect_enc();

@@ -68,12 +68,38 @@ class VD extends vDisk {
         }
     }
 
-    function putfile( $path, &$fdata ) {
+    function putfile_by_sha1( $path, $sha1 ) {
 
         $path = $this->fix_path( $path );
 
         dinfo( "VD path=$path" );
 
+        $parent = dirname( $path );
+        $fn = substr( $path, strlen( $parent ) + 1 );
+
+
+        $r = $this->mkdir_p( $parent );
+        if ( ! isok( $r ) ) {
+            return $r;
+        }
+
+        $dir_id = $r[ 'data' ][ 'id' ];
+
+        $r = $this->upload_with_sha1( $fn, $sha1, $dir_id );
+        dd( "Upload with sha1: " . print_r( $r, true ) );
+
+        if ( isok( $r ) ) {
+            dinfo( "Uploaded with sha1: $path" );
+        }
+
+        return $r;
+    }
+
+    function putfile( $path, &$fdata ) {
+
+        $path = $this->fix_path( $path );
+
+        dinfo( "VD path=$path" );
 
         $parent = dirname( $path );
         $fn = substr( $path, strlen( $parent ) + 1 );

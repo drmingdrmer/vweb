@@ -31,22 +31,31 @@ class S2 extends SaeS3 {
 
     function read( $path ) {
 
+        if ( $this->read_meta( $path ) === false ) {
+            dd( "Failed reading from s2: $path" );
+            return false;
+        }
+
+        $path = $this->path( $path );
+
+        $url = $this->getUrl( $this->dom, $path );
+        $cont = file_get_contents( $url );
+
+        dinfo( "Success read from s2: $path: " . strlen( $cont ) );
+        return $cont;
+    }
+
+    function read_meta( $path ) {
+
         $path = $this->path( $path );
 
         $attr = $this->getAttr( $this->dom, $path );
         dd( "s2 file attr: " . print_r( $attr, true ) );
 
-        if ( $attr ) {
-            $url = $this->getUrl( $this->dom, $path );
-            $cont = file_get_contents( $url );
-            dinfo( "Success read from s2: $path: " . strlen( $cont ) );
-            return $cont;
+        if ( $attr !== false ) {
+            return $attr;
         }
-        else {
-            dd( "Failed reading from s2: $path" );
-            return false;
-        }
-
+        return $attr;
     }
 }
 

@@ -9,6 +9,8 @@ class Fav2VD {
     public $t;
     public $vd;
 
+    public $s2page;
+    public $s2img;
     public $cache;
 
     public $policy = array(
@@ -23,14 +25,16 @@ class Fav2VD {
         $this->t = $t;
         $this->vd = $vd;
         $this->only = $only;
+        $this->s2page = new Page();
+        $this->s2img = new Img();
 
         $page = new MD5EngineVisitor( new LocalPage(),
                                       new EngineVisitor(
-                                          new Page() ) );
+                                          $this->s2page ) );
 
         $img = new MD5EngineVisitor( new LocalImg(),
                                      new EngineVisitor(
-                                         new Img() ) );
+                                         $this->s2img ) );
 
         $meta = new MD5EngineVisitor( new Mem(),
                                       new EngineVisitor(
@@ -161,8 +165,6 @@ class Fav2VD {
 
     function save_url( $url ) {
 
-        // bmiddle_pic
-
         if ( $this->only ) {
             if ( $this->only == $url ) {
                 $mob = new InstaMobilizer( $url );
@@ -174,6 +176,30 @@ class Fav2VD {
         else {
             $mob = new InstaMobilizer( $url, $this->cache );
         }
+        $r[ 'mob' ] = $mob;
+
+
+        $meta = $this->cache->meta->read( $url );
+        if ( $meta !== false ) {
+
+            $title = $meta[ 'title' ];
+
+            $pagemeta = $this->s2page->read_meta( md5( $url ) );
+            dd( "pagemeta: " . print_r( $pagemeta, true ) );
+
+            if ( $pagemeta !== false ) {
+
+                $sha1 = $pagemeta[ 'Content-SHA1' ];
+
+                $path = $this->link_path( $title );
+
+                $r = $this->vd->putfile_by_sha1( $path, $sha1 );
+                if ( $r !== false ) {
+                    return $r;
+                }
+            }
+        }
+
 
         if ( ! $mob->mobilize() ) {
             derror( "Error: Processing: $url" );
@@ -187,24 +213,20 @@ class Fav2VD {
 
         dinfo( "Mobilized: $url" );
 
-
         $title = $mob->meta[ 'title' ];
-        $url = $mob->meta[ 'realurl' ];
+        $path = $this->link_path( $title );
 
+        $r = $this->vd->putfile( $path, $mob->content );
+
+        return $r;
+    }
+
+    function link_path( $title ) {
         $nowdate = date( "Y_m_d" );
         $nowtime = date( "His");
 
         $path = "/V2V/article_$nowdate/$title.$nowtime.html";
-
-        $r = $this->vd->putfile( $path, $mob->content );
-
-        /*
-         * echo $mob->content;
-         * exit();
-         */
-
-        $r[ 'mob' ] = $mob;
-        return $r;
+        return $path;
     }
 
 }

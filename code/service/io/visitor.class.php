@@ -85,6 +85,7 @@ class MD5EngineVisitor extends EngineVisitor {
     function read( $key ) {
         return parent::read( $this->get_key( $key ) );
     }
+
 }
 
 /*
