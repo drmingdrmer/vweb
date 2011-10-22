@@ -19,11 +19,12 @@ class S2 extends SaeS3 {
 
         $url = parent::write( $this->dom, $path, $cont );
         if ( $url !== false ) {
-            dd( "Written to S2:$path length=" . strlen( $cont ) );
+            dinfo( "Success written to S2:$path length=" . strlen( $cont ) );
             return true;
         }
         else {
-            dd( "Failed to S2:$path length=" . strlen( $cont ) );
+            derror( "Failed writing to S2:$path length=" . strlen( $cont ) );
+            derror( "Error: " . $this->errmsg()  );
             return false;
         }
     }
@@ -38,7 +39,7 @@ class S2 extends SaeS3 {
         if ( $attr ) {
             $url = $this->getUrl( $this->dom, $path );
             $cont = file_get_contents( $url );
-            dd( "Read from s2: $path: " . strlen( $cont ) );
+            dinfo( "Success read from s2: $path: " . strlen( $cont ) );
             return $cont;
         }
         else {

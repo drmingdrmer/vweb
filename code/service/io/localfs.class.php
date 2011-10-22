@@ -22,18 +22,22 @@ class LocalFs
         $localfn = $this->path( $key );
         if ( file_exists( $localfn ) ) {
             $r = file_get_contents( $localfn );
-            dd( "Read from local fs: $key" );
+            dinfo( "Success Read from local fs: $key" );
             return $r;
         }
         else {
+            dd( "Failed reading from local fs: $key" );
             return false;
         }
     }
 
     function write( $key, $cont ) {
+
         $localfn = $this->path( $key );
         $r = file_put_contents( $localfn, $cont );
-        dd( "Written to local fs: $key" );
+
+        dinfo( "Success written to local fs: $key" );
+
         return $r;
     }
 }

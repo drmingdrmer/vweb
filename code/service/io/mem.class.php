@@ -8,16 +8,17 @@ class Mem {
 
     function write( $key, $arr ) {
         $this->table[ $key ] = arr_clone( $arr );
-        dd( "written to mem: $key" );
+        dinfo( "Success written to mem: $key" );
         return true;
     }
 
     function read( $key ) {
-        dd( "read from mem: $key:" . print_r( $this->table[ $key ], true ) );
         if ( isset( $this->table[ $key ] ) ) {
+            dinfo( "Success read from mem: $key:" . print_r( $this->table[ $key ], true ) );
             return $this->table[ $key ];
         }
         else {
+            dd( "Failed reading from mem: $key" );
             return false;
         }
     }

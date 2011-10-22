@@ -7,29 +7,14 @@ class Visitor {
     function __construct() {
     }
 
-    function get_key( $key ) {
-        $r = md5( $key );
-        dd( "$key = $r" );
-        return $r;
-    }
-
     function write( $key, &$cont ) {
-        $key = $this->get_key( $key );
-        if ( gettype( $cont ) == 'string' ) {
-            dd( "To write $key, len=" . strlen( $cont ) );
-        }
-        else if ( gettype( $cont ) == 'array' ) {
-            dd( "To write $key, " . print_r( $cont, true ) );
-        }
         return $this->do_write( $key, $cont );
     }
 
     function read( $key ) {
-        $key = $this->get_key( $key );
         return $this->do_read( $key );
     }
 }
-
 
 class EngineVisitor extends Visitor{
 
@@ -42,7 +27,9 @@ class EngineVisitor extends Visitor{
     }
 
     function write( $key, &$cont ) {
+
         $r = parent::write( $key, $cont );
+
         if ( $r ) {
             if ( $this->child !== NULL ) {
                 $this->child->write( $key, $cont );
@@ -53,6 +40,7 @@ class EngineVisitor extends Visitor{
     }
 
     function read( $key ) {
+
         $r = parent::read( $key );
         if ( $r !== false ) {
             return $r;
@@ -70,7 +58,6 @@ class EngineVisitor extends Visitor{
             parent::write( $key, $r );
             return $r;
         }
-
     }
 
     function do_write( $key, &$cont ) {
@@ -81,6 +68,23 @@ class EngineVisitor extends Visitor{
         return $this->engine->read( $key );
     }
 
+}
+
+class MD5EngineVisitor extends EngineVisitor {
+
+    function get_key( $key ) {
+        $r = md5( $key );
+        dd( "Convert key $key to $r" );
+        return $r;
+    }
+
+    function write( $key, &$cont ) {
+        return parent::write( $this->get_key( $key ), $cont );
+    }
+
+    function read( $key ) {
+        return parent::read( $this->get_key( $key ) );
+    }
 }
 
 /*

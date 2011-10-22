@@ -64,6 +64,7 @@ class MyRaw {
         return $this->isok() ? $this->r_delete() : $this->err();
     }
     function insert( $sql ) {
+        dd( "INSERT sql: $sql" );
         $this->my->runSql( $sql );
         return ( $this->isok() && $this->affected() )
             ? $this->r_insert() : $this->err();
@@ -124,6 +125,9 @@ class MyRaw {
                 $v = $this->my->escape( $v );
                 $vs .= ", '$v'";
             }
+            else {
+                $vs .= ", NULL";
+            }
         }
 
         $ks = substr( $ks, 2 );
@@ -145,6 +149,11 @@ class My extends MyRaw {
 
     function add( &$arr ) {
         $sql = "INSERT INTO `{$this->table}` " . $this->sql_values( $arr );
+        return $this->insert( $sql );
+    }
+
+    function add_ondup_inc( &$arr, $counter ) {
+        $sql = "INSERT INTO `{$this->table}` " . $this->sql_values( $arr ) . " ON DUPLICATE KEY UPDATE `$counter`=`$counter`+1";
         return $this->insert( $sql );
     }
 
@@ -180,14 +189,8 @@ class My extends MyRaw {
 class MyPage extends My {
     public $table = 'page';
 
-    function add( $url, $title, $realurl, $mimetype ) {
-        $arr = array(
-                'url'=>$url,
-                'title'=>$title,
-                'realurl'=>$realurl,
-                'mimetype'=>$mimetype,
-            );
-        return parent::add( $arr );
+    function add( $arr ) {
+        return parent::add_ondup_inc( $arr, 'count' );
     }
 
     function del( $url ) {

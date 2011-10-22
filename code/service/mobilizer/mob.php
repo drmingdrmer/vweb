@@ -38,7 +38,7 @@ class HtmlProcessor {
 
         $parent = $this->common_ancestor( $nodes, $root );
 
-        dd( "Common ancestor: " . firstline( $parent->innertext ) );
+        dd( "Common ancestor: " . firstline( $parent->plaintext ) );
 
         return $parent;
     }
@@ -55,8 +55,6 @@ class HtmlProcessor {
             $text = trim( $e->innertext );
             $len = strlen( $text );
 
-            dd( "Found: " . firstline( $text ) );
-
             $x = array( 'e'=> $e, 'size'=> $len );
 
             array_push( $largests, $x );
@@ -64,7 +62,6 @@ class HtmlProcessor {
 
             if ( count( $largests ) > 3 ) {
                 $q = array_shift( $largests );
-                dd( "Shifted: " . firstline( $q[ 'e' ]->innertext ) );
             }
         }
 
@@ -118,7 +115,7 @@ class CachedFetcher {
     public $metaCache;
     public $contCache;
 
-    function __construct( &$metaCache, &$contCache ) {
+    function __construct( &$metaCache = NULL, &$contCache = NULL ) {
         $this->metaCache = $metaCache;
         $this->contCache = $contCache;
     }
@@ -145,15 +142,14 @@ class CachedFetcher {
 
         $r = $this->do_fetch( $key );
 
-        if ( $r[ 'meta' ] && $r[ 'content' ] ) {
+        if ( $r[ 'meta' ] && $r[ 'content' ]
+                && $this->contCache
+                && $rcont === false ) {
 
-            if ( $this->contCache ) {
+            $rw = $this->contCache->write( $key, $r[ 'content' ] );
 
-                $rw = $this->contCache->write( $key, $r[ 'content' ] );
-
-                if ( $rw && $this->metaCache ) {
-                    $this->metaCache->write( $key, $r[ 'meta' ] );
-                }
+            if ( $rw && $this->metaCache && $rmeta === false ) {
+                $this->metaCache->write( $key, $r[ 'meta' ] );
             }
         }
 
@@ -171,7 +167,7 @@ class ImgFetcher extends CachedFetcher {
             parent::__construct( $cache->meta, $cache->img );
         }
         else {
-            parent::__construct( NULL, NULL );
+            parent::__construct();
         }
     }
 
@@ -202,7 +198,7 @@ class ImgFetcher extends CachedFetcher {
  *             parent::__construct( $cache->meta, $cache->page );
  *         }
  *         else {
- *             parent::__construct( NULL, NULL );
+ *             parent::__construct();
  *         }
  *     }
  * 
@@ -229,22 +225,24 @@ class ImgFetcher extends CachedFetcher {
 class Mobilizer {
 
     public $url;
-    public $realurl;
 
     public $error;
-    public $title;
+
+    public $meta;
     public $content;
+
     public $enconding;
 
     public $httpCode;
     public $responseHeaders;
+
 
     protected $cache;
     protected $html;
 
     function __construct( $url, &$cache = NULL ) {
         $this->url = $url;
-        $this->realurl = $url;
+        $this->meta[ 'realurl' ] = $url;
         $this->cache = $cache;
     }
 
@@ -273,19 +271,19 @@ class Mobilizer {
             return false;
         }
 
-        $arr = $this->cache->meta->read( $this->url );
-        if ( $arr === false ) {
+        $meta = $this->cache->meta->read( $this->url );
+        if ( $meta === false ) {
             dinfo( "No meta in cache:{$this->url}" );
             return false;
         }
 
-        dinfo( "OK read from meta:" . print_r( $arr, true ) );
+        dinfo( "Success read from meta:" . print_r( $meta, true ) );
 
-        $this->title = $arr[ 'title' ];
-        $this->realurl = $arr[ 'realurl' ];
+        $this->meta[ 'title' ] = $meta[ 'title' ];
+        $this->meta[ 'realurl' ] = $meta[ 'realurl' ];
 
-        dinfo( "title: {$this->title}" );
-        dinfo( "realurl: {$this->realurl}" );
+        dinfo( "title: {$this->meta[ 'title' ]}" );
+        dinfo( "realurl: {$this->meta[ 'realurl' ]}" );
 
         $cont = $this->cache->page->read( $this->url );
         if ( $cont === false ) {
@@ -293,7 +291,7 @@ class Mobilizer {
             return false;
         }
 
-        dinfo( 'OK read page content from cache, length=' . strlen( $cont ) );
+        dinfo( 'Success read page content from cache, length=' . strlen( $cont ) );
 
         $this->content = $cont;
         $this->httpCode = "200";
@@ -307,7 +305,7 @@ class Mobilizer {
             return false;
         }
 
-        dd( "OK: write cache" );
+        dd( "Success: write cache" );
 
         dd( "To write {$this->url}, length=" . strlen( $this->content ) );
         $r = $this->cache->page->write( $this->url, $this->content );
@@ -316,18 +314,15 @@ class Mobilizer {
             return false;
         }
 
-        dinfo( "OK: written page to sto, length=" . strlen( $this->content ) );
+        dinfo( "Success: written page to sto, length=" . strlen( $this->content ) );
 
-        $meta = array(
-                'title'=>$this->title,
-                'realurl'=>$this->realurl );
         if ( $this->cache->meta->write(
-            $this->url, $meta ) === false ) {
+            $this->url, $this->meta ) === false ) {
                 derror( "Failed to write to meta" );
                 return false;
         }
 
-        dinfo( "OK: written page meta " . print_r( $meta, true ) );
+        dinfo( "Success: written page meta " . print_r( $meta, true ) );
 
         return true;
 
@@ -350,12 +345,11 @@ class Mobilizer {
         }
 
         $this->html_cleanup();
+        $this->convert_links();
+        $this->html_embed_img();
 
         $h = new HtmlProcessor( $html );
         $h->article_as_body();
-
-        $this->convert_links();
-        $this->html_embed_img();
 
         $this->html_finalize();
 
@@ -374,9 +368,9 @@ class Mobilizer {
                 $c = $m->getAttribute( "content" );
                 if ( $c == "text/html; charset=gb2312" ) {
                     $this->enconding='gb2312';
+                    dd( "gb2312" );
                     $m->setAttribute( "content", "text/html; charset=utf-8" );
                 }
-
             }
         }
 
@@ -395,7 +389,7 @@ class Mobilizer {
 
         dd( "Raw title=$title" );
 
-        $this->title = preg_replace( '/[><\/:?*\\ \-_"]+/', '_', $title );
+        $this->meta[ 'title' ] = vdname_normallize( $title );
 
         dinfo( "Title: $title" );
 
@@ -406,9 +400,9 @@ class Mobilizer {
 
         $es = $this->html->find( "img" );
 
-        foreach ($es as $e) {
+        foreach ($es as &$e) {
 
-            $src=$e->getAttribute( 'src' );
+            $src = $e->getAttribute( 'src' );
 
             $f = new ImgFetcher( $this->cache );
             $r = $f->fetch( $src );
@@ -417,13 +411,15 @@ class Mobilizer {
 
 
             if ( $mt ) {
-                $e->setAttribute( 'src', data_uri( $cont, $mt ) );
-                dinfo( "OK: image embedded:$src" );
+                $data_uri = data_uri( $cont, $mt );
+                dd( "data_uri: " . firstline( $data_uri ) );
+
+                $e->setAttribute( 'src', $data_uri );
+                dinfo( "Success: image embedded:$src" );
             }
             else {
                 derror( "Failed to fetch image from $src" );
             }
-
         }
     }
 
@@ -431,7 +427,7 @@ class Mobilizer {
     }
 
     function html_finalize() {
-        $url = $this->realurl;
+        $url = $this->meta[ 'realurl' ];
         if ( strlen( $url ) > 30 ) {
             $u = parse_url( $url );
             $urltext = $u[ 'host' ] . '/...';
@@ -534,6 +530,11 @@ class DirectMobilizer extends Mobilizer
             $e->removeAttribute('style');
         }
 
+        $es = $html->find( "img" );
+        foreach ($es as $e) {
+            $e->removeAttribute('alt');
+        }
+
         return true;
     }
 }
@@ -556,17 +557,19 @@ class InstaMobilizer extends Mobilizer
             return false;
         }
 
+        $this->meta[ 'mimetype' ] = $this->responseHeaders[ 'Content-Type' ];
+
         return true;
     }
 
     function check_valid() {
         // instapaper failed to fetch this url
-        if ( $this->title == 'Not_available' ) {
+        if ( $this->meta[ 'title' ] == 'Not_available' ) {
             $this->error = 'instaError';
-            dd( "title seem to be invalid doc:{$this->title}" );
+            dd( "title seem to be invalid doc:{$this->meta[ 'title' ]}" );
             return false;
         }
-        dd( "OK: title: {$this->title}" );
+        dd( "Success: title: {$this->meta[ 'title' ]}" );
         return true;
     }
 
@@ -578,8 +581,8 @@ class InstaMobilizer extends Mobilizer
 
         $e = $html->find( ".top a", 0 );
         if ( $e ) {
-            $this->realurl = $e->getAttribute( 'href' );
-            dinfo( "realurl: {$this->realurl}" );
+            $this->meta[ 'realurl' ] = $e->getAttribute( 'href' );
+            dinfo( "realurl: {$this->meta[ 'realurl' ]}" );
         }
 
         html_remove( $html, ".top,.bottom" );

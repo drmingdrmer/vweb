@@ -6,13 +6,17 @@ $levels = array(
     'warn'=>6,
     'error'=>4,
 );
+
 $_debugLevel = 'debug';
+$_debugLevel = 'info';
 
 if ( $_GET[ 'level' ] ) {
     $_debugLevel = $_GET[ 'level' ];
 }
 
 $_debugLevel = $levels[ $_debugLevel ];
+
+$_debugFn = '.';
 
 function _pos() {
     $bt = debug_backtrace();
@@ -22,7 +26,10 @@ function _pos() {
     $fn = $bt[ 'file' ];
     $fn = substr( $fn, strlen( $_SERVER[ "DOCUMENT_ROOT" ] ) );
 
-    echo "<span style='color:#999;width:300px;display:inline-block;'>[ $fn:{$bt['line']} ]</span> ";
+    $clz = $bt[ 'class' ];
+
+    $now = strftime("%H:%M:%S");
+    echo "<span style='color:#999;width:300px;display:inline-block;'>[ $fn:{$bt['line']} $clz ]</span> $now ";
 }
 
 function _write( $msg ) {

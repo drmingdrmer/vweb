@@ -67,4 +67,8 @@ function hasdata( $r ) {
     return isok( $r ) && count( $r[ 'data' ] ) > 0;
 }
 
+function vdname_normallize( $n ) {
+    return preg_replace( '/[#><\/:?*\\ \-_"]+/', '_', $n );
+}
+
 ?>

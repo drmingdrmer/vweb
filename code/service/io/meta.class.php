@@ -9,15 +9,17 @@ class Meta {
 
         $my = new MyPage();
 
-        $r = $my->add( $key,
-            $arr[ 'title' ], $arr[ 'realurl' ], $arr[ 'mimetype' ] );
+        $arr[ 'url' ] = $key;
+        $r = $my->add( $arr );
+
 
         $x = isok( $r );
         if ( $x ) {
-            dd( "Written to meta: $key " . print_r( $arr, true ) );
+            dinfo( "Success written to meta: $key " . print_r( $arr, true ) );
         }
         else {
-            dd( "Failed writing to meta: $key: " . print_r( $arr, true ) );
+            derror( "Failed writing to meta: $key: " . print_r( $arr, true ) );
+            derror( "Writing meta r=" . print_r( $r, true ) );
         }
         return $x;
     }
@@ -31,7 +33,7 @@ class Meta {
 
         if ( hasdata( $r ) ) {
             $arr = $r[ 'data' ][ 0 ];
-            dd( "Read meta: $key: " . print_r( $arr, true ) );
+            dinfo( "Read meta: $key: " . print_r( $arr, true ) );
             return $arr;
         }
         else {

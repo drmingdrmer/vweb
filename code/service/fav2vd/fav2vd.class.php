@@ -24,19 +24,20 @@ class Fav2VD {
         $this->vd = $vd;
         $this->only = $only;
 
-        $page = new EngineVisitor( new LocalPage(),
-                                   new EngineVisitor(
-                                       new Page() ) );
+        $page = new MD5EngineVisitor( new LocalPage(),
+                                      new EngineVisitor(
+                                          new Page() ) );
 
-        $img = new EngineVisitor( new LocalImg(),
-                                  new EngineVisitor(
-                                      new Img() ) );
+        $img = new MD5EngineVisitor( new LocalImg(),
+                                     new EngineVisitor(
+                                         new Img() ) );
 
-        $meta = new EngineVisitor( new Mem(),
-                                   new EngineVisitor(
-                                      new Meta() ) );
+        $meta = new MD5EngineVisitor( new Mem(),
+                                      new EngineVisitor(
+                                         new Meta() ) );
 
         $this->cache = new Cache( $page, $img, $meta );
+
         dd( "this.cache.meta" );
         dd( print_r( $this->cache->meta, true ) );
     }
@@ -61,10 +62,11 @@ class Fav2VD {
 
     function process_tweet( &$tweet ) {
 
-        // dinfo( "fav=" . print_r( $tweet, true ) );
 
         $text = $tweet[ 'text' ];
         $urls = $tweet[ '_urls' ] = T::extract_urls( $text );
+
+        dinfo( "process tweet: " . $tweet[ 'id' ] . " $text" );
 
         $props = array(
             'img' => isset( $tweet[ 'bmiddle_pic' ] ),
@@ -86,13 +88,12 @@ class Fav2VD {
         foreach ( $this->policy as $expStr=>$acts ) {
 
             if ( ! $this->is_satisfied( $props, $expStr ) ) {
-                dinfo( "Expectance failed: $expStr" );
                 continue;
             }
 
+
             $acts = explode( ' ', $acts );
             foreach ($acts as $a) {
-                dinfo( "Execute action: $a on tweet id={$tweet[ 'id' ]}" );
 
                 $meth = "execute_$a";
                 if ( ! $this->$meth( $tweet ) ) {
@@ -114,18 +115,16 @@ class Fav2VD {
             }
         }
 
-        dinfo( "Satisfied: " . $expStr );
+        dd( "Satisfied: " . $expStr );
         return true;
     }
 
     function execute_img( &$tweet ) {
 
-        dd( "execute_img on tweet: " . print_r( $tweet, true ) );
-
         $m = new ImgFetcher( $this->cache );
         $url = $tweet[ 'bmiddle_pic' ];
 
-        dd( "Image url: $url" );
+        dinfo( "Execute img: $url on tweet: {$tweet[ 'id' ]}" );
 
         $r = $m->fetch( $url );
         if ( $r[ 'meta' ][ 'mimetype' ] ) {
@@ -133,8 +132,9 @@ class Fav2VD {
             $nowdate = date( "Y_m_d" );
             $nowtime = date( "His");
 
-            dd( "{$r[ 'meta' ][ 'mimetype' ]}" );
-            $fn = firstline( $tweet[ 'text' ] ) . ".$nowtime." . get_ext( $r[ 'meta' ][ 'mimetype' ] );
+            $fn = vdname_normallize( firstline( $tweet[ 'text' ] ) );
+            $fn .= ".$nowtime." . get_ext( $r[ 'meta' ][ 'mimetype' ] );
+
             $path = "/V2V/photo_$nowdate/$fn";
 
             $r = $this->vd->putfile( $path, $r[ 'content' ] );
@@ -149,18 +149,11 @@ class Fav2VD {
         $text = $tweet[ 'text' ];
         $urls = $tweet[ '_urls' ];
 
-        dd( '<hr />' );
-        dinfo( "favorite: $text" );
-
-
-        dinfo( "OK: Extracted " . count( $urls ) . " urls" );
+        dinfo( "Execute links: " . implode( ' ', $urls ) );
 
         foreach ($urls as $url) {
-            // if ( $url == "http://t.cn/heIjkx" ) {
-                dinfo( "Processing: $url" );
-                $r = $this->save_url( $url );
-                // exit();
-            // }
+            dinfo( "Processing: $url" );
+            $r = $this->save_url( $url );
         }
 
         return true;
@@ -195,8 +188,8 @@ class Fav2VD {
         dinfo( "Mobilized: $url" );
 
 
-        $title = $mob->title;
-        $url = $mob->realurl;
+        $title = $mob->meta[ 'title' ];
+        $url = $mob->meta[ 'realurl' ];
 
         $nowdate = date( "Y_m_d" );
         $nowtime = date( "His");
