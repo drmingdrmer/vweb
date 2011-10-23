@@ -125,10 +125,12 @@ class ImgFetcher extends CachedFetcher {
 
             $this->meta = array( 'mimetype'=>$mt );
             $this->content = $cont;
+
+            dok( "Img Fetched: $url" );
             return true;
         }
         else {
-            derror( "Error: fetching image:$url httpCode=" . $f->httpCode()  );
+            derror( "Fetching image:$url httpCode=" . $f->httpCode()  );
             return false;
         }
     }
@@ -168,7 +170,7 @@ class PageFetcher extends CachedFetcher {
 
         if ( $this->httpCode == "200" ) {
 
-            dok( "Fetched: $url" );
+            dok( "Page fetched: $url" );
 
             $r = $this->process_response();
             if ( $r ) {
@@ -176,7 +178,7 @@ class PageFetcher extends CachedFetcher {
             return $r;
         }
         else {
-            derror( "Error: fetching :$url httpCode=" . $this->httpCode  );
+            derror( "Failed fetching page: $url httpCode=" . $this->httpCode  );
             return false;
         }
     }

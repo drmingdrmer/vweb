@@ -48,7 +48,7 @@ class Tweet {
     function extract_properties() {
 
         $this->properties = array(
-            'img' => isset( $tweet[ 'bmiddle_pic' ] ),
+            'img' => isset( $this->tweet[ 'bmiddle_pic' ] ),
             'links' => count( $this->urls ) > 0,
             'any' => true,
         );

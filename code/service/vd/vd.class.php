@@ -120,7 +120,7 @@ class VD extends vDisk {
         dd( "Upload with sha1: " . print_r( $r, true ) );
 
         if ( isok( $r ) ) {
-            dinfo( "Uploaded with sha1: $path" );
+            dok( "Uploaded with sha1: $path" );
             return $r;
         }
 

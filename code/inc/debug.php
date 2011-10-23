@@ -48,34 +48,26 @@ function _write( $msg ) {
     flush();
 }
 
-function dd( $msg ) {
+function _write_pos( $msg ) {
+    _pos();
+    _write( $msg );
+}
+
+function if_log( $lvl ) {
     global $_debugLevel;
     global $levels;
-    if ( $_debugLevel < $levels[ 'debug' ] ) {
-        return;
-    }
-    _pos();
-    _write( "[ DEBUG ] $msg" );
+    return $_debugLevel >= $levels[ $lvl ];
 }
 
-function dinfo( $msg ) {
-    if ( $_debugLevel < $levels[ 'info' ] ) {
-        return;
-    }
-    _pos();
-    _write( "[ INFO ] $msg" );
+function _write_pos_if( $lvl, $msg ) {
+    $LVL = strtoupper( $lvl );
+    if_log( $lvl ) && _write_pos( "[ $LVL ] $msg" );
 }
 
-function dok( $msg ) {
-    if ( $_debugLevel < $levels[ 'ok' ] ) {
-        return;
-    }
-    _pos();
-    _write( "[ OK ] $msg" );
-}
+function dd( $msg ) { _write_pos_if( 'debug', $msg ); }
+function dinfo( $msg ) { _write_pos_if( 'info', $msg ); }
+function dok( $msg ) { _write_pos_if( 'ok', $msg ); }
+function dwarn( $msg ) { _write_pos_if( 'warn', $msg ); }
+function derror( $msg ) { _write_pos_if( 'error', $msg ); }
 
-function derror( $msg ) {
-    _pos();
-    _write( "[ ERROR ] $msg" );
-}
 ?>
