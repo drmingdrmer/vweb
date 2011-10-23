@@ -1,5 +1,6 @@
 <?
 include_once( $_SERVER["DOCUMENT_ROOT"] . "/service/t/t.class.php" );
+include_once( $_SERVER["DOCUMENT_ROOT"] . "/service/t/tweet.class.php" );
 include_once( $_SERVER["DOCUMENT_ROOT"] . "/service/mobilizer/mob.php" );
 include_once( $_SERVER["DOCUMENT_ROOT"] . "/service/vd/vd.class.php" );
 

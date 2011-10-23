@@ -38,6 +38,7 @@ function doit() {
         }
         else if ( $_GET[ 'dump' ] ) {
             $fv = new Fav2VD( $t, $vdisk, $_GET[ 'dump' ] );
+            $fv->conf[ 'sha1_allowed' ] = false;
             $r = $fv->save_url( $_GET[ 'dump' ] );
             echo $r[ 'mob' ]->content;
             return;
