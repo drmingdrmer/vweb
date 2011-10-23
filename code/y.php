@@ -14,12 +14,6 @@ include_once( $_SERVER["DOCUMENT_ROOT"] . "/service/all.php" );
 include_once( $_SERVER["DOCUMENT_ROOT"] . "/service/fav2vd/fav2vd.class.php" );
 
 
-/*
- * include_once( $_SERVER["DOCUMENT_ROOT"] . "/mysql.php" );
- * print_r( new MetaVisitor() );
- * exit();
- */
-
 function doit() {
 
     $acc = new Account();

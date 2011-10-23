@@ -9,10 +9,109 @@ include_once( $_SERVER["DOCUMENT_ROOT"] . "/mysql.php" );
 class Account
 {
     public $acctoken;
+    public $user;
     public $redirect = DEFAULT_INDEX;
+    public $error;
+
+    public $workPage;
 
     function __construct( &$acctoken = NULL ) {
         $this->acctoken = $acctoken;
+        $this->default_work_page( $_SERVER[ 'SCRIPT_URL' ] );
+    }
+
+    function default_work_page( $p ) {
+         $this->workPage = $_GET[ 'r' ] ? $_GET[ 'r' ] : $p;
+    }
+
+    function use_sess() {
+        if ( $this->sess_has_acctoken() ) {
+            $this->acctoken = $_SESSION[ 'acctoken' ];
+            return $this->t_load_user();
+        }
+        else {
+            $this->error = array( 'rst'=>'NoTokenInSession' );
+            return false;
+        }
+    }
+
+    function use_db( $id ) {
+        $myuser = new MyUser();
+        $this->acctoken = $myuser->t_acctoken( $id );
+        if ( ! $this->acctoken ) {
+            $this->error = array( "rst"=>"dbError" );
+            return false;
+        }
+        return $this->t_load_user();
+    }
+
+    function goto_work_page() {
+        dd( "goto_work_page: {$this->workPage}" );
+        if ( $this->workPage ) {
+            header("Location: {$this->workPage}");
+            exit();
+        }
+        else {
+            return false;
+        }
+    }
+
+    function t_load_user() {
+
+        $c = new T( $this->acctoken );
+        $r = $c->me();
+        dd( "load me: " . print_r( $r, true ) );
+        if ( $r ){
+            $this->user = $c->r[ 'data' ];
+            return $this->save_user();
+        }
+        return false;
+    }
+
+    function has_verifier() {
+        return isset( $_REQUEST['oauth_verifier'] );
+    }
+
+    function verify( $verifier = NULL ) {
+
+        if ( NULL === $verifier ) {
+            $verifier = $_REQUEST['oauth_verifier'];
+        }
+
+        $reqtoken = $_SESSION[ 'reqtoken' ];
+        $this->_generate_acctoken( $reqtoken, $verifier );
+
+        dd( "verified, access token: " .print_r( $this->acctoken, true ) );
+
+        return $this->t_load_user();
+    }
+
+    function save_user() {
+
+        $user = $this->user;
+
+        $_SESSION[ 'user' ] = $user;
+        $_SESSION['acctoken'] = $this->acctoken;
+
+        $myuser = new MyUser();
+
+        $u = array( 'userid'=>$user[ 'id' ], );
+
+        // simplify it
+        // TODO if user exists, return ok
+        $r = $myuser->add( $u );
+
+        $r = $myuser->t_acctoken( $u[ 'userid' ], $this->acctoken );
+
+        dd( "save user result: " . print_r( $r, true ) );
+
+        return $r;
+    }
+
+    function start_auth() {
+        $aurl = $this->_init_oauth();
+        include( "oauthindex.php" );
+        exit();
     }
 
     function sess_flush() {
@@ -24,20 +123,20 @@ class Account
         return isset( $_SESSION[ 'acctoken' ] );
     }
 
-    function t_to_sess() {
-        $r = $this->me();
-        if ( isok( $r ) ) {
-            $_SESSION[ 'user' ] = $r[ 'data' ];
-            // TODO error messages
-            return true;
-        }
-        else {
-            return false;
-        }
+    function _init_oauth() {
 
+        $o = new SaeTOAuth( WB_AKEY , WB_SKEY );
+
+        $proto = is_https() ? 'https://' : 'http://';
+        $reqtoken = $o->getRequestToken();
+
+        $url = $o->getAuthorizeURL( $reqtoken['oauth_token'], false,
+            $proto . $_SERVER['HTTP_HOST'] . "/index.php?r={$this->workPage}");
+
+        $_SESSION['reqtoken'] = $reqtoken;
+        return $url;
     }
-
-    function generate_acctoken( &$reqtoken, $verifier ) {
+    function _generate_acctoken( &$reqtoken, $verifier ) {
 
         $o = new SaeTOAuth( WB_AKEY, WB_SKEY,
             $reqtoken['oauth_token'],
@@ -45,110 +144,6 @@ class Account
 
         $this->acctoken = $o->getAccessToken( $verifier ) ;
     }
-
-    function use_sess() {
-        if ( $this->sess_has_acctoken() ) {
-            $this->acctoken = $_SESSION[ 'acctoken' ];
-            return true;
-        }
-        else {
-            return false;
-        }
-    }
-
-    function use_db( $id ) {
-        $my = new My();
-        $this->acctoken = $my->t_acctoken( $id );
-        return true;
-    }
-
-    function verify( $verifier ) {
-
-        $reqtoken = $_SESSION[ 'reqtoken' ];
-        $this->generate_acctoken( $reqtoken, $verifier );
-
-        $r = $this->me();
-
-        if ( isok( $r ) ) {
-
-            $user = $r[ 'data' ];
-
-            $this->save_user( $user );
-
-            $r = $this->save_acctoken( $user );
-            // TODO error handling
-
-        }
-
-        return $r;
-    }
-
-    function save_acctoken( &$user ) {
-
-        $_SESSION['acctoken'] = $this->acctoken;
-
-        $my = new My();
-        $r = $my->t_acctoken( $u[ 'id' ], $this->acctoken );
-
-        return $r;
-    }
-
-    function save_user( &$user ) {
-
-        $_SESSION[ 'user' ] = $user;
-
-        $my = new My();
-        $u = array( 'id'=>$user[ 'id' ], );
-        $r = $my->user_add( $u );
-
-        return $r;
-    }
-
-    function init_oauth() {
-
-        $o = new SaeTOAuth( WB_AKEY , WB_SKEY );
-
-        $proto = is_https() ? 'https://' : 'http://';
-
-        $reqtoken = $o->getRequestToken();
-
-        $redirect = $this->redirect;
-
-        $url = $o->getAuthorizeURL( $reqtoken['oauth_token'], false,
-            $proto . $_SERVER['HTTP_HOST'] . "/index.php?r=$redirect");
-
-        $_SESSION['reqtoken'] = $reqtoken;
-        return $url;
-    }
-
-    function start_auth() {
-        $aurl = $this->init_oauth();
-        include( "oauthindex.php" );
-        exit();
-    }
-
-    function do_work() {
-        if ( $this->t_to_sess() ) {
-            $this->redirect();
-            return true;
-        }
-        else {
-            return false;
-        }
-    }
-
-    function redirect() {
-        $r = $this->redirect;
-        header("Location: $r");
-        exit();
-    }
-
-    function me() {
-        $c = new T( $this->acctoken );
-        $r = $c->me();
-        return $r;
-    }
-
 }
 
 ?>

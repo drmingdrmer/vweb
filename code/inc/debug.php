@@ -9,6 +9,7 @@ $levels = array(
 );
 
 $_debugLevel = 'debug';
+$_debugLevel = 'warn';
 
 if ( $_GET[ 'level' ] ) {
     $_debugLevel = $_GET[ 'level' ];

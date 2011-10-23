@@ -5,10 +5,9 @@ session_start();
 include_once( $_SERVER["DOCUMENT_ROOT"] . "/acc.php" );
 
 
-$verifier = $_REQUEST['oauth_verifier'];
 
 $acc = new Account();
-$acc->redirect = $_GET[ 'r' ] ? $_GET[ 'r' ] : DEFAULT_INDEX;
+$acc->default_work_page( DEFAULT_INDEX );
 
 if ( $_GET[ 'acc' ] == 'flush' ) {
     $acc->sess_flush();
@@ -16,16 +15,18 @@ if ( $_GET[ 'acc' ] == 'flush' ) {
     exit();
 }
 
-if ( $verifier ) {
-    $acc->verify( $verifier );
-    if ( ! $acc->do_work() ) {
+if ( $acc->has_verifier() ) {
+    if ( $acc->verify() ) {
+        dd( "verify ok" );
+        $acc->goto_work_page();
+    }
+    else {
+        // illegal verifier
         $acc->start_auth();
     }
 }
 else if ( $acc->use_sess() ) {
-    if ( ! $acc->do_work() ) {
-        $acc->start_auth();
-    }
+    $acc->goto_work_page();
 }
 else {
     $acc->start_auth();

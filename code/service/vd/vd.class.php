@@ -26,6 +26,13 @@ class VD extends vDisk {
     function login( $username, $password ) {
 
         $r = $this->get_token($username, $password, 'sinat');
+        if ( isok( $r ) ) {
+            $this->token = $r[ 'data' ][ 'token' ];
+            return true;
+        }
+        else {
+            return false;
+        }
 
         /*
          * Expected $r:
@@ -45,8 +52,6 @@ class VD extends vDisk {
          * )
          *
          */
-
-        return $r;
     }
 
     function write_local_tmp( &$cont ) {

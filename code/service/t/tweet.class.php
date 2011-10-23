@@ -61,7 +61,7 @@ class Tweet {
             $this->properties[ "-$n" ] = !$v;
         }
 
-        dinfo( "props: $presen" );
+        dinfo( "Tweet properties: $presen" );
     }
 }
 

@@ -2,25 +2,15 @@
 
 include_once( $_SERVER["DOCUMENT_ROOT"] . "/inc/debug.php" );
 
-function serialize_token( &$tok ) {
-    $t = "{$tok[ 'oauth_token' ]}:{$tok[ 'oauth_token_secret' ]}";
-    return $t;
-}
 
-function unserialize_token( $tok ) {
-    $tok = explode( ':', $tok );
-    return array( 'oauth_token'=>$tok[ 0 ], 'oauth_token_secret'=>$tok[ 1 ] );
-}
+class MyRaw extends SaeMysql{
 
-class MyRaw {
-    private $my;
+    public $my;
 
-    function __construct() {
-        $this->my = new SaeMysql();
-    }
+    // public $sql;
 
     function __destruct() {
-        $this->my->closeDb();
+        $this->closeDb();
     }
 
     function one( $table, &$arr ) {
@@ -34,7 +24,7 @@ class MyRaw {
                 $cond .= "AND `$k`=$v";
             }
             else if ( gettype( $v ) == 'string' ) {
-                $cond .= "AND `$k`='" . $this->my->escape( $v ) . "'";
+                $cond .= "AND `$k`='" . $this->escape( $v ) . "'";
             }
         }
 
@@ -44,69 +34,50 @@ class MyRaw {
 
         dd( "sql for 'one' is $sql" );
 
-        return $this->select( $sql );
+        $r = $this->select( $sql );
+        if ( $this->hasdata( $r ) ) {
+            return $r[ 0 ];
+        }
+        else {
+            return false;
+        }
     }
 
     function select( $sql ) {
-        $data = $this->my->getData( $sql );
-        dd( "select result set size=" . count( $data ) );
-        return $this->isok()
-            ? $this->r_select( $data ) : $this->err();
+        return $this->getData( $sql );
     }
 
     function update( $sql ) {
-        $this->my->runSql( $sql );
-        return $this->isok() ? $this->r_update() : $this->err();
+        $this->runSql( $sql );
+        return $this->errno() === 0;
     }
 
     function delete( $sql ) {
-        $this->my->runSql( $sql );
-        return $this->isok() ? $this->r_delete() : $this->err();
+        $this->runSql( $sql );
+        return $this->errno() === 0;
     }
+
     function insert( $sql ) {
-        dd( "INSERT sql: $sql" );
-        $this->my->runSql( $sql );
-        return ( $this->isok() && $this->affected() )
-            ? $this->r_insert() : $this->err();
+        $this->runSql( $sql );
+        return $this->errno() === 0;
+    }
+
+    function hasdata( $d ) {
+        return count( $d ) > 0;
     }
 
     function isok() {
-        return $this->my->errno() === 0;
+        return $this->errno() === 0;
     }
 
     function affected() {
-        return $this->my->affectedRows() > 0;
-    }
-
-    function err() {
-        $r = array( 'err_code'=>$this->my->errno(), 'msg'=>$this->my->errmsg() );
-        return $r;
-    }
-
-    function r_select( &$data ) {
-        $r = array( 'err_code'=>0, 'data'=>$data );
-        return $r;
-    }
-
-    function r_update() {
-        $r = array( 'err_code'=>0, 'affected_rows'=>$this->my->affectedRows() );
-        return $r;
-    }
-
-    function r_delete() {
-        $r = array( 'err_code'=>0, 'affected_rows'=>$this->my->affectedRows() );
-        return $r;
-    }
-
-    function r_insert() {
-        $r = array( 'err_code'=>0, 'last_id'=>$this->my->lastId() );
-        return $r;
+        return $this->affectedRows() > 0;
     }
 
     function escape_array( $arr ) {
         $r = array();
         foreach ($arr as $k=>$v) {
-            $r[ $k ] = $this->my->escape( $v );
+            $r[ $k ] = $this->escape( $v );
         }
         return $r;
     }
@@ -122,7 +93,7 @@ class MyRaw {
                 $vs .= ", $v";
             }
             else if ( gettype( $v ) == 'string' ) {
-                $v = $this->my->escape( $v );
+                $v = $this->escape( $v );
                 $vs .= ", '$v'";
             }
             else {
@@ -135,55 +106,70 @@ class MyRaw {
 
         return "( $ks ) VALUES ( $vs )";
     }
-
 }
 
 class My extends MyRaw {
 
     public $table = '';
 
-    function user_add( &$user ) {
-        $sql = "INSERT INTO `user` " . $this->sql_values( $user );
-        return $this->insert( $sql );
-    }
-
     function add( &$arr ) {
         $sql = "INSERT INTO `{$this->table}` " . $this->sql_values( $arr );
-        return $this->insert( $sql );
+        return parent::insert( $sql );
+    }
+
+    function byid( $id ) {
+        $id = intval( $id );
+        $arr = array( "{$this->table}id"=>$id );
+        return parent::one( $this->table, $arr );
     }
 
     function add_ondup_inc( &$arr, $counter ) {
         $sql = "INSERT INTO `{$this->table}` " . $this->sql_values( $arr ) . " ON DUPLICATE KEY UPDATE `$counter`=`$counter`+1";
-        return $this->insert( $sql );
+        return parent::insert( $sql );
     }
 
-    function user( $id ) {
-        $u = array( 'id'=>intval( $id ) );
-        $r = $this->one( 'user', $u );
+    /*
+     * function update_byid( $id, &$arr ) {
+     *     $id = intval( $id );
+     *     $sql = "UPDATE `{$this->table}` SET `t_acctoken`='$tok' WHERE `userid`=$id";
+     *     return parent::update( $sql );
+     * }
+     */
 
-        if ( $this->isok() ) {
-            $r[ 'data' ][ 0 ][ 't_acctoken' ] = unserialize_token( $r[ 'data' ][ 0 ][ 't_acctoken' ] );
-        }
+}
 
-        return $r;
-    }
+class MyUser extends My {
+
+    public $table = 'user';
 
     function t_acctoken( $id, &$acctoken = NULL ) {
         $id = intval( $id );
 
         if ( $acctoken === NULL ) {
-            $r = $this->user( $id );
-            if ( isok( $r ) ) {
-                return $r[ 'data' ][ 0 ][ 'acctoken' ];
+            $r = $this->byid( $id );
+            if ( $r ) {
+                return $this->unserialize_token( $r[ 'acctoken' ] );
+            }
+            else {
+                return false;
             }
         }
         else {
-            $tok = serialize_token( $acctoken );
-            $sql = "UPDATE `user` SET `t_acctoken`='$tok' WHERE `id`=$id";
-            return $this->update( $sql );
+            $tok = $this->serialize_token( $acctoken );
+            $sql = "UPDATE `user` SET `t_acctoken`='$tok' WHERE `userid`=$id";
+            return parent::update( $sql );
         }
     }
 
+    function serialize_token( &$tok ) {
+        $t = "{$tok[ 'oauth_token' ]}:{$tok[ 'oauth_token_secret' ]}";
+        return $t;
+    }
+
+    function unserialize_token( $tok ) {
+        $tok = explode( ':', $tok );
+        return array( 'oauth_token'=>$tok[ 0 ], 'oauth_token_secret'=>$tok[ 1 ] );
+    }
 }
 
 class MyPage extends My {
@@ -194,7 +180,7 @@ class MyPage extends My {
     }
 
     function del( $url ) {
-        $sql = "DELETE FROM `{$this->table}` where `url`='" . $this->my->escape( $url ) . "'";
+        $sql = "DELETE FROM `{$this->table}` where `url`='" . $this->escape( $url ) . "'";
         return $this->delete( $sql );
     }
 
