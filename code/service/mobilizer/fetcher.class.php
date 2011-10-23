@@ -23,7 +23,10 @@ class CachedFetcher {
     function __construct( &$context ) {
         $this->context = $context;
         $this->metaCache = $context[ 'cache' ]->meta;
-        $this->contCache = $context[ 'cache' ]->$cacheNameSpace;
+        dd( print_r( $context, true ) );
+        $ns = $this->cacheNameSpace;
+        dd( "$ns" );
+        $this->contCache = $context[ 'cache' ]->$ns;
     }
 
     function set( &$m = NULL, &$c = NULL ) {

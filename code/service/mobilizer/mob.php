@@ -20,7 +20,7 @@ class Mobilizer {
 
     protected $cache;
 
-    function __construct( $url, &$context ) {
+    function __construct( $url, &$context = NULL ) {
         $this->url = $url;
         $this->context = $context;
     }

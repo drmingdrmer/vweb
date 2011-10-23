@@ -54,11 +54,11 @@ class Tweet {
         );
 
         $presen = "";
-        foreach ($props as $n=>$v) {
+        foreach ($this->properties as $n=>$v) {
             if ( $v ) {
                 $presen .= " $n";
             }
-            $props[ "-$n" ] = !$v;
+            $this->properties[ "-$n" ] = !$v;
         }
 
         dinfo( "props: $presen" );

@@ -71,7 +71,7 @@ class Fav2VD {
 
     function process_tweet( &$tweet ) {
 
-        $t = Tweet( $tweet );
+        $t = new Tweet( $tweet );
 
         dinfo( "policy: " . print_r( $this->policy, true ) );
 
