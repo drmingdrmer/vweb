@@ -27,7 +27,7 @@ class Tweet {
         $this->text = $t[ 'text' ];
         $this->extract_properties();
 
-        dinfo( "Success created tweet: " . $this->tweet[ 'id' ] . " " . $this->text );
+        dok( "Success created tweet: " . $this->tweet[ 'id' ] . " " . $this->text );
     }
 
     function is_satisfied( $expect ) {

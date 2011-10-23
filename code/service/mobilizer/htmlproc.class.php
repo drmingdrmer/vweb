@@ -184,7 +184,7 @@ class HtmlImgEmbed extends HtmlProcessor {
                 dd( "data_uri: " . firstline( $data_uri ) );
 
                 $e->setAttribute( 'src', $data_uri );
-                dinfo( "Success: image embedded:$src" );
+                dok( "Image embedded:$src" );
             }
             else {
                 derror( "Failed to fetch image from $src" );

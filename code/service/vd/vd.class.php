@@ -89,7 +89,10 @@ class VD extends vDisk {
         dd( "Upload with sha1: " . print_r( $r, true ) );
 
         if ( isok( $r ) ) {
-            dinfo( "Uploaded with sha1: $path" );
+            dok( "Uploaded with sha1: $path" );
+        }
+        else {
+            dd( "Failed uploaded with sha1: $path" );
         }
 
         return $r;
@@ -138,8 +141,12 @@ class VD extends vDisk {
 
             $r = $this->move_file( $fid, $dir_id, $fn );
             if ( isok( $r ) ) {
-                dinfo( "Uploaded to $path" );
+                dok( "Uploaded to $path" );
             }
+        }
+
+        if ( ! isok( $r ) ) {
+            derror( "Failed uploading to $path" );
         }
 
         unlink( $localfn );

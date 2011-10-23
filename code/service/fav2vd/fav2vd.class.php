@@ -96,24 +96,27 @@ class Fav2VD {
         $m = new ImgFetcher( $this->context );
         $url = $t->tweet[ 'bmiddle_pic' ];
 
+        // TODO use sha1
+
         dinfo( "Execute img: $url on tweet: {$t->tweet[ 'id' ]}" );
 
-        $r = $m->fetch( $url );
-        if ( $r[ 'meta' ][ 'mimetype' ] ) {
+        if ( $m->fetch( $url ) ) {
+
+            $meta = $m->meta;
+            $content = $m->content;
 
             $nowdate = date( "Y_m_d" );
             $nowtime = date( "His");
 
             $fn = vdname_normallize( firstline( $t->text ) );
-            $fn .= ".$nowtime." . get_ext( $r[ 'meta' ][ 'mimetype' ] );
+            $fn .= ".$nowtime." . get_ext( $meta[ 'mimetype' ] );
 
             $path = "/V2V/photo_$nowdate/$fn";
 
-            $r = $this->vd->putfile( $path, $r[ 'content' ] );
+            return $this->vd->putfile( $path, $content );
         }
-        else {
-            // TODO error
-        }
+
+        return false;
     }
 
     function execute_links( &$t ) {
@@ -122,7 +125,6 @@ class Fav2VD {
         dinfo( "Execute links: " . implode( ' ', $urls ) );
 
         foreach ($urls as $url) {
-            dinfo( "Processing: $url" );
             $r = $this->save_url( $url );
         }
 
@@ -130,6 +132,8 @@ class Fav2VD {
     }
 
     function save_url( $url ) {
+
+        dd( "Saving: $url" );
 
         if ( $this->only ) {
             if ( $this->only == $url ) {
@@ -159,7 +163,7 @@ class Fav2VD {
             return;
         }
 
-        dinfo( "Mobilized: $url" );
+        dok( "Mobilized: $url" );
 
         $title = $mob->meta[ 'title' ];
         $path = $this->link_path( $title );

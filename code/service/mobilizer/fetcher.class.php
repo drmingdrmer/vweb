@@ -23,7 +23,7 @@ class CachedFetcher {
     function __construct( &$context ) {
         $this->context = $context;
         $this->metaCache = $context[ 'cache' ]->meta;
-        dd( print_r( $context, true ) );
+
         $ns = $this->cacheNameSpace;
         dd( "$ns" );
         $this->contCache = $context[ 'cache' ]->$ns;
@@ -144,6 +144,8 @@ class PageFetcher extends CachedFetcher {
     public $httpCode;
     public $responseHeaders;
 
+    private $url;
+
     function __construct( $processors, &$context ) {
         parent::__construct( $context );
 
@@ -161,10 +163,17 @@ class PageFetcher extends CachedFetcher {
 
     function do_fetch( $url ) {
 
+        $this->url = $url;
         $this->http_fetch( $url );
 
         if ( $this->httpCode == "200" ) {
-            return $this->process_response();
+
+            dok( "Fetched: $url" );
+
+            $r = $this->process_response();
+            if ( $r ) {
+            }
+            return $r;
         }
         else {
             derror( "Error: fetching :$url httpCode=" . $this->httpCode  );
@@ -197,6 +206,7 @@ class PageFetcher extends CachedFetcher {
             }
         }
 
+        dok( "Processed: {$this->url}" );
         return true;
     }
 }

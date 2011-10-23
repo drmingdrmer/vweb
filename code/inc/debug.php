@@ -3,8 +3,9 @@
 $levels = array(
     'debug'=>10,
     'info'=>8,
-    'warn'=>6,
-    'error'=>4,
+    'ok'=>6,
+    'warn'=>4,
+    'error'=>2,
 );
 
 $_debugLevel = 'debug';
@@ -18,17 +19,27 @@ $_debugLevel = $levels[ $_debugLevel ];
 $_debugFn = '.';
 
 function _pos() {
-    $bt = debug_backtrace();
-    array_shift($bt);
-    $bt = array_shift($bt);
+    $bts = debug_backtrace();
+    array_shift($bts);
+    $bt = array_shift($bts);
 
+    $line = $bt[ 'line' ];
     $fn = $bt[ 'file' ];
     $fn = substr( $fn, strlen( $_SERVER[ "DOCUMENT_ROOT" ] ) );
 
-    $clz = $bt[ 'class' ];
+
+    $bt = array_shift( $bts );
+
+    $object = $bt['object'];
+    if (is_object($object)) {
+         $clz = get_class($object);
+    }
+    else {
+        $clz = '';
+    }
 
     $now = strftime("%H:%M:%S");
-    echo "<span style='color:#999;width:300px;display:inline-block;'>[ $fn:{$bt['line']} $clz ]</span> $now ";
+    echo "<span style='color:#999;width:400px;display:inline-block;'>$now [ $fn:$line $clz ]</span>";
 }
 
 function _write( $msg ) {
@@ -53,6 +64,14 @@ function dinfo( $msg ) {
     }
     _pos();
     _write( "[ INFO ] $msg" );
+}
+
+function dok( $msg ) {
+    if ( $_debugLevel < $levels[ 'ok' ] ) {
+        return;
+    }
+    _pos();
+    _write( "[ OK ] $msg" );
 }
 
 function derror( $msg ) {
