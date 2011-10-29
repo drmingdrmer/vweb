@@ -4,7 +4,7 @@ session_start();
 
 include_once( $_SERVER["DOCUMENT_ROOT"] . "/vweb.php" );
 include_once( $_SERVER["DOCUMENT_ROOT"] . "/service/t/t.class.php" );
-include_once( $_SERVER["DOCUMENT_ROOT"] . "/mysql.php" );
+include_once( $_SERVER["DOCUMENT_ROOT"] . "/service/mysql/mysql.php" );
 
 class Account
 {

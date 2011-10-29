@@ -1,7 +1,7 @@
 <?
 
 include_once( $_SERVER["DOCUMENT_ROOT"] . "/inc/debug.php" );
-include_once( $_SERVER["DOCUMENT_ROOT"] . "/mysql.php" );
+include_once( $_SERVER["DOCUMENT_ROOT"] . "/service/mysql/mysql.php" );
 
 class Meta {
 

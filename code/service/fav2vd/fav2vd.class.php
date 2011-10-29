@@ -1,6 +1,6 @@
 <?
 
-include_once( $_SERVER["DOCUMENT_ROOT"] . "/mysql.php" );
+include_once( $_SERVER["DOCUMENT_ROOT"] . "/service/mysql/mysql.php" );
 include_once( $_SERVER["DOCUMENT_ROOT"] . "/service/all.php" );
 include_once( $_SERVER["DOCUMENT_ROOT"] . "/inc/debug.php" );
 include_once( $_SERVER["DOCUMENT_ROOT"] . "/inc/filetype.php" );
