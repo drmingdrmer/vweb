@@ -6,6 +6,12 @@ include_once( $_SERVER["DOCUMENT_ROOT"] . "/inc/debug.php" );
 include_once( $_SERVER["DOCUMENT_ROOT"] . "/inc/filetype.php" );
 
 class Fav2VD {
+    public static $defaultPolicy = array(
+        'img' => 'img',
+        'links' => "links",
+    )
+
+
     public $t;
     public $vd;
 
