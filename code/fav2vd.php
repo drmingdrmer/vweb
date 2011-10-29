@@ -5,7 +5,7 @@ include_once( $_SERVER["DOCUMENT_ROOT"] . "/acc.php" );
 include_once( $_SERVER["DOCUMENT_ROOT"] . "/service/all.php" );
 include_once( $_SERVER["DOCUMENT_ROOT"] . "/service/fav2vd/fav2vd.class.php" );
 
-function show_vd_acc( &$user ) {
+function show_vd_acc( &$vwebUser ) {
     include( $_SERVER["DOCUMENT_ROOT"] . "/template/accountinfo.php" );
 }
 
@@ -17,46 +17,102 @@ function show_options() {
     include( $_SERVER["DOCUMENT_ROOT"] . "/template/fav2vd_options.php" );
 }
 
+function show_save_db_error() {
+    echo "error saving vd acc to db";
+}
+
+function show_vd_login_error() {
+    echo "login error";
+}
+
+
+class Op {
+
+    public $error;
+    public $acc;
+
+    function __construct( &$acc ) {
+        $this->acc = $acc;
+    }
+
+    function doit() {
+
+        $op = $_GET[ 'op' ];
+
+        if ( method_exists( $this, $op ) ) {
+            return $this->$op();
+        }
+
+    }
+
+    function vdlogin() {
+
+        $n = $_REQUEST[ 'username' ];
+        $p = $_REQUEST[ 'password' ];
+
+        $vdisk = new VD();
+        if ( $vdisk->login( $n, $p ) ) {
+
+            $myuser = new MyUser();
+            if ( $myuser->vdacc( $this->acc->user[ 'id' ], "$n:$p" ) ) {
+                $_SESSION[ 'vdtoken' ] = $vdisk->token;
+                return true;
+            }
+            else {
+                show_save_db_error();
+                return false;
+            }
+        }
+        else {
+            show_vd_login_error();
+            return false;
+        }
+    }
+}
+
 function doit() {
 
     $acc = new Account();
 
-    if ( $acc->use_sess() ) {
-
-        $acctoken = $acc->acctoken;
-
-        $t = new T( $acctoken );
-
-        $myuser = new MyUser();
-        $user = $myuser->byid( $acc->user[ 'id' ] );
-
-        $vdacc = $user[ 'vdacc' ];
-
-        if ( $vdacc ) {
-            $vdacc = explode( ':', $vdacc );
-
-            $vdisk = new VD();
-            if ( $vdisk->login( $vdacc[ 0 ], $vdacc[ 1 ] ) ) {
-                // TODO 
-                show_vd_acc( $user );
-
-                // TODO 
-                show_options();
-            }
-            else {
-                // TODO 
-                show_vd_login();
-            }
-
-        }
-        else {
-            show_vd_login();
-        }
-
-    }
-    else {
+    if ( ! $acc->use_sess() ) {
         $acc->start_auth();
+        return false;
     }
+
+
+    if ( isset( $_GET[ 'op' ] ) ) {
+
+        $op = new Op( $acc );
+
+        if ( ! $op->doit() ) {
+            return false;
+        }
+    }
+
+
+    $myuser = new MyUser();
+
+    $vwebUser = $myuser->byid( $acc->user[ 'id' ] );
+
+    $vdacc = $vwebUser[ 'vdacc' ];
+
+    if ( $vdacc ) {
+
+        $vdacc = explode( ':', $vdacc );
+
+        $vdisk = new VD();
+
+        if ( $vdisk->login( $vdacc[ 0 ], $vdacc[ 1 ] ) ) {
+
+            show_vd_acc( $vwebUser );
+            show_options();
+            return true;
+
+        }
+    }
+
+    show_vd_login();
+    return false;
 }
 
 doit();
