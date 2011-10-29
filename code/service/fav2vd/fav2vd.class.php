@@ -9,7 +9,7 @@ class Fav2VD {
     public static $defaultPolicy = array(
         'img' => 'img',
         'links' => "links",
-    )
+    );
 
 
     public $t;

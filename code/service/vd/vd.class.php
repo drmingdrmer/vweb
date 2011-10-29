@@ -23,6 +23,12 @@ class VD extends vDisk {
         return $path;
     }
 
+    function sess_save() {
+        if ( $this->token ) {
+            $_SESSION[ 'vdtoken' ] = $this->token;
+        }
+    }
+
     function login( $username, $password ) {
 
         $r = $this->get_token($username, $password, 'sinat');

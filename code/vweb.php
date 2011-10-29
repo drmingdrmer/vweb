@@ -71,4 +71,6 @@ function vdname_normallize( $n ) {
     return preg_replace( '/[#><\/:?*\\ \-_"]+/', '_', $n );
 }
 
+define( E_ACC, "E_ACC" );
+
 ?>

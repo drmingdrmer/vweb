@@ -26,7 +26,7 @@ function show_vd_login_error() {
 }
 
 
-class Op {
+class Controller {
 
     public $error;
     public $acc;
@@ -42,7 +42,42 @@ class Op {
         if ( method_exists( $this, $op ) ) {
             return $this->$op();
         }
+    }
 
+    function policy() {
+
+        dd( "handling policy" );
+
+        $act  = $_REQUEST[ 'act' ];
+        $pkey = $_REQUEST[ 'pkey' ];
+        $pval = $_REQUEST[ 'pval' ];
+
+        $myuser = new MyUser();
+
+        $poli = $myuser->favPolicy( $this->acc->user[ 'id' ] );
+        if ( NULL === $poli ) {
+            dd( "policy is NULL!" );
+            $poli = Fav2VD::$defaultPolicy;
+        }
+
+
+        if ( $act == 'add' ) {
+            $poli[ $pkey ] = $pval;
+        }
+        else {
+            unset( $poli[ $pkey ] );
+        }
+
+
+        $r = $myuser->favPolicy( $this->acc->user[ 'id' ], $poli );
+        if ( $r ) {
+            dd( "Save policy OK:" . Json::enc( $poli ) );
+        }
+        else {
+            dd( "Failure to save" );
+        }
+
+        return false;
     }
 
     function vdlogin() {
@@ -82,7 +117,7 @@ function doit() {
 
     if ( isset( $_GET[ 'op' ] ) ) {
 
-        $op = new Op( $acc );
+        $op = new Controller( $acc );
 
         if ( ! $op->doit() ) {
             return false;

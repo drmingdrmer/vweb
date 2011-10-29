@@ -9,7 +9,7 @@ $levels = array(
 );
 
 $_debugLevel = 'debug';
-$_debugLevel = 'warn';
+// $_debugLevel = 'warn';
 
 if ( $_GET[ 'level' ] ) {
     $_debugLevel = $_GET[ 'level' ];
@@ -21,6 +21,8 @@ $_debugFn = '.';
 
 function _pos() {
     $bts = debug_backtrace();
+    array_shift($bts);
+    array_shift($bts);
     array_shift($bts);
     $bt = array_shift($bts);
 

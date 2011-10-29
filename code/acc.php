@@ -10,7 +10,12 @@ class Account
 {
     public $acctoken;
     public $user;
-    public $redirect = DEFAULT_INDEX;
+
+    /*
+     * public $vdacc;
+     * public $vdtoken;
+     */
+
     public $error;
 
     public $workPage;
@@ -27,6 +32,7 @@ class Account
     function use_sess() {
         if ( $this->sess_has_acctoken() ) {
             $this->acctoken = $_SESSION[ 'acctoken' ];
+            // TODO do not need to load user from t everytime.
             return $this->t_load_user();
         }
         else {
@@ -62,7 +68,7 @@ class Account
         $r = $c->me();
         dd( "load me: " . print_r( $r, true ) );
         if ( $r ){
-            $this->user = $c->r[ 'data' ];
+            $this->user = $r;
             return $this->save_user();
         }
         return false;
@@ -88,14 +94,12 @@ class Account
 
     function save_user() {
 
-        $user = $this->user;
-
-        $_SESSION[ 'user' ] = $user;
+        $_SESSION[ 'user' ] = $this->user;
         $_SESSION['acctoken'] = $this->acctoken;
 
         $myuser = new MyUser();
 
-        $u = array( 'userid'=>$user[ 'id' ], );
+        $u = array( 'userid'=>$this->user[ 'id' ], );
 
         // simplify it
         // TODO if user exists, return ok
@@ -117,6 +121,7 @@ class Account
     function sess_flush() {
         unset($_SESSION[ 'acctoken' ]);
         unset($_SESSION[ 'reqtoken' ]);
+        unset($_SESSION[ 'user' ]);
     }
 
     function sess_has_acctoken() {

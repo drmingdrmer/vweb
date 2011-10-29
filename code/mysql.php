@@ -1,5 +1,7 @@
 <?
 
+
+include_once( $_SERVER["DOCUMENT_ROOT"] . "/inc/util.php" );
 include_once( $_SERVER["DOCUMENT_ROOT"] . "/inc/debug.php" );
 
 
@@ -48,6 +50,7 @@ class MyRaw extends SaeMysql{
     }
 
     function update( $sql ) {
+        dd( $sql );
         $this->runSql( $sql );
         return $this->errno() === 0;
     }
@@ -128,13 +131,13 @@ class My extends MyRaw {
         return parent::insert( $sql );
     }
 
-    /*
-     * function update_byid( $id, &$arr ) {
-     *     $id = intval( $id );
-     *     $sql = "UPDATE `{$this->table}` SET `t_acctoken`='$tok' WHERE `userid`=$id";
-     *     return parent::update( $sql );
-     * }
-     */
+    function update_byid( $id, $key, $val ) {
+        $id = intval( $id );
+        $key = $this->escape( $key );
+        $val = $this->escape( $val );
+        $sql = "UPDATE `{$this->table}` SET `$key`='$val' WHERE `{$this->table}id`=$id";
+        return parent::update( $sql );
+    }
 
 }
 
@@ -158,6 +161,56 @@ class MyUser extends My {
             $tok = $this->serialize_token( $acctoken );
             $sql = "UPDATE `user` SET `t_acctoken`='$tok' WHERE `userid`=$id";
             return parent::update( $sql );
+        }
+    }
+
+    function col_access( $id, $col, $formatter, $val = NULL ) {
+
+        $id = intval( $id );
+
+        if ( NULL === $val ) {
+
+            $r = $this->byid( $id );
+            if ( $r ) {
+                dd( "col returned:" . print_r( $r, true ) );
+                if ( $formatter !== NULL ) {
+                    return $formatter::dec( $r[ $col ] );
+                }
+                else {
+                    return $r[ $col ];
+                }
+            }
+            else {
+                return false;
+            }
+        }
+        else {
+            if ( NULL !== $formatter ) {
+                $val = $formatter::enc( $val );
+            }
+            return parent::update_byid( $id, $col, $val );
+        }
+    }
+
+    function favPolicy( $id, $pol = NULL ) {
+        return $this->col_access( $id, 'favPolicy', Json, $pol );
+    }
+
+    function vdacc( $id, $vdacc = NULL ) {
+        if ( NULL === $vdacc ) {
+            $r = $this->byid( $id );
+            if ( $r ) {
+                return explode( ':', $r[ 'vdacc' ], 2 );
+            }
+            else {
+                return false;
+            }
+        }
+        else {
+            if ( gettype( $vdacc ) == 'array' ) {
+                $vdacc = implode( ':', $vdacc );
+            }
+            return parent::update_byid( $id, 'vdacc', $vdacc );
         }
     }
 

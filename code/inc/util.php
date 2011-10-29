@@ -28,6 +28,16 @@ function unjson( $s )
 {
     return json_decode( $s, true );
 }
+
+class Json {
+    static function enc( $v ) {
+        return json_encode( $v );
+    }
+    static function dec( $s ) {
+        return json_decode( $s, true );
+    }
+}
+
 function resjson( $v )
 {
     res_json( $v );
