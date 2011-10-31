@@ -14,7 +14,7 @@ class Meta {
 
 
         $x = isok( $r );
-        if ( $x ) {
+        if ( $r && $my->affected() ) {
             dinfo( "Success written to meta: $key " . print_r( $arr, true ) );
         }
         else {
@@ -31,8 +31,8 @@ class Meta {
         $r = $my->get( $key );
 
 
-        if ( hasdata( $r ) ) {
-            $arr = $r[ 'data' ][ 0 ];
+        if ( count( $r ) > 0 ) {
+            $arr = $r[ 0 ];
             dinfo( "Read meta: $key: " . print_r( $arr, true ) );
             return $arr;
         }

@@ -42,6 +42,10 @@ function isok( $r ) {
         return false;
     }
 
+    if ( $r === true ) {
+        return true;
+    }
+
     if ( isset( $r[ 'rst' ] ) ) {
         return $r[ 'rst' ] == 'ok';
     }

@@ -54,7 +54,7 @@ class Controller {
 
         $myuser = new MyUser();
 
-        $poli = $myuser->favPolicy( $this->acc->user[ 'id' ] );
+        $poli = $myuser->favPolicy( $this->acc->t_user[ 'id' ] );
         if ( NULL === $poli ) {
             dd( "policy is NULL!" );
             $poli = Fav2VD::$defaultPolicy;
@@ -69,7 +69,7 @@ class Controller {
         }
 
 
-        $r = $myuser->favPolicy( $this->acc->user[ 'id' ], $poli );
+        $r = $myuser->favPolicy( $this->acc->t_user[ 'id' ], $poli );
         if ( $r ) {
             dd( "Save policy OK:" . Json::enc( $poli ) );
         }
@@ -89,7 +89,7 @@ class Controller {
         if ( $vdisk->login( $n, $p ) ) {
 
             $myuser = new MyUser();
-            if ( $myuser->vdacc( $this->acc->user[ 'id' ], "$n:$p" ) ) {
+            if ( $myuser->vdacc( $this->acc->t_user[ 'id' ], "$n:$p" ) ) {
                 $_SESSION[ 'vdtoken' ] = $vdisk->token;
                 return true;
             }
@@ -127,7 +127,7 @@ function doit() {
 
     $myuser = new MyUser();
 
-    $vwebUser = $myuser->byid( $acc->user[ 'id' ] );
+    $vwebUser = $myuser->byid( $acc->t_user[ 'id' ] );
 
     $vdacc = $vwebUser[ 'vdacc' ];
 

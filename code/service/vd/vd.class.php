@@ -164,26 +164,24 @@ class VD extends vDisk {
         return $r;
     }
 
-/*
- *     public function get_dirid_with_path( $path ) {
- * 
- *         if ( isset($this->_pathcache[ $path ]) ) {
- *             return array(
- *                 'err_code'=>0,
- *                 'data' => array( 'id'=>$this->_pathcache[ $path ], )
- *             );
- *         }
- * 
- *         $r = parent::get_dirid_with_path( $path );
- * 
- *         if ( $r && $r[ 'err_code' ] == 0 ) {
- *             $dirid = $r[ 'data' ][ 'id' ];
- *             $this->_pathcache[ $path ] = $dirid;
- *         }
- * 
- *         return $r;
- *     }
- */
+    public function get_dirid_with_path( $path ) {
+
+        if ( isset($this->_pathcache[ $path ]) ) {
+            return array(
+                'err_code'=>0,
+                'data' => array( 'id'=>$this->_pathcache[ $path ], )
+            );
+        }
+
+        $r = parent::get_dirid_with_path( $path );
+
+        if ( $r && $r[ 'err_code' ] == 0 ) {
+            $dirid = $r[ 'data' ][ 'id' ];
+            $this->_pathcache[ $path ] = $dirid;
+        }
+
+        return $r;
+    }
 
     public function mkdir_p( $path, $dir_id = 0 ) {
 

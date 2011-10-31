@@ -1,11 +1,24 @@
 <?
 
 class PageLog {
-    static public function write( $lvl, $msg ) {
-        $frm = Logging::_frame();
-        echo "<span style='color:#999;width:400px;display:inline-block;'> $frm </span>";
 
+    static public $colors = array(
+        10 => '#999',
+        8  => '#444',
+        6  => '#080',
+        4  => '#880',
+        2  => '#800',
+    );
+
+    static public function write( $lvl, $msg ) {
+
+        $frm = Logging::_frame();
+
+        $clr = PageLog::$colors[ $lvl ];
+
+        echo "<span style='color:$clr;width:400px;display:inline-block;'> $frm </span>";
         echo "$msg<br/>\n";
+
         ob_flush();
         flush();
     }
@@ -37,7 +50,6 @@ class Logging {
         $LVL = strtoupper( $lvl );
         if ( Logging::$level >= Logging::$levels[ $lvl ] ) {
             $e = Logging::$engine;
-            echo "engine is :" . print_r( $e, true );
             $e::write( Logging::$levels[ $lvl ], "[ $LVL ] $msg" );
         }
     }

@@ -8,11 +8,16 @@ session_start();
     </head>
 </html><?
 
-
+include_once( $_SERVER["DOCUMENT_ROOT"] . "/inc/debug.php" );
+include_once( $_SERVER["DOCUMENT_ROOT"] . "/inc/mysqllog.php" );
 include_once( $_SERVER["DOCUMENT_ROOT"] . "/acc.php" );
 include_once( $_SERVER["DOCUMENT_ROOT"] . "/service/all.php" );
 include_once( $_SERVER["DOCUMENT_ROOT"] . "/service/fav2vd/fav2vd.class.php" );
 
+Logging::set_engine( MysqlLog );
+
+dd( "test" );
+exit();
 
 function doit() {
 

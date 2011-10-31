@@ -1,15 +1,21 @@
 <?php
 
-session_start();
-
 include_once( $_SERVER["DOCUMENT_ROOT"] . "/vweb.php" );
 include_once( $_SERVER["DOCUMENT_ROOT"] . "/service/t/t.class.php" );
 include_once( $_SERVER["DOCUMENT_ROOT"] . "/service/mysql/mysql.php" );
 
 class Account
 {
+    public $uid;
+
     public $acctoken;
-    public $user;
+    public $t_user;
+    public $db_user;
+
+
+    public $myuser;
+    public $t;
+    public $vd;
 
     /*
      * public $vdacc;
@@ -23,6 +29,8 @@ class Account
     function __construct( &$acctoken = NULL ) {
         $this->acctoken = $acctoken;
         $this->default_work_page( $_SERVER[ 'SCRIPT_URL' ] );
+
+        $this->myuser = new MyUser();
     }
 
     function default_work_page( $p ) {
@@ -42,8 +50,8 @@ class Account
     }
 
     function use_db( $id ) {
-        $myuser = new MyUser();
-        $this->acctoken = $myuser->t_acctoken( $id );
+        $this->uid = $id;
+        $this->acctoken = $this->myuser->t_acctoken( $this->uid );
         if ( ! $this->acctoken ) {
             $this->error = array( "rst"=>"dbError" );
             return false;
@@ -62,13 +70,33 @@ class Account
         }
     }
 
+    function vd_login() {
+
+        $vdacc = $this->myuser->vdacc( $this->uid );
+
+        if ( $vdacc ) {
+
+            $vd = new VD();
+
+            $r = $vd->login( $vdacc[ 0 ], $vdacc[ 1 ] );
+            if ( $r ) {
+                $this->vd = $vd;
+                return true;
+            }
+        }
+
+        return false;
+    }
+
     function t_load_user() {
 
+        dd( "acctoken is:" . print_r( $this->acctoken, true ) );
         $c = new T( $this->acctoken );
         $r = $c->me();
         dd( "load me: " . print_r( $r, true ) );
         if ( $r ){
-            $this->user = $r;
+            $this->t_user = $r;
+            $this->t = $c;
             return $this->save_user();
         }
         return false;
@@ -94,18 +122,16 @@ class Account
 
     function save_user() {
 
-        $_SESSION[ 'user' ] = $this->user;
+        $_SESSION[ 'user' ] = $this->t_user;
         $_SESSION['acctoken'] = $this->acctoken;
 
-        $myuser = new MyUser();
-
-        $u = array( 'userid'=>$this->user[ 'id' ], );
+        $u = array( 'userid'=>$this->t_user[ 'id' ], );
 
         // simplify it
         // TODO if user exists, return ok
-        $r = $myuser->add( $u );
+        $r = $this->myuser->add( $u );
 
-        $r = $myuser->t_acctoken( $u[ 'userid' ], $this->acctoken );
+        $r = $this->myuser->t_acctoken( $u[ 'userid' ], $this->acctoken );
 
         dd( "save user result: " . print_r( $r, true ) );
 

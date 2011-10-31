@@ -1,61 +1,82 @@
 <?
-require_once('saes3.ex.class.php');
+// require_once('saes3.ex.class.php');
 include_once( $_SERVER["DOCUMENT_ROOT"] . "/vweb.php" );
 include_once( $_SERVER["DOCUMENT_ROOT"] . "/inc/debug.php" );
+// include_once( $_SERVER["DOCUMENT_ROOT"] . "/lib/SaeS3.class.php" );
+include_once( $_SERVER["DOCUMENT_ROOT"] . "/lib/SinaStorageService.php" );
 
-
-class S2 extends SaeS3 {
+class S2 {
 
     public $dom = "xp";
     public $pref = "nopref";
+    public $rst;
+
 
     function path( $path ) {
         return $this->pref . ":" . $path;
     }
 
     function write( $path, &$cont ) {
+
         $path = $this->path( $path );
+        $o = $this->s2();
 
+        $r = $o->uploadFile( $path, $cont, strlen( $cont ),
+            "text/html", $rst );
+        $this->rst = $o->result_info;
 
-        $url = parent::write( $this->dom, $path, $cont );
-        if ( $url !== false ) {
-            dinfo( "Success written to S2:$path length=" . strlen( $cont ) );
+        if ( $r ) {
             return true;
         }
         else {
-            derror( "Failed writing to S2:$path length=" . strlen( $cont ) );
-            derror( "Error: " . $this->errmsg()  );
+            derror( "Failure writing to S2:$path length=" . strlen( $cont ) );
+            derror( "res:" . print_r( $this->rst, true ) );
             return false;
         }
     }
 
     function read( $path ) {
 
-        if ( $this->read_meta( $path ) === false ) {
-            dd( "Failed reading from s2: $path" );
+        $path = $this->path( $path );
+        $o = $this->s2();
+
+        $r = $o->getFile( $path, $rst );
+        $this->rst = $o->result_info;
+
+        if ( $r ) {
+            return $rst;
+        }
+        else {
+            derror( "Failure reading from S2:$path" );
+            derror( "res:" . print_r( $this->rst, true ) );
             return false;
         }
-
-        $path = $this->path( $path );
-
-        $url = $this->getUrl( $this->dom, $path );
-        $cont = file_get_contents( $url );
-
-        dinfo( "Success read from s2: $path: " . strlen( $cont ) );
-        return $cont;
     }
 
     function read_meta( $path ) {
 
         $path = $this->path( $path );
+        $o = $this->s2();
 
-        $attr = $this->getAttr( $this->dom, $path );
-        dd( "s2 file attr: " . print_r( $attr, true ) );
+        $r = $o->getMeta( $path, $rst );
+        $this->rst = $o->result_info;
 
-        if ( $attr !== false ) {
-            return $attr;
+        if ( $r ) {
+            dd( "s2 meta is:" . print_r( $rst, true ) );
+            return $rst;
         }
-        return $attr;
+        else {
+            derror( "Failure reading from S2:$path" );
+            derror( "res:" . print_r( $this->rst, true ) );
+            return false;
+        }
+    }
+
+    function s2() {
+        $dom = $this->dom . ".{$_SERVER[ 'HTTP_APPNAME' ]}";
+        $o = new SinaStorageService( $dom, 'sae,'.SAE_ACCESSKEY, SAE_SECRETKEY );
+        $o->setAuth( true );
+        return $o;
     }
 }
 

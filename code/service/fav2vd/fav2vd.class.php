@@ -7,6 +7,7 @@ include_once( $_SERVER["DOCUMENT_ROOT"] . "/inc/filetype.php" );
 
 class Fav2VD {
     public static $defaultPolicy = array(
+        'any' => 'tweet',
         'img' => 'img',
         'links' => "links",
     );
@@ -21,13 +22,7 @@ class Fav2VD {
     public $cache;
     public $context;
 
-    public $policy = array(
-        'img' => 'img',
-        'links' => "links",
-        // 'video' => "ignore end",
-        // 'music' => "music remove end",
-        // 'img -links' => "img remove end",
-    );
+    public $policy;
 
     function __construct( &$t, &$vd, $only = NULL ) {
         $this->t = $t;
@@ -51,6 +46,8 @@ class Fav2VD {
 
         $this->cache = new Cache( $page, $img, $meta );
 
+        $this->policy = Fav2VD::$defaultPolicy;
+
         $this->context = array(
             'sha1_allowed' => true,
             'cache' => $this->cache,
@@ -59,10 +56,13 @@ class Fav2VD {
 
     function dump() {
 
-        $r = $this->t->_load_cmd( 'favorites', array(), NULL, NULL );
-        // TODO check error
+        $r = $this->t->_cmd( 'favorites' );
+        if ( ! $r ) {
+            derror( "Loading favorites Failed, r=" . print_r( $this->t->r ) );
+            return false;
+        }
 
-        $favs = $r[ 'data' ];
+        $favs = $r;
         dinfo( "OK: Loaded favorites: " . count( $favs ) . " entries" );
 
         foreach ($favs as $fav) {
@@ -95,6 +95,48 @@ class Fav2VD {
                 }
             }
         }
+    }
+
+    function execute_tweet( &$t ) {
+        $text = $t->text;
+
+        $html = <<<EOT
+<style>
+* { font-family: sans-serif; font-size:16px; }
+img { max-width:100%; }
+</style>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="viewport" content="width=device-width; initial-scale=1.0; user-scalable=no; minimum-scale=1.0; maximum-scale=1.0;" />
+EOT;
+        $html .= "<p>$text</p>";
+
+        $url = $t->tweet[ 'bmiddle_pic' ];
+
+        if ( $url ) {
+
+            $m = new ImgFetcher( $this->context );
+            if ( $m->fetch( $url ) ) {
+
+                $meta = $m->meta;
+                $content = $m->content;
+
+                $con = data_uri( $content, $meta[ 'mimetype' ] );
+                $html = $html . "<p><img src='$con' /></p>";
+            }
+            else {
+                return false;
+            }
+        }
+
+        $nowdate = date( "Y_m_d" );
+        $nowtime = date( "His");
+
+        $fn = vdname_normallize( firstline( $text ) );
+        $fn .= ".$nowtime.html";
+
+        $path = "/V2V/fav_$nowdate/$fn";
+
+        return $this->vd->putfile( $path, $html );
     }
 
     function execute_img( &$t ) {
