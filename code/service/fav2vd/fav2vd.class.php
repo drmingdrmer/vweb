@@ -9,7 +9,7 @@ class Fav2VD {
     public static $defaultPolicy = array(
         'any' => 'tweet',
         'img' => 'img',
-        'links' => "links",
+        'link' => "link",
     );
 
 
@@ -50,6 +50,10 @@ class Fav2VD {
 
         $this->context = array(
             'sha1_allowed' => true,
+            'root_path' => '微盘收藏',
+            'tweet_path_pref' => '原文',
+            'img_path_pref' => '图片',
+            'link_path_pref' => '外部链接文章',
             'cache' => $this->cache,
         );
     }
@@ -128,13 +132,7 @@ EOT;
             }
         }
 
-        $nowdate = date( "Y_m_d" );
-        $nowtime = date( "His");
-
-        $fn = vdname_normallize( firstline( $text ) );
-        $fn .= ".$nowtime.html";
-
-        $path = "/V2V/fav_$nowdate/$fn";
+        $path = $this->tweet_path( $text );
 
         return $this->vd->putfile( $path, $html );
     }
@@ -153,13 +151,7 @@ EOT;
             $meta = $m->meta;
             $content = $m->content;
 
-            $nowdate = date( "Y_m_d" );
-            $nowtime = date( "His");
-
-            $fn = vdname_normallize( firstline( $t->text ) );
-            $fn .= ".$nowtime." . get_ext( $meta[ 'mimetype' ] );
-
-            $path = "/V2V/photo_$nowdate/$fn";
+            $path = $this->img_path( $t->text,  get_ext( $meta[ 'mimetype' ] ) );
 
             return $this->vd->putfile( $path, $content );
         }
@@ -167,10 +159,10 @@ EOT;
         return false;
     }
 
-    function execute_links( &$t ) {
+    function execute_link( &$t ) {
 
         $urls = $t->urls;
-        dinfo( "Execute links: " . implode( ' ', $urls ) );
+        dinfo( "Execute link: " . implode( ' ', $urls ) );
 
         foreach ($urls as $url) {
             $r = $this->save_url( $url );
@@ -253,10 +245,29 @@ EOT;
     }
 
     function link_path( $title ) {
+        return $this->_vd_path( $this->context[ 'link_path_pref' ], $title, 'html' );
+    }
+
+    function tweet_path( $title ) {
+        return $this->_vd_path( $this->context[ 'tweet_path_pref' ], $title, 'html' );
+    }
+
+    function img_path( $title, $ext ) {
+        return $this->_vd_path( $this->context[ 'img_path_pref' ], $title, $ext );
+    }
+
+    function _vd_path( $pref, $title, $ext ) {
+
+        $title = vdname_normallize( firstline( $title ) );
+
         $nowdate = date( "Y_m_d" );
         $nowtime = date( "His");
 
-        $path = "/V2V/article_$nowdate/$title.$nowtime.html";
+        $fn = "$title.$nowtime.$ext";
+
+        $r = $this->context[ 'root_path' ];
+        $path = "/$r/{$pref}_{$nowdate}/$fn";
+
         return $path;
     }
 
