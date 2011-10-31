@@ -47,8 +47,8 @@ class S2 {
             return $rst;
         }
         else {
-            derror( "Failure reading from S2:$path" );
-            derror( "res:" . print_r( $this->rst, true ) );
+            dinfo( "Failure reading from S2:$path" );
+            dinfo( "res:" . print_r( $this->rst, true ) );
             return false;
         }
     }
