@@ -6,6 +6,16 @@ include_once( $_SERVER["DOCUMENT_ROOT"] . "/inc/debug.php" );
 include_once( $_SERVER["DOCUMENT_ROOT"] . "/lib/vdex.php" );
 
 class VD extends vDisk {
+    static public function filename_normalize( $name ) {
+        // convert invalid char to _
+        // $name = preg_replace( '/[@#><\/:?*\\ \-_"]+/', '_', $name );
+        $name = mb_ereg_replace( '[@#><\/:?*\\ \-_"]+', '_', $name );
+
+        // strip leading and trailing _
+        $name = mb_ereg_replace( '^_|_$', '', $name );
+
+        return $name;
+    }
 
     private $_pathcache;
     public $token;
@@ -100,10 +110,10 @@ class VD extends vDisk {
         dd( "Upload with sha1: " . print_r( $r, true ) );
 
         if ( isok( $r ) ) {
-            dok( "Uploaded with sha1: $path" );
+            dok( "SHA1 uploaded: $path" );
         }
         else {
-            dd( "Failed uploaded with sha1: $path" );
+            dd( "Failure SHA1 upload: $path" );
         }
 
         return $r;
@@ -124,7 +134,9 @@ class VD extends vDisk {
             return $r;
         }
 
+
         $dir_id = $r[ 'data' ][ 'id' ];
+        dok( "Dir created with id:$dir_id, for $parent" );
 
         $sha1 = hash( 'sha1', $fdata );
         $r = $this->upload_with_sha1( $fn, $sha1, $dir_id );
@@ -152,13 +164,21 @@ class VD extends vDisk {
 
             $r = $this->move_file( $fid, $dir_id, $fn );
             if ( isok( $r ) ) {
-                dok( "Uploaded to $path" );
+                dok( "Upload(moveed) to $path" );
+            }
+            else {
+                derror( "Failure to move $localfn to $fn in dir: $dir_id" );
+                derror( "Result:" . print_r( $r, true ) );
+                derror( "errno=" . $this->errno() );
+                derror( "error=" . $this->error() );
+                return false;
             }
         }
-
-        if ( ! isok( $r ) ) {
-            derror( "Failed uploading to $path" );
+        else {
+            derror( "Failure to upload $localfn, at dir: $dir_id" );
+            derror( "Result:" . print_r( $r, true ) );
         }
+
 
         unlink( $localfn );
         return $r;
@@ -208,8 +228,22 @@ class VD extends vDisk {
             $r = $this->create_dir( $e, $dir_id );
             if ( isok( $r ) ) {
                 $dir_id = $r[ 'data' ][ 'dir_id' ];
+                dd( "Dir created: $path $dir_id" );
                 $this->_pathcache[ $path ] = $dir_id;
                 continue;
+
+                /*
+                 * $r = $this->get_dirid_with_path( $path );
+                 * if ( $r ) {
+                 *     $dir_id = $r[ 'data' ][ 'id' ];
+                 *     dok( "Dir refetched: $path $dir_id" );
+                 *     continue;
+                 * }
+                 * else {
+                 *     derror( "Failure to get dir_id of just created path: $path" );
+                 *     return false;
+                 * }
+                 */
             }
             else {
                 derror( "Failed creating dir $e at dir_id=$dir_id" );

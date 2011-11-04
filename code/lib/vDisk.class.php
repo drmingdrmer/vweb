@@ -982,6 +982,7 @@ class vDisk
  	*/
 	private function _request($url, $array=null)
 	{
+                dok( "to request:$url " . print_r( $array, true ) );
 		if(!isset($_SERVER['HTTP_APPNAME']))
 		{
 			$curl = curl_init();

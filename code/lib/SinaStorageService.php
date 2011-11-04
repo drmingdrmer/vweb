@@ -26,7 +26,7 @@ class SinaStorageService extends SinaService
 	/**
 	 * The maximum number of seconds to allow CURL functions to execute. 
 	 */
-	const CURL_TIMEOUT = 3;
+	const CURL_TIMEOUT = 10;
 	
 	/**
 	 * Singelton pool

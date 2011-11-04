@@ -14,46 +14,22 @@ include_once( $_SERVER["DOCUMENT_ROOT"] . "/acc.php" );
 include_once( $_SERVER["DOCUMENT_ROOT"] . "/service/all.php" );
 include_once( $_SERVER["DOCUMENT_ROOT"] . "/service/fav2vd/fav2vd.class.php" );
 
-Logging::set_engine( MysqlLog );
 
-dd( "test" );
-exit();
+$acc = new Account();
 
-function doit() {
+$myuser = new MyUser();
+$needToCheck = $myuser->users_need_check( 10 );
+foreach ($needToCheck as $user) {
+    $uid = $user[ 'userid' ];
+    if ( $acc->use_db( $uid ) ) {
 
-    $acc = new Account();
-    $acc->redirect = "y.php";
+        if ( $acc->vd_login() ) {
 
-    if ( $acc->use_sess() && $acc->t_to_sess() ) {
-        $acctoken = $acc->acctoken;
+            $r = $acc->vd->get_dirid_with_path( '/微盘收藏/原文_2011_11_04/电影《惊魂半小时》：讲述了一个极为蹊跷的故事，说的是一个送披萨的小子被两个罪犯劫.014653.html' );
 
-        $t = new T( $acctoken );
-
-        $vdisk = new VD();
-        $r = $vdisk->login( 'drdr.xp@gmail.com', '748748' );
-
-        if ( $_GET[ 'only' ] ) {
-            $fv = new Fav2VD( $t, $vdisk, $_GET[ 'only' ] );
+            var_dump( $r );
         }
-        else if ( $_GET[ 'dump' ] ) {
-            $fv = new Fav2VD( $t, $vdisk, $_GET[ 'dump' ] );
-            $fv->conf[ 'sha1_allowed' ] = false;
-            $r = $fv->save_url( $_GET[ 'dump' ] );
-            echo $r[ 'mob' ]->content;
-            return;
-        }
-        else {
-            $fv = new Fav2VD( $t, $vdisk );
-        }
-
-        $r = $fv->dump();
-
-    }
-    else {
-        $acc->start_auth();
     }
 }
-
-doit();
 
 ?>

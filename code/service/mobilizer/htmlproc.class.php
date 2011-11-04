@@ -68,10 +68,7 @@ class HtmlPageMeta extends HtmlProcessor {
 
         dd( "Raw title: $title" );
 
-        $this->meta[ 'title' ] = vdname_normallize( $title );
-
-        dinfo( "Title: $title" );
-
+        $this->meta[ 'title' ] = $title;
         return true;
     }
 }

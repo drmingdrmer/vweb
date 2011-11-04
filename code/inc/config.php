@@ -1,6 +1,7 @@
 <?php
 
-mb_internal_encoding( 'utf-8' );
+mb_internal_encoding("UTF-8");
+mb_regex_encoding("UTF-8");
 
 define( "WB_AKEY" , '2060512444' );
 define( "WB_SKEY" , '03dcf8a0efada3ad4c12df39ede9f93a' );
