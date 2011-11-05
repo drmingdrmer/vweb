@@ -17,13 +17,14 @@ class VDPath {
 
     function path( $title, $ext ) {
 
-        $title = VD::filename_normalize( firstline( $title ) );
+        $title = VD::filename_normalize( firstline( $title, 30 ) );
 
         // $nowdate = date( "Y年_m月_d" );
         $nowdate = date( "Y年_m月" );
         $nowtime = date( "His");
 
-        $fn = "$title.$nowtime.$ext";
+        // $fn = "$title.$nowtime.$ext";
+        $fn = "$title.$ext";
 
         $path = "/{$this->root}/{$this->pref}_{$nowdate}/$fn";
 
@@ -73,7 +74,7 @@ img { max-width:100%; }
 <p><a href='{$t->userurl}'>{$t->username}</a>: {$t->richtext}</p>
 EOT;
 
-        dok( print_r( $t->tweet, true ) );
+        dd( print_r( $t->tweet, true ) );
 
         $url = $t->tweet[ 'bmiddle_pic' ];
 

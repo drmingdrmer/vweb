@@ -18,12 +18,14 @@ class VD extends vDisk {
     }
 
     private $_pathcache;
+    private $_flistcache;
     public $token;
 
 
     public function __construct() {
         parent::__construct( VWEB_VD_KEY, VWEB_VD_SEC );
         $this->_pathcache = array( '/'=>0 );
+        $this->_flistcache = array();
     }
 
     function fix_path( $path ) {
@@ -80,12 +82,12 @@ class VD extends vDisk {
         $r = file_put_contents( $localfn, $cont );
         if ( $r ) {
             dinfo( "Written temp file: $localfn" );
-            return array( 'err_code'=>0, 'data'=>array( 'filename'=>$localfn ) );
+            return $localfn;
         }
         else {
             $msg = "Failed writing temp file: $localfn size=" . strlen( $cont );
             derror( $msg );
-            return array( 'err_code'=>'write_local_tmp', 'msg'=>$msg );
+            return false;
         }
     }
 
@@ -110,21 +112,19 @@ class VD extends vDisk {
         dd( "Upload with sha1: " . print_r( $r, true ) );
 
         if ( isok( $r ) ) {
+            $this->_update_flistcache( $dir_id );
             dok( "SHA1 uploaded: $path" );
+            return $r;
         }
         else {
             dd( "Failure SHA1 upload: $path" );
+            return false;
         }
-
-        return $r;
     }
 
     function putfile( $path, &$fdata ) {
 
         $path = $this->fix_path( $path );
-
-        dinfo( "VD path=$path" );
-
         $parent = dirname( $path );
         $fn = substr( $path, strlen( $parent ) + 1 );
 
@@ -133,27 +133,34 @@ class VD extends vDisk {
         if ( ! isok( $r ) ) {
             return $r;
         }
-
-
         $dir_id = $r[ 'data' ][ 'id' ];
         dok( "Dir created with id:$dir_id, for $parent" );
 
+        $f = $this->get_f( $dir_id, $fn );
+        if ( $f ) {
+            if ( $f[ 'sha1' ] == $sha1 ) {
+                dok( "File existed: $path, $sha1" );
+                return true;
+            }
+            else {
+                $fn = $this->get_valid_fn( $dir_id, $fn );
+            }
+        }
+
+
         $sha1 = hash( 'sha1', $fdata );
-        $r = $this->upload_with_sha1( $fn, $sha1, $dir_id );
-        dd( "Upload with sha1: " . print_r( $r, true ) );
-
-        if ( isok( $r ) ) {
-            dok( "Uploaded with sha1: $path" );
-            return $r;
+        if ( $this->putfile_by_sha1( $path, $sha1 ) ) {
+            return true;
         }
 
+        dinfo( "VD path=$path" );
 
-        $r = $this->write_local_tmp( $fdata );
-        if ( ! isok( $r ) ) {
-            return $r;
+
+
+
+        if ( ! ( $localfn = $this->write_local_tmp( $fdata ) ) ) {
+            return false;
         }
-
-        $localfn = $r[ 'data' ][ 'filename' ];
 
         $r = $this->upload_file( $localfn, $dir_id, 'yes' );
 
@@ -162,8 +169,10 @@ class VD extends vDisk {
             $fid = $r[ 'data' ][ 'fid' ];
             dinfo( "fid: $fid" );
 
+
             $r = $this->move_file( $fid, $dir_id, $fn );
             if ( isok( $r ) ) {
+                $this->_update_flistcache( $dir_id );
                 dok( "Upload(moveed) to $path" );
             }
             else {
@@ -184,6 +193,31 @@ class VD extends vDisk {
         return $r;
     }
 
+    public function get_valid_fn( $dir_id, $fn ) {
+
+        for ( $i = 0; $i < 100; $i++ ) {
+
+            $f = $this->get_f( $dir_id, $fn );
+            if ( $f ) {
+                $parts = explode( ".", $fn );
+                if ( count( $parts ) > 1 ) {
+                    $ext = array_pop( $parts );
+                    $parts[ count( $parts ) - 1 ] .= "_";
+                    $fn = implode( '.', $parts ) . ".$ext";
+                }
+                else {
+                    $fn .= "_";
+                }
+            }
+            else {
+                dinfo( "Found a valid fn: $fn" );
+                return $fn;
+            }
+        }
+
+        return false;
+    }
+
     public function get_dirid_with_path( $path ) {
 
         if ( isset($this->_pathcache[ $path ]) ) {
@@ -195,9 +229,13 @@ class VD extends vDisk {
 
         $r = parent::get_dirid_with_path( $path );
 
+        dd( print_r( $r, true ) );
+
         if ( $r && $r[ 'err_code' ] == 0 ) {
             $dirid = $r[ 'data' ][ 'id' ];
             $this->_pathcache[ $path ] = $dirid;
+
+            dd( "got $path at dir_id: " . $dirid  );
         }
 
         return $r;
@@ -218,9 +256,7 @@ class VD extends vDisk {
             $path = "$path/$e";
 
             $r = $this->get_dirid_with_path( $path );
-            dd( print_r( $r, true ) );
             if ( isok( $r ) ) {
-                dd( "got $path at dir_id: " . $r[ 'data' ][ 'id' ]  );
                 $dir_id = $r[ 'data' ][ 'id' ];
                 continue;
             }
@@ -230,20 +266,6 @@ class VD extends vDisk {
                 $dir_id = $r[ 'data' ][ 'dir_id' ];
                 dd( "Dir created: $path $dir_id" );
                 $this->_pathcache[ $path ] = $dir_id;
-                continue;
-
-                /*
-                 * $r = $this->get_dirid_with_path( $path );
-                 * if ( $r ) {
-                 *     $dir_id = $r[ 'data' ][ 'id' ];
-                 *     dok( "Dir refetched: $path $dir_id" );
-                 *     continue;
-                 * }
-                 * else {
-                 *     derror( "Failure to get dir_id of just created path: $path" );
-                 *     return false;
-                 * }
-                 */
             }
             else {
                 derror( "Failed creating dir $e at dir_id=$dir_id" );
@@ -258,6 +280,34 @@ class VD extends vDisk {
 
         dinfo( "Dir created: $path dir_id={$r[ 'data' ][ 'id' ]}" );
         return $r;
+    }
+
+    function get_f( $dir_id, $fn ) {
+        if ( isset( $this->_flistcache[ $dir_id ] ) ) {
+            return $this->_flistcache[ $dir_id ][ $fn ];
+        }
+
+        if ( $this->_get_list( $dir_id ) ) {
+            return $this->_flistcache[ $dir_id ][ $fn ];
+        }
+        return false;
+    }
+
+    function _get_list( $dir_id ) {
+        $flist = parent::get_list( $dir_id );
+        if ( $flist ) {
+            $this->_flistcache[ $dir_id ] = array();
+            foreach ($flist as $e) {
+                $this->_flistcache[ $dir_id ][ $e[ 'name' ] ] = $e;
+            }
+        }
+
+        return $flist;
+    }
+
+    function _update_flistcache( $dir_id ) {
+        unset( $this->_flistcache[ $dir_id ] );
+        $this->_get_list( $dir_id );
     }
 }
 
@@ -296,32 +346,6 @@ function get_fid( &$vdisk, $path ) {
 
 
 
-function listdir( &$vdisk, $relpath ) {
-    if ( $_GET[ 'dirid' ] ) {
-        $dirid = $_GET[ 'dirid' ];
-    }
-    else {
-        $path = "$relpath";
-
-        $r = $vdisk->get_dirid_with_path( $path );
-        !$r && resmsg( "invalid_path", "非法路径:$path" );
-        if ( $r[ 'err_code' ] != 0 ) {
-            // TODO no such dir
-            resmsg( "ok", array() );
-        }
-
-        $dirid = $r[ 'data' ][ 'id' ];
-    }
-
-    $r = $vdisk->get_list( $dirid );
-    !$r && resmsg( "list", "列目录失败" );
-
-    if ( $r[ 'err_code' ] != 0 ) {
-        resmsg( "list", $r[ 'err_msg' ] );
-    }
-
-    return array( "rst" => "ok", "data" => $r[ 'data' ] );
-}
 function load( &$vdisk ) {
     $fid = $_GET[ 'fid' ];
     if ( $fid ) {

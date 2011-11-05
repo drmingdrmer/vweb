@@ -15,8 +15,6 @@ class Tweet {
 
     public $properties;
 
-
-
     static function extract_urls( $text ) {
 
         $matches = array();

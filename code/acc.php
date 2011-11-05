@@ -40,6 +40,7 @@ class Account
     function use_sess() {
         if ( $this->sess_has_acctoken() ) {
             $this->acctoken = $_SESSION[ 'acctoken' ];
+            dd( "load acc token from session:" . print_r( $_SESSION[ 'acctoken' ], true ) );
             // TODO do not need to load user from t everytime.
             return $this->t_load_user();
         }
@@ -72,7 +73,9 @@ class Account
 
     function vd_login() {
 
+        dd( "uid to login into vd is:" . $this->uid );
         $vdacc = $this->myuser->vdacc( $this->uid );
+        dd( "vdacc is:" . print_r( $vdacc, true ) );
 
         if ( $vdacc ) {
 
@@ -96,6 +99,7 @@ class Account
         dd( "load me: " . print_r( $r, true ) );
         if ( $r ){
             $this->t_user = $r;
+            $this->uid = $r[ 'id' ];
             $this->t = $c;
             return $this->save_user();
         }

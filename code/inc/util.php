@@ -11,8 +11,8 @@ function len( $what ) {
     return false;
 }
 
-function firstline( &$text ) {
-    return mb_substr( $text, 0, 40 );
+function firstline( &$text, $n = 40 ) {
+    return mb_substr( $text, 0, $n );
 }
 
 function arr_clone( $a ) {

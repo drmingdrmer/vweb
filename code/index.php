@@ -3,6 +3,8 @@
 session_start();
 
 include_once( $_SERVER["DOCUMENT_ROOT"] . "/acc.php" );
+include_once( $_SERVER["DOCUMENT_ROOT"] . "/inc/debug.php" );
+Logging::set_level( 'error' );
 
 
 
